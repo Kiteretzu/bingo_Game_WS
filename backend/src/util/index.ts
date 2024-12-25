@@ -5,6 +5,7 @@ export class Bingo {
     private checkedBoxes: BoxesName[] = [];
     private gameBoard: Partial<GameBoard> = {}; // gameBoard is a partial representation of the full GameBoard
     private LineCount : number;
+    private lineCheckBoxes: BoxesName[][] =[]
     constructor() {
         // Initialize the board using the provided function
         this.LineCount = 0
@@ -16,6 +17,10 @@ export class Bingo {
     }
     getCheckBoxes () {
         return this.checkedBoxes
+    }
+
+    getLineCheckBoxes () {
+        return this.lineCheckBoxes
     }
 
     add_value_to_Box(boxName: BoxesName, boxValue: BoxesValue): void {
@@ -50,6 +55,7 @@ export class Bingo {
         
             // If the subarray is fully matched, increment the counter
             if (isMatch) {
+            this.lineCheckBoxes.push(possibleLines[i])
               validCount++;
             }
           }
@@ -64,15 +70,13 @@ export class Bingo {
             if (this.gameBoard.hasOwnProperty(key) && this.gameBoard[key as BoxesName ] as BoxesValue === boxValue) {
                 // Push the key (box name) into Player_CheckedBoxes
                 if(this.checkedBoxes.includes(key as BoxesName)) throw new Error(`${key} is already marked`)
-                    
+
                 this.checkedBoxes.push(key as BoxesName);
             }
         }
 
         this.validations()
 
-        console.log(this.checkedBoxes) 
-        console.log("no of lines", this.LineCount)
     }
 
     

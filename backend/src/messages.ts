@@ -26,7 +26,10 @@ export interface ADD_CHECK_MARK_DATA {
   value: BoxesValue;
 }
 
-export type SEND_CHECKBOXES_DATA = BoxesName[]
+export interface SEND_CHECKBOXES_DATA {
+    checkedBoxes: BoxesName[]
+    checkedLines: BoxesName[][]
+}
 export type SEND_GAMEBOARD_DATA = Partial<GameBoard>
 export type SEND_ID_DATA = string
 

@@ -38,6 +38,7 @@ export class Game {
   }
 
 addCheck(currentPlayer: WebSocket, value: BoxesValue) {
+    
   if (Number(value) > 25) {
     sendPayload(currentPlayer, RESPONSE, "Value should be less than 25");
     return;
@@ -65,8 +66,16 @@ addCheck(currentPlayer: WebSocket, value: BoxesValue) {
     const waitingPlayer = isPlayer1 ? this.player2 : this.player1;
     sendPayload(waitingPlayer, ADD_CHECK_MARK, data);
 
-    // Send the updated checkboxes to both players
-    this.players.forEach((player, index) => sendPayload(player, SEND_CHECKBOXES, this.gameBoards[index].getCheckBoxes()));
+    
+    
+    this.players.forEach((player, index) => {
+
+        const data = {
+            checkedBoxes: this.gameBoards[index].getCheckBoxes(),
+            checkedLines: this.gameBoards[index].getLineCheckBoxes()
+        } 
+        sendPayload(player, SEND_CHECKBOXES, data)
+    });
 
     // Increment the move count
     this.moveCount++;

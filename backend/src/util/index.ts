@@ -2,7 +2,7 @@ import { boxes, possibleLines } from "./boxes_and_ways";
 import { BoxesName, BoxesValue, GameBoard, randomValuesForGameBoard } from "./gameBoards";
 
 export class Bingo {
-    private Player_CheckedBoxes: BoxesName[] = [];
+    private checkedBoxes: BoxesName[] = [];
     private gameBoard: Partial<GameBoard> = {}; // gameBoard is a partial representation of the full GameBoard
     private LineCount : number;
     constructor() {
@@ -13,6 +13,9 @@ export class Bingo {
     
     getGameBoard(){
         return this.gameBoard
+    }
+    getCheckBoxes () {
+        return this.checkedBoxes
     }
 
     add_value_to_Box(boxName: BoxesName, boxValue: BoxesValue): void {
@@ -39,7 +42,7 @@ export class Bingo {
             
             // Check if all elements of the current subarray are included in testArray
             for (let j = 0; j < possibleLines[i].length; j++) {
-              if (!this.Player_CheckedBoxes.includes(possibleLines[i][j])) {
+              if (!this.checkedBoxes.includes(possibleLines[i][j])) {
                 isMatch = false;
                 break;
               }
@@ -60,14 +63,15 @@ export class Bingo {
             // TypeScript assumes `key` is a string, but we want to ensure it's a key of GameBoard
             if (this.gameBoard.hasOwnProperty(key) && this.gameBoard[key as BoxesName ] as BoxesValue === boxValue) {
                 // Push the key (box name) into Player_CheckedBoxes
-                if(this.Player_CheckedBoxes.includes(key as BoxesName)) throw new Error(`${key} is already marked`)
-                this.Player_CheckedBoxes.push(key as BoxesName);
+                if(this.checkedBoxes.includes(key as BoxesName)) throw new Error(`${key} is already marked`)
+                    
+                this.checkedBoxes.push(key as BoxesName);
             }
         }
 
         this.validations()
 
-        console.log(this.Player_CheckedBoxes) 
+        console.log(this.checkedBoxes) 
         console.log("no of lines", this.LineCount)
     }
 

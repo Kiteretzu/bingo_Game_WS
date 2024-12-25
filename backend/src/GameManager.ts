@@ -1,6 +1,6 @@
 import { WebSocket } from "ws";
 import { Game } from "./Game";
-import { ADD_CHECK_MARK, GAME_INIT, Message } from "./messages";
+import { ADD_CHECK_MARK, ADD_CHECK_MARK_DATA, GAME_INIT, Message, MessageType } from "./messages";
 import { v4 as uuidv4 } from 'uuid';
 
 
@@ -29,7 +29,7 @@ export class GameManager {
       const message = JSON.parse(data.toString()) as Message
 
 
-      switch(message.type){
+      switch(message.type as MessageType){
         case GAME_INIT : {
           if(!this.pendingUser) {
             this.pendingUser = socket
@@ -44,11 +44,13 @@ export class GameManager {
           break;
         }
         case ADD_CHECK_MARK : {
-          const id = message.data.gameId;
+          const data = message.data as ADD_CHECK_MARK_DATA; // Cast message.data to AddCheckMarkData
+
+          const id = data.gameId;
           const game: Game | undefined = this.games.get(id)
           
           if (game) {
-          game.addCheck(socket, message.data.value);
+          game.addCheck(socket, data.value);
           }
           else {
             console.error('Error finding the game id')
@@ -56,7 +58,6 @@ export class GameManager {
           }
 
         }
-
       }
     });
   }

@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { BoxesValue, GameBoard } from "./util/gameBoards";
+import { Box, BoxesValue, GameBoard } from "./util/gameBoards";
 import { Bingo } from "./util";
 import { ADD_CHECK_MARK, ADD_CHECK_MARK_DATA, SEND_CHECKBOXES, SEND_GAMEBOARD, SEND_ID, RESPONSE } from "./messages";
 import { sendPayload } from "./helper/wsSend";
@@ -33,9 +33,9 @@ export class Game {
     sendPayload(player, SEND_ID, this.gameId)
 
       // Send game board to each player
-      sendPayload(player, SEND_GAMEBOARD, this.gameBoards[index].getGameBoard() as Partial<GameBoard>)
+      sendPayload(player, SEND_GAMEBOARD, this.gameBoards[index].getGameBoard() as Box[])
     });
-  }
+  } 
 
 addCheck(currentPlayer: WebSocket, value: BoxesValue) {
     

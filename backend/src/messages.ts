@@ -1,4 +1,4 @@
-import { BoxesName, BoxesValue, GameBoard } from "./util/gameBoards";
+import { Box, BoxesName, BoxesValue, GameBoard } from "./util/gameBoards";
 
 // Enum for message types
 export enum MessageType {
@@ -30,7 +30,7 @@ export interface SEND_CHECKBOXES_DATA {
     checkedBoxes: BoxesName[]
     checkedLines: BoxesName[][]
 }
-export type SEND_GAMEBOARD_DATA = Partial<GameBoard>
+export type SEND_GAMEBOARD_DATA = Box[]
 export type SEND_ID_DATA = string
 
 export type GameDataSend = ADD_CHECK_MARK_DATA | SEND_GAMEBOARD_DATA  | SEND_CHECKBOXES_DATA | SEND_ID_DATA

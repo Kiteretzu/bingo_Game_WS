@@ -1,4 +1,8 @@
 import React from 'react';
+import ResignButton from './buttons/ResignButton';
+import Cross from './CssComponents/Cross';
+import useDummyChecked from '@/hooks/useDummyChecked';
+import useLineData from '@/hooks/useLineData';
 
 const dummyData = [
   { boxName: "a", boxValue: "6" },
@@ -29,14 +33,63 @@ const dummyData = [
 ];
 
 function GameBoard() {
+  const { data, setData } = useDummyChecked();
+  const { lineData, setLineData } = useLineData()
+
+  const handleAddCheck = (e: React.MouseEvent<HTMLDivElement>) => {
+    const boxValue = e.currentTarget.dataset.boxValue; // Retrieve the boxValue
+    const boxName = e.currentTarget.dataset.boxName; // Retrieve the boxName
+
+    console.log("Box Value:", boxValue, "and Box Name:", boxName);
+
+    if (boxName) {
+      setData((prev) => [...prev, boxName]); // Add boxName to the state
+    }
+  };
+
   return (
-    <div className="w-full border max-w-md min-h-80">
+    <div className="w-full border border-[#535151] bg-[#0c0c0c] rounded-xl grid grid-cols-5 gap-1 p-2 max-w-md min-h-80">
       {dummyData.map((box) => (
-        <div key={box.boxName} className="box">
-          <p>{`${box.boxName}: ${box.boxValue}`}</p> {/* Display box name and value */}
-        </div>
-      ))}
-    </div>
+        data.includes(box.boxName) ? lineData ? (
+          <>
+            {lineData.map((each) => (
+              <div
+                key={box.boxName}
+                data-box-value={box.boxValue}
+                data-box-name={box.boxName}
+                onClick={handleAddCheck}
+                className="bg-green-600 rounded-lg cursor-not-allowed h-[88px] text-2xl text-black  border-slate-950 font-bold border flex items-center justify-center relative"
+              >
+                <Cross />
+                {box.boxValue} {/* Display box value */}
+              </div>
+            ))}
+          </>
+        ) : (<div
+          key={box.boxName}
+          data-box-value={box.boxValue}
+          data-box-name={box.boxName}
+          onClick={handleAddCheck}
+          className="bg-red-100/80 rounded-lg cursor-not-allowed h-[88px] text-2xl text-black  border-slate-950 font-bold border flex items-center justify-center relative"
+        >
+          <Cross />
+          {box.boxValue} {/* Display box value */}
+        </div>)
+
+          : (
+            <div
+              key={box.boxName}
+              data-box-value={box.boxValue}
+              data-box-name={box.boxName}
+              onClick={handleAddCheck}
+              className="bg-yellow-300 rounded-lg hover:bg-yellow-400/80 cursor-pointer h-[88px] hover:scale-105 text-2xl duration-200 border-slate-950 text-black font-bold border flex items-center justify-center relative"
+            >
+              {box.boxValue} {/* Display box value */}
+            </div>
+          )
+      ))
+      }
+    </div >
   );
 }
 

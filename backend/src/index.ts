@@ -15,7 +15,7 @@ wss.on('connection', function connection(ws) {
     // change it with user id // account
     const id : string = uuidv4()
 
-    clients.set(id, ws);
+clients.set(id, ws);
 
     console.log('This is the id assigened ', id)
     ws.send(`Session Id, ${id}`)

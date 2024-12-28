@@ -10,7 +10,7 @@ function Game() {
 
 
     return (
-        <div className="bg-[#101720] p-24 py-5 text-white w-full min-h-screen">
+        <div className="bg-gradient-to-t from-[#0c0c0c] via-[#171717]  to-[#101720]  p-24 py-5 text-white w-full min-h-screen">
             <h1 className="text-center my-9 text-lime-500/90 font-bold text-5xl">Bingo</h1>
             <div className='flex gap-x-11 justify-center '>
                 <PlayerDashBoard />

@@ -1,4 +1,4 @@
-import { GameDataSend, Message, MessageType } from "../messages";
+import { GameDataSend, Message, MessageType } from "../ws/messages";
 import { WebSocket } from "ws";
 
 export function sendPayload(

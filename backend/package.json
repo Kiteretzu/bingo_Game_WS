@@ -1,11 +1,10 @@
 {
   "name": "backend",
   "version": "1.0.0",
-  "main": "index.ts",
+  "main": "index.js",
   "scripts": {
-    "dev": "nodemon src/index.ts"
+    "dev": "tsc -b && node dist/index.js"
   },
-  "type": "module",
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -22,11 +21,13 @@
   },
   "dependencies": {
     "@apollo/server": "^4.11.2",
+    "@graphql-tools/merge": "^9.0.15",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
-    "express": "^4.21.2",
+    "express": "^4.21.1",
     "graphql": "^16.10.0",
     "graphql-passport": "^0.6.8",
+    "graphql-type-json": "^0.3.2",
     "overload-protection": "^1.2.3",
     "passport-google-oauth20": "^2.0.0",
     "uuid": "^11.0.3",

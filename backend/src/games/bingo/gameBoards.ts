@@ -1,4 +1,4 @@
-import { boxes, possibleLines } from "@/games/bingo/boxes_and_ways";
+import { boxes, possibleLines } from "../bingo/boxes_and_ways";
 
 // Define the box names from 'a' to 'y'
 export type BoxesName = 'a' | 'b' | 'c' | 'd' | 'e' | 'f' | 'g' | 'h' | 'i' | 'j' | 'k' | 'l' | 'm' | 'n' | 'o' | 'p' | 'q' | 'r' | 's' | 't' | 'u' | 'v' | 'w' | 'x' | 'y';

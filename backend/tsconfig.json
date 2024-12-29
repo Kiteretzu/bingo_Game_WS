@@ -1,18 +1,30 @@
 {
   "compilerOptions": {
-    "baseUrl": ".", // Base directory for resolving paths
+    /* Visit https://aka.ms/tsconfig to read more about this file */
+
+    "baseUrl": "./",  /* Specify the base directory to resolve non-relative module names. */
     "paths": {
-      "@/*": ["src/*"] // Alias "@" maps to the "src" directory
+      "@/*": ["src/*"]  /* Example alias for components folder */
     },
-    "target": "ES2020",
-    "moduleResolution": "node",
-    "module": "ESNext",
-    "outDir": "./dist",
-    "rootDir": "./src",
-    "strict": true,
-    "esModuleInterop": true,
-    "skipLibCheck": true
+
+    /* Language and Environment */
+    "target": "es2016",  /* Set the JavaScript language version for emitted JavaScript and include compatible library declarations. */
+    "module": "commonjs",  /* Specify what module code is generated. */
+    "rootDir": "./src",  /* Specify the root folder within your source files. */
+    "esModuleInterop": true,  /* Emit additional JavaScript to ease support for importing CommonJS modules. */
+    "forceConsistentCasingInFileNames": true,  /* Ensure that casing is correct in imports. */
+
+    /* Emit */
+    "outDir": "./dist",  /* Specify an output folder for all emitted files. */
+    "skipLibCheck": true,  /* Skip type checking all .d.ts files. */
+
+    /* Type Checking */
+    "strict": true  /* Enable all strict type-checking options. */
   },
-  "include": ["src"],
-  "exclude": ["node_modules"]
+  "include": [
+    "src/**/*.ts"
+  ],
+  "exclude": [
+    "node_modules"
+  ]
 }

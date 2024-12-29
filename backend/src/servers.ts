@@ -7,14 +7,14 @@ import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHt
 import protect from "overload-protection";
 
 // Ensure `typeDefs` and `resolvers` are correctly imported
-import { typeDefs } from "@/graphql/schema";
-import { resolvers } from "@/graphql/resolvers";
+import { typeDefs } from "./graphql/schema";
+import { resolvers } from "./graphql/resolvers";
 
-import { setupWebSocket } from "@/ws/websocket";
+import { setupWebSocket } from "./ws/websocket";
 import { expressMiddleware } from "@apollo/server/express4";
-import { ERROR_CODES, STATUS_CODES } from "@/errors";
-import { CustomError } from "@/helper/customError"; // Assuming CustomError class is defined as discussed
-import { buildContext } from "graphql-passport";
+import { ERROR_CODES, STATUS_CODES } from "./errors";
+import { CustomError } from "./helper/customError"; // Assuming CustomError class is defined as discussed
+import buildContext from "graphql-passport/lib/buildContext";
 
 dotenv.config(); // Load environment variables
 
@@ -29,8 +29,8 @@ export const setupApolloServer = async (httpServer: http.Server) => {
 
     await server.start();
     return server;
-  } catch (error) {
-    // If there's an error initializing Apollo, throw a CustomError with appropriate details
+  } catch (error: any) {
+    console.log('this is error', error.message)
     throw new CustomError(
       "Unable to initialize Apollo Server",
       STATUS_CODES.APOLLO_SERVER_ERROR,
@@ -40,7 +40,7 @@ export const setupApolloServer = async (httpServer: http.Server) => {
 };
 
 // Setup Express app middleware
-export const setupExpressApp = (
+export const setupExpressApp = async   (
   app: express.Express,
   apolloServer: ApolloServer
 ) => {
@@ -50,9 +50,12 @@ export const setupExpressApp = (
       "/graphql",
       cors<cors.CorsRequest>(),
       express.json(),
-      expressMiddleware(apolloServer)
-    );
-    return app;
+      // @ts-ignore // dont know why
+    expressMiddleware<any>(apolloServer, {
+        context: async ({ req, res }) => buildContext({ req, res } ),
+    }),
+);
+    return app; 
   } catch (error) {
     // In case of error setting up Express middleware, throw an appropriate error
     throw new CustomError(

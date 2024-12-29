@@ -28,7 +28,7 @@ export class GameManager {
     socket.on("message", (data) => {
       const message = JSON.parse(data.toString()) as Message
 
-
+      socket.send("Added!")
       switch(message.type as MessageType){
         case GAME_INIT : {
           if(!this.pendingUser) {

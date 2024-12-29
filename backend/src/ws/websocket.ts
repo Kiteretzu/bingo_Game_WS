@@ -2,20 +2,22 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { GameManager } from './GameManager';
 import { v4 as uuidv4 } from 'uuid';
 import { Server } from 'http';
-import { CustomError } from '@/helper/customError';  // Assuming CustomError class is defined
-import { STATUS_CODES } from '@/errors';
+import { CustomError } from '../helper/customError';  // Assuming CustomError class is defined
+import { STATUS_CODES } from '../errors';
 import { Socket } from 'dgram';
 
 interface ClientsMap {
     [key: string]: WebSocket; // Map of client IDs to WebSocket instances
 }
 
+let wss: WebSocketServer
+
 // Create WebSocket Server Logic
 export function setupWebSocket(server: Server): void {
-    const wss = new WebSocketServer({ server });
+    wss = new WebSocketServer({ server });
     const gameManager = new GameManager();
     const clients: ClientsMap = {}; // Object to store WebSocket connections
-
+    console.log('in here ws')
     wss.on('connection', (ws: WebSocket) => {
         const id = uuidv4(); // Generate a unique ID for each connection
         clients[id] = ws;
@@ -55,4 +57,11 @@ export function setupWebSocket(server: Server): void {
     });
 
     console.log('WebSocket server is running!');
+}
+
+export function getWebSocketServer(): WebSocketServer {
+    if (!wss) {
+        throw new Error("WebSocket server is not initialized");
+    }
+    return wss;
 }

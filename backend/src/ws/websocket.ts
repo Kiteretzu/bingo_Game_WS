@@ -2,6 +2,9 @@ import { WebSocketServer, WebSocket } from 'ws';
 import { GameManager } from './GameManager';
 import { v4 as uuidv4 } from 'uuid';
 import { Server } from 'http';
+import { CustomError } from '@/helper/customError';  // Assuming CustomError class is defined
+import { STATUS_CODES } from '@/errors';
+import { Socket } from 'dgram';
 
 interface ClientsMap {
     [key: string]: WebSocket; // Map of client IDs to WebSocket instances
@@ -21,18 +24,29 @@ export function setupWebSocket(server: Server): void {
         ws.send(`Your session ID: ${id}`);
         gameManager.addUser(ws);
 
-        // Handle messages
+        // Handle incoming messages
         ws.on('message', (message: string) => {
             console.log(`Received from ${id}:`, message);
-            // Handle game logic here...
+            try {
+                gameManager.addUser(ws)
+                // Handle game logic here, for example: // a todo??
+                // gameManager.handleMessage(ws, message);
+            } catch (error) {
+                console.error(`Error processing message from client ${id}:`, error);
+                ws.send('Error handling message. Please try again.');
+            }
         });
 
-        // Handle errors
+        // Handle WebSocket errors
         ws.on('error', (error: Error) => {
             console.error(`Error from client ${id}:`, error.message);
+            // Using CustomError to handle the error (but not throw it here directly)
+            const customError = new CustomError("Unable to initialize Express app",STATUS_CODES.WEBSOCKET_SERVER_ERROR , 'WEBSOCKET_SERVER_ERROR');
+            // Log the error or take further actions here
+            console.error(customError);
         });
 
-        // Handle disconnection
+        // Handle WebSocket disconnection
         ws.on('close', () => {
             delete clients[id];
             gameManager.removeUser(ws);

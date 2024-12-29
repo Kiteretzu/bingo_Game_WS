@@ -1,4 +1,4 @@
-import { Box, BoxesName, BoxesValue, GameBoard } from "../util/gameBoards";
+import { Box, BoxesName, BoxesValue, GameBoard } from "../games/bingo/gameBoards";
 
 // Enum for message types
 export enum MessageType {

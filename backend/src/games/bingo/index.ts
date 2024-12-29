@@ -1,4 +1,4 @@
-import { boxes, possibleLines } from "./boxes_and_ways";
+import { boxes, possibleLines } from "@/games/bingo/boxes_and_ways";
 import { BoxesName, BoxesValue, GameBoard, randomValuesForGameBoard } from "./gameBoards";
 
 export class Bingo {

@@ -1,6 +1,6 @@
 import { WebSocket } from "ws";
-import { Box, BoxesValue } from "../util/gameBoards";
-import { Bingo } from "../util";
+import { Box, BoxesValue } from "../games/bingo/gameBoards";
+import { Bingo } from "../games/bingo";
 import { ADD_CHECK_MARK, ADD_CHECK_MARK_DATA, SEND_CHECKBOXES, SEND_GAMEBOARD, SEND_ID, RESPONSE } from "./messages";
 import { sendPayload } from "../helper/wsSend";
 

@@ -8,20 +8,27 @@ export class Game {
   public gameId: string;
   public player1: WebSocket;
   public player2: WebSocket;
+  private player1_Data: string;
+  private player2_Data: string;
   private player1_GameBoard: Bingo;
   private player2_GameBoard: Bingo;
   private players: WebSocket[];
   private gameBoards: Bingo[];
   private moveCount: number
 
-  constructor(id: string, player1: WebSocket, player2: WebSocket) {
+  constructor(id: string, player1: WebSocket, player2: WebSocket, p1_data:string, p2_data:string) {
     this.gameId = id;
     this.moveCount = 1;
     this.player1 = player1;
     this.player2 = player2;
 
+    this.player1_Data = p1_data
+    this.player2_Data = p2_data
     this.player1_GameBoard = new Bingo();
     this.player2_GameBoard = new Bingo();
+
+    console.log('player1 data', this.player1_Data)
+    console.log('player2 data', this.player2_Data)
 
     // putting things assigend values array
     this.players = [player1, player2];

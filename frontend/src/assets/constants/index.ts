@@ -1,6 +1,3 @@
-import { Box, BoxesName, BoxesValue, GameBoard } from "../games/bingo/gameBoards";
-
-// Enum for message types
 export enum MessageType {
   GAME_INIT = 'game_init',
   CANCEL_GAME_INIT = 'cancel_game_init',
@@ -21,23 +18,3 @@ export const SEND_CHECKBOXES = MessageType.SEND_CHECKBOXES;
 export const SEND_GAMEBOARD = MessageType.SEND_GAMEBOARD
 export const SEND_ID = MessageType.SEND_ID
 export const RESPONSE = MessageType.RESPONSE
-// Data interface for the message data
-export interface ADD_CHECK_MARK_DATA {
-  gameId: string;
-  value: BoxesValue;
-}
-
-export interface SEND_CHECKBOXES_DATA {
-    checkedBoxes: BoxesName[]
-    checkedLines: BoxesName[][]
-}
-export type SEND_GAMEBOARD_DATA = Box[]
-export type SEND_ID_DATA = string
-
-export type GameDataSend = ADD_CHECK_MARK_DATA | SEND_GAMEBOARD_DATA  | SEND_CHECKBOXES_DATA | SEND_ID_DATA
-
-// Message interface with type constrained to the MessageType enum
-export interface Message {
-  type: MessageType;  // type is now an enum value
-  data: GameDataSend
-}

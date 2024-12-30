@@ -5,6 +5,7 @@ import { Server } from 'http';
 import { CustomError } from '../helper/customError';  // Assuming CustomError class is defined
 import { STATUS_CODES } from '../errors';
 import { Socket } from 'dgram';
+import { CANCEL_GAME_INIT, GAME_INIT, Message } from './messages';
 
 interface ClientsMap {
     [key: string]: WebSocket; // Map of client IDs to WebSocket instances
@@ -24,22 +25,9 @@ export function setupWebSocket(server: Server): void {
 
         console.log('New client connected. Assigned ID:', id);
         ws.send(`Your session ID: ${id}`);
-        gameManager.addUser(ws);
+           gameManager.addUser(ws)
 
-        // Handle incoming messages
-        ws.on('message', (message: string) => {
-            console.log(`Received from ${id}:`, message);
-            try {
-                gameManager.addUser(ws)
-                // Handle game logic here, for example: // a todo??
-                // gameManager.handleMessage(ws, message);
-            } catch (error) {
-                console.error(`Error processing message from client ${id}:`, error);
-                ws.send('Error handling message. Please try again.');
-            }
-        });
 
-        // Handle WebSocket errors
         ws.on('error', (error: Error) => {
             console.error(`Error from client ${id}:`, error.message);
             // Using CustomError to handle the error (but not throw it here directly)

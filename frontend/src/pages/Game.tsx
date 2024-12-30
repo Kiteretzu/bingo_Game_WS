@@ -1,4 +1,3 @@
-import React, { useEffect } from 'react';
 import GameBoard from '@/components/GameBoard';
 import { useSocket } from '@/hooks/useSocket';
 import PlayerDashBoard from '@/components/PlayerDashBoard';
@@ -6,8 +5,9 @@ import ResignButton from '@/components/buttons/ResignButton';
 import Messages from '@/components/Messages';
 
 function Game() {
-    const socket = useSocket()
+    const socket: WebSocket | null = useSocket()
 
+    if (!socket) return
 
     return (
         <div className="bg-gradient-to-t from-[#0c0c0c] via-[#171717]  to-[#101720]  p-24 py-5 text-white w-full min-h-screen">
@@ -16,13 +16,13 @@ function Game() {
                 <PlayerDashBoard />
                 <div className=' flex space-y-7 items-center flex-col w-full'>
                     <Messages />
-                    <GameBoard />
+                    <GameBoard socket={socket} />
                     <ResignButton />
                 </div>
                 <PlayerDashBoard />
 
             </div>
-            
+
         </div>
     );
 }

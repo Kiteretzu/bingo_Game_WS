@@ -1,0 +1,18 @@
+{
+  "name": "@repo/games",
+  "version": "1.0.0",
+  "main": "index.js",
+  "exports": {
+    "./game": "./src/bingo/index.ts",
+    "./gameBoard": "./src/bingo/gameBoards.ts",
+    "./box_and_ways": "./src/bingo/box_and_ways.ts",
+    "./messages": "./src/bingo/messages.ts"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": ""
+}

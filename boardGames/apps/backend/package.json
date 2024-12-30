@@ -1,0 +1,38 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc -b",
+    "dev": "tsc -b && node dist/index.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "devDependencies": {
+    "@types/cors": "^2.8.17",
+    "@types/express": "^5.0.0",
+    "@types/node": "^22.10.2",
+    "@types/overload-protection": "^1.2.4",
+    "@types/ws": "^8.5.13",
+    "nodemon": "^3.1.9",
+    "ts-node": "^10.9.2",
+    "typescript": "^5.7.2"
+  },
+  "dependencies": {
+    "@apollo/server": "^4.11.2",
+    "@graphql-tools/merge": "^9.0.15",
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.7",
+    "express": "^4.21.1",
+    "graphql": "^16.10.0",
+    "graphql-passport": "^0.6.8",
+    "graphql-type-json": "^0.3.2",
+    "overload-protection": "^1.2.3",
+    "passport-google-oauth20": "^2.0.0",
+    "uuid": "^11.0.3",
+    "ws": "^8.18.0",
+    "@repo/games": "workspace:*"
+  }
+}

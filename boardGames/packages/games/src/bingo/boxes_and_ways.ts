@@ -1,36 +1,22 @@
-import { BoxesName } from "./gameBoards";
+import { BoxesName } from "./messages";
 
 export const boxes: BoxesName[] = []; // Initialized with an empty array
+
+// Populate the boxes array with 'a' to 'y'
 for (let i = 97; i <= 121; i++) { // ASCII values for 'a' (97) to 'y' (121)
-  boxes.push(String.fromCharCode(i) as BoxesName)  // Fill boxes with 'a' to 'y'
+  boxes.push(String.fromCharCode(i) as BoxesName);  // Fill boxes with 'a' to 'y'
 }
 
 export const possibleLines: BoxesName[][] = [];
 
-/*
-total possible vertical lines
-[a,f,k,p,u,], [b,g,l,q,v],
-[c,h,m,r,w], [d,i,n,s,x],
-[e,j,o,t,y],
-
-total possible horzintal lines
-[a,b,c,d,e], [f,g,h,i,j]
-[k,l,m,n,o], [p,q,r,s,t]
-[u,v,w,x,y]
-
-total diagnol lines
-[a,g,m,s,y], [e,i,m,q,u]
-
-overall ways = 12 ways
-
-*/
-
-
 // Add vertical lines
 for (let i = 0; i < 5; i++) {
-  const verticalLine:BoxesName[] = [];
+  const verticalLine: BoxesName[] = [];
   for (let j = 0; j < 5; j++) {
-    verticalLine.push(boxes[i + j * 5]); // Calculate index for vertical line
+    const box = boxes[i + j * 5];
+    if (box) {
+      verticalLine.push(box); // Add only if it's not undefined
+    }
   }
   possibleLines.push(verticalLine);
 }
@@ -39,7 +25,10 @@ for (let i = 0; i < 5; i++) {
 for (let i = 0; i < 5; i++) {
   const horizontalLine: BoxesName[] = [];
   for (let j = 0; j < 5; j++) {
-    horizontalLine.push(boxes[i * 5 + j]); // Calculate index for horizontal line
+    const box = boxes[i * 5 + j];
+    if (box) {
+      horizontalLine.push(box); // Add only if it's not undefined
+    }
   }
   possibleLines.push(horizontalLine);
 }
@@ -47,8 +36,17 @@ for (let i = 0; i < 5; i++) {
 // Add diagonal lines
 const diagonal1: BoxesName[] = []; // Top-left to bottom-right
 const diagonal2: BoxesName[] = []; // Top-right to bottom-left
+
 for (let i = 0; i < 5; i++) {
-  diagonal1.push(boxes[i * 6]); // Indexes: 0, 6, 12, 18, 24
-  diagonal2.push(boxes[(i + 1) * 4]); // Indexes: 4, 8, 12, 16, 20
+  const box1 = boxes[i * 6];
+  if (box1) {
+    diagonal1.push(box1); // Add only if it's not undefined
+  }
+
+  const box2 = boxes[(i + 1) * 4];
+  if (box2) {
+    diagonal2.push(box2); // Add only if it's not undefined
+  }
 }
+
 possibleLines.push(diagonal1, diagonal2);

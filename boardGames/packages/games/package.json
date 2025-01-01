@@ -1,15 +1,23 @@
 {
   "name": "@repo/games",
   "version": "1.0.0",
-  "main": "index.js",
+  "main": "index.ts", 
     "exports": {
-    "./bingo": "./src/index.ts"
+    "./bingo": "./dist/bingo/index.js",
+    "./bingo/messages": "./dist/bingo/messages.js",
+    "./bingo/gameBoard": "./dist/bingo/gameBoards.js",
+    "./client/bingo/messages": "./src/bingo/messages.ts"
   },
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "tsc -b && node ./dist/index.js", 
+    "build": "tsc -b", 
+    "start": "node ./dist/index.js" 
   },
   "keywords": [],
   "author": "",
   "license": "ISC",
-  "description": ""
+  "description": "",
+  "dependencies": {
+        "@repo/typescript-config": "workspace:*"
+  }
 }

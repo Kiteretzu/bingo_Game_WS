@@ -1,15 +1,19 @@
 import { boxes, possibleLines } from "./boxes_and_ways";
-import { BoxesName, BoxesValue, GameBoard, randomValuesForGameBoard } from "./gameBoards";
+import {  randomValuesForGameBoard } from "./gameBoards";
+import { BoxesName, BoxesValue, GameBoard } from "./messages";
 
 export class Bingo {
-    private lineCheckBoxes: BoxesName[][] = [];
-    private checkedBoxes: BoxesName[]  = [];
-    private gameBoard: GameBoard = new Array(25).fill({ boxName: 'a', boxValue: '1' }); // Correct type initialization
-    private LineCount: number;
+    private LineCount: number; // Tracks the number of lines completed
+    public lineCheckBoxes: BoxesName[][]; // An array of arrays for storing matched lines
+    private checkedBoxes: BoxesName[]; // An array to keep track of checked boxes
+    private gameBoard: GameBoard; // Game board containing box names and values
 
     constructor() {
         this.LineCount = 0;
-        randomValuesForGameBoard(this.gameBoard); // Initialize the game board with random values
+        this.lineCheckBoxes = []; // Initialize lineCheckBoxes here
+        this.checkedBoxes = []; // Initialize checkedBoxes here
+        this.gameBoard = new Array(25).fill({ boxName: 'a', boxValue: '1' }); // Initialize game board
+        randomValuesForGameBoard(this.gameBoard); // Randomly fill the game board
     }
 
     getGameBoard() {
@@ -27,10 +31,8 @@ export class Bingo {
     add_value_to_Box(boxName: BoxesName, boxValue: BoxesValue): void {
         // Ensure the box name and value are valid
         if (boxes.includes(boxName) && Number(boxValue) >= 1 && Number(boxValue) <= 25) {
-            // Find the index in gameBoard and update the value
             const boxIndex = boxes.indexOf(boxName);
             if (boxIndex >= 0 && this.gameBoard[boxIndex]) {
-                // Update the game board with the new value for the specific box
                 this.gameBoard[boxIndex] = {
                     boxName,
                     boxValue
@@ -43,7 +45,7 @@ export class Bingo {
     }
 
     isVictory(): boolean {
-        return this.LineCount >= 5; // Assuming a win is when 5 lines are completed
+        return this.LineCount >= 5; // A win is when 5 lines are completed
     }
 
     private validations(): void {
@@ -76,9 +78,10 @@ export class Bingo {
     addCheckMark(boxValue: BoxesValue): void {
         // Iterate over the gameBoard and match the boxValue
         for (let i = 0; i < this.gameBoard.length; i++) {
-            // Check if the gameBoard entry is valid and contains the correct value
-            if (this.gameBoard[i] && this.gameBoard[i].boxValue === boxValue) {
-                const boxName = this.gameBoard[i].boxName; // Get box name
+            const box = this.gameBoard[i];
+            // Ensure that box is valid and contains the correct value
+            if (box && box.boxValue === boxValue) {
+                const boxName = box.boxName; // Get box name
 
                 // Check if already marked
                 if (this.checkedBoxes.includes(boxName)) {
@@ -90,6 +93,7 @@ export class Bingo {
             }
         }
 
+        // Validate the lines after the checkmark
         this.validations();
     }
 }

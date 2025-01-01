@@ -1,4 +1,4 @@
-export {Bingo} from './bingo/index'
-export * from "./bingo/messages";
+export * from "./bingo/index"
+export * from "./bingo/messages"
 export * from './bingo/gameBoards'
-console.log('test',)
+export * from './bingo/boxes_and_ways'

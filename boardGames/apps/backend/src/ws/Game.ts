@@ -1,7 +1,7 @@
 import { WebSocket } from "ws";
 import { Box, BoxesValue } from "@repo/games/gameBoard";
-import { Bingo } from "@repo/games/game"
-import { ADD_CHECK_MARK, ADD_CHECK_MARK_DATA, SEND_CHECKBOXES, SEND_GAMEBOARD, SEND_ID, RESPONSE, } from "@repo/games/messages";
+import { Bingo } from "@repo/games"
+import { ADD_CHECK_MARK, ADD_CHECK_MARK_DATA, SEND_CHECKBOXES, SEND_GAMEBOARD, SEND_ID, RESPONSE, } from "@repo/games/src/";
 import { sendPayload } from "../helper/wsSend";
 
 export class Game {

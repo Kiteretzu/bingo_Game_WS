@@ -1,11 +1,14 @@
 import { AppRoutes } from "./AppRoutes"
+import SocketContextProvider from "./context/SocketContext";
 
 
 function App() {
 
   return (
     <>
-    <AppRoutes />
+      <SocketContextProvider>
+        <AppRoutes />
+      </SocketContextProvider>
     </>
   )
 }

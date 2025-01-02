@@ -1,6 +1,6 @@
 import { GAME_INIT, MessageType, SEND_CHECKBOXES, SEND_GAMEBOARD } from '@repo/games/client/bingo'; // Removed unused `SEND_ID`
 import FindMatchButton from '@/components/buttons/FindMatchButton';
-import useGame from '@/hooks/useGame';
+import useGame from '@/hooks/useBingo';
 import { useSocket } from '@/hooks/useSocket';
 import React, { useEffect, useRef, useState } from 'react';
 

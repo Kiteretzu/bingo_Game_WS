@@ -2,7 +2,7 @@ import { WebSocket } from "ws";
 import { Game } from "./Game";
 import { v4 as uuidv4 } from "uuid";
 import { sendPayload } from "../helper/wsSend";
-import { GET_RESPONSE, Message, MessageType, PAYLOAD_PUT_CHECK_MARK, PAYLOAD_PUT_GAME_INIT, PUT_CANCEL_GAME_INIT, PUT_CHECK_MARK, PUT_GAME_INIT, RESPONSE_WAITING_PLAYER } from "@repo/games/client/bingo/messages";
+import { GET_RESPONSE, Message, MessageType, PAYLOAD_PUT_GET_CHECK_MARK, PAYLOAD_PUT_GAME_INIT, PUT_CANCEL_GAME_INIT, PUT_CHECK_MARK, PUT_GAME_INIT, RESPONSE_WAITING_PLAYER } from "@repo/games/client/bingo/messages";
 
 export class GameManager {
   private games: Map<string, Game>; // Number of games going on
@@ -73,7 +73,7 @@ export class GameManager {
           }
 
           case PUT_CHECK_MARK: {
-            const data = message as PAYLOAD_PUT_CHECK_MARK; // Cast message.data to ADD_CHECK_MARK_DATA
+            const data = message as PAYLOAD_PUT_GET_CHECK_MARK; // Cast message.data to ADD_CHECK_MARK_DATA
             const id = data.payload.gameId;
             const value = data.payload.value
             const game: Game | undefined = this.games.get(id);

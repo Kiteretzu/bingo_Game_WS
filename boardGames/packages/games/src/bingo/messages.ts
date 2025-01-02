@@ -73,9 +73,11 @@ export enum MessageType {
   // all get
   GET_RESPONSE = "get_server_response",
   GET_GAME = "get_game",
+  GET_CHECK_MARK = "get_check_mark",
+  GET_CHECKBOXES = "get_check_boxes",
+
   // consideration
   GET_GAME_ID = "get_game_id",
-  GET_CHECKBOXES = "get_check_boxes",
   GET_GAMEBOARD = "send_game_board",
 }
 
@@ -87,6 +89,7 @@ export const PUT_GAME_INIT = MessageType.PUT_GAME_INIT;
 export const PUT_CANCEL_GAME_INIT = MessageType.PUT_CANCEL_GAME_INIT;
 export const PUT_VALUE_TO_BOX = MessageType.PUT_VALUE_TO_BOX;
 export const PUT_CHECK_MARK = MessageType.PUT_CHECK_MARK;
+export const GET_CHECK_MARK = MessageType.GET_CHECK_MARK
 export const GET_RESPONSE = MessageType.GET_RESPONSE;
 export const GET_GAME = MessageType.GET_GAME;
 export const GET_CHECKBOXES = MessageType.GET_CHECKBOXES;
@@ -107,8 +110,15 @@ export interface PAYLOAD_GET_GAME {
   }
 }
 
-export interface PAYLOAD_PUT_CHECK_MARK {
-  type: MessageType.PUT_CHECK_MARK
+export interface PAYLOAD_GET_RESPONSE {
+  type: MessageType.GET_RESPONSE
+  payload: {
+    message: string
+  }
+}
+
+export interface PAYLOAD_PUT_GET_CHECK_MARK {
+  type: MessageType.PUT_CHECK_MARK | MessageType.GET_CHECK_MARK
   payload: {
     gameId: string;
     value: BoxesValue;

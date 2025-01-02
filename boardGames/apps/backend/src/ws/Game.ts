@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { Box, BoxesValue,GET_RESPONSE, GET_GAME,  PAYLOAD_GET_GAME, PAYLOAD_PUT_CHECK_MARK, PUT_CHECK_MARK, GET_CHECKBOXES } from "@repo/games/client/bingo/messages";
+import { Box, BoxesValue,GET_RESPONSE, GET_GAME,  PAYLOAD_GET_GAME, PUT_CHECK_MARK, GET_CHECKBOXES, PAYLOAD_PUT_GET_CHECK_MARK, GET_CHECK_MARK } from "@repo/games/client/bingo/messages";
 import { Bingo } from "@repo/games/bingo"
 import { sendPayload } from "../helper/wsSend";
 
@@ -72,8 +72,8 @@ addCheck(currentPlayer: WebSocket, value: BoxesValue) {
     this.gameBoards.forEach((gameBoard) => gameBoard.addCheckMark(value));
 
     // Send the check mark data to the opponent
-    const data: PAYLOAD_PUT_CHECK_MARK = {
-      type: PUT_CHECK_MARK,
+    const data: PAYLOAD_PUT_GET_CHECK_MARK = {
+      type: GET_CHECK_MARK,
       payload: {
         gameId: this.gameId,
         value,

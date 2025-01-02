@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import Cross from './CssComponents/Cross';
 // import useDummyChecked from '@/hooks/useDummyChecked';
 // import useLineData from '@/hooks/useLineData';
-import useGame from '@/hooks/useGame';
+import useGame from '@/hooks/useBingo';
 import { ADD_CHECK_MARK } from '@repo/games/client/bingo';
 
 // const dummyData = [

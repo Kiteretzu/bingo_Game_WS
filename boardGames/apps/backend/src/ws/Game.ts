@@ -1,7 +1,6 @@
 import { WebSocket } from "ws";
-import { Box, BoxesValue } from "@repo/games/gameBoard";
-import { Bingo } from "@repo/games"
-import { ADD_CHECK_MARK, ADD_CHECK_MARK_DATA, SEND_CHECKBOXES, SEND_GAMEBOARD, SEND_ID, RESPONSE, } from "@repo/games/src/";
+import { Box, BoxesValue,GET_RESPONSE, GET_GAME,  PAYLOAD_GET_GAME, PAYLOAD_PUT_CHECK_MARK, PUT_CHECK_MARK, GET_CHECKBOXES } from "@repo/games/client/bingo/messages";
+import { Bingo } from "@repo/games/bingo"
 import { sendPayload } from "../helper/wsSend";
 
 export class Game {
@@ -35,19 +34,26 @@ export class Game {
     this.gameBoards = [this.player1_GameBoard, this.player2_GameBoard];
 
 
+    // Send game info
     this.players.forEach((player, index) => {
-      // Send gameId
-    sendPayload(player, SEND_ID, this.gameId)
 
-      // Send game board to each player
-      sendPayload(player, SEND_GAMEBOARD, this.gameBoards[index].getGameBoard() as Box[])
+      const sending_game_data : PAYLOAD_GET_GAME = {
+        type: GET_GAME,
+        payload: {
+      gameId: this.gameId,
+      players: [this.player1_Data, this.player2_Data],
+      gameBoard: this.gameBoards[index].getGameBoard()
+        }
+      }
+    sendPayload(player, GET_GAME, sending_game_data)
+  
     });
   } 
 
 addCheck(currentPlayer: WebSocket, value: BoxesValue) {
     
   if (Number(value) > 25) {
-    sendPayload(currentPlayer, RESPONSE, "Value should be less than 25");
+    sendPayload(currentPlayer, GET_RESPONSE, "Value should be less than 25");
     return;
   }
 
@@ -57,7 +63,7 @@ addCheck(currentPlayer: WebSocket, value: BoxesValue) {
   const isPlayer2Turn = this.moveCount % 2 === 0 && isPlayer2;
 
   if (!(isPlayer1Turn || isPlayer2Turn)) {
-    sendPayload(currentPlayer, RESPONSE, "Please wait for your turn");
+    sendPayload(currentPlayer, GET_RESPONSE, "Please wait for your turn");
     return;
   }
 
@@ -66,12 +72,16 @@ addCheck(currentPlayer: WebSocket, value: BoxesValue) {
     this.gameBoards.forEach((gameBoard) => gameBoard.addCheckMark(value));
 
     // Send the check mark data to the opponent
-    const data: ADD_CHECK_MARK_DATA = {
-      gameId: this.gameId,
-      value,
+    const data: PAYLOAD_PUT_CHECK_MARK = {
+      type: PUT_CHECK_MARK,
+      payload: {
+        gameId: this.gameId,
+        value,
+      }
     };
+    
     const waitingPlayer = isPlayer1 ? this.player2 : this.player1;
-    sendPayload(waitingPlayer, ADD_CHECK_MARK, data);
+    sendPayload(waitingPlayer, data.type, data);
 
     
     
@@ -81,13 +91,13 @@ addCheck(currentPlayer: WebSocket, value: BoxesValue) {
             checkedBoxes: this.gameBoards[index].getCheckBoxes(),
             checkedLines: this.gameBoards[index].getLineCheckBoxes()
         } 
-        sendPayload(player, SEND_CHECKBOXES, data)
+        sendPayload(player, GET_CHECKBOXES, data)
     });
 
     // Increment the move count
     this.moveCount++;
   } catch (error: any) {
-    sendPayload(currentPlayer, RESPONSE, error.message);
+    sendPayload(currentPlayer, GET_RESPONSE, error.message);
   }
 }
 }

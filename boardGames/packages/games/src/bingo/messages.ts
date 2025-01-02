@@ -99,9 +99,12 @@ export interface DATA {
 }
 
 export interface PAYLOAD_GET_GAME {
-  gameId: string;
-  players: string[]; // change it to sockets later
-  gameBoard: Box[];
+  type: MessageType.GET_GAME
+  payload: {
+    gameId: string;
+    players: string[]; // change it to sockets later
+    gameBoard: Box[];
+  }
 }
 
 export interface PAYLOAD_PUT_CHECK_MARK {
@@ -109,13 +112,15 @@ export interface PAYLOAD_PUT_CHECK_MARK {
   payload: {
     gameId: string;
     value: BoxesValue;
-
   }
 }
 
 export interface PAYLOAD_GET_CHECKBOXES {
-  checkedBoxes: BoxesName[];
-  checkedLines: BoxesName[][];
+  type: MessageType.GET_CHECKBOXES
+  payload: {
+    checkedBoxes: BoxesName[];
+    checkedLines: BoxesName[][];
+  }
 }
 
 export interface PAYLOAD_PUT_GAME_INIT {

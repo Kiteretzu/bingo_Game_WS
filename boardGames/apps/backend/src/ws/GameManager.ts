@@ -1,14 +1,8 @@
 import { WebSocket } from "ws";
 import { Game } from "./Game";
-import {
-  ADD_CHECK_MARK,
-  ADD_CHECK_MARK_DATA,
-  CANCEL_GAME_INIT,
-  GAME_INIT,
-  Message,
-  MessageType,
-} from "@repo/games/messages";
 import { v4 as uuidv4 } from "uuid";
+import { sendPayload } from "../helper/wsSend";
+import { GET_RESPONSE, Message, MessageType, PAYLOAD_PUT_CHECK_MARK, PAYLOAD_PUT_GAME_INIT, PUT_CANCEL_GAME_INIT, PUT_CHECK_MARK, PUT_GAME_INIT, RESPONSE_WAITING_PLAYER } from "@repo/games/client/bingo/messages";
 
 export class GameManager {
   private games: Map<string, Game>; // Number of games going on
@@ -39,18 +33,17 @@ export class GameManager {
 
         // Handle different message types
         switch (message.type as MessageType) {
-          case GAME_INIT: {
+          case PUT_GAME_INIT: {
+            const data = message as PAYLOAD_PUT_GAME_INIT
             if (!this.pendingUser) {
-              console.log("INSIDE CASE 🥲");
               this.pendingUser = socket;
-              this.pendingUserData = message.data as string;
-              socket.send("Waiting for another player...");
+              this.pendingUserData = data.payload.data as string; // for now
+              sendPayload(socket, GET_RESPONSE, RESPONSE_WAITING_PLAYER )
             }  
            else{
               if(this.pendingUser == socket) {
                 return
               }
-              console.log('else also working? ❤️',)
               const newGameId = uuidv4(); // Assigning game ID to find games fast
               console.log("GameId: ", newGameId);
               const newGame = new Game(
@@ -58,7 +51,7 @@ export class GameManager {
                 this.pendingUser,
                 socket,
                 this.pendingUserData,
-                message.data as string
+                data.payload.data
               );
               this.games.set(newGameId, newGame);
               socket.send(`Game started with ID: ${newGameId}`);
@@ -68,7 +61,7 @@ export class GameManager {
             break;
           }
 
-          case CANCEL_GAME_INIT: {
+          case PUT_CANCEL_GAME_INIT: {
             console.log('working 🤨',)
             const user = this.users.find((user) => user !== socket);
             if (user) {
@@ -79,13 +72,14 @@ export class GameManager {
             break; // Add break here
           }
 
-          case ADD_CHECK_MARK: {
-            const data = message.data as ADD_CHECK_MARK_DATA; // Cast message.data to ADD_CHECK_MARK_DATA
-            const id = data.gameId;
+          case PUT_CHECK_MARK: {
+            const data = message as PAYLOAD_PUT_CHECK_MARK; // Cast message.data to ADD_CHECK_MARK_DATA
+            const id = data.payload.gameId;
+            const value = data.payload.value
             const game: Game | undefined = this.games.get(id);
 
             if (game) {
-              game.addCheck(socket, data.value);
+              game.addCheck(socket, value);
             } else {
               console.error("Error finding the game ID");
               socket.send("Game ID not found");

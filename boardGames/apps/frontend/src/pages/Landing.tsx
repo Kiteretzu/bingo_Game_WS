@@ -1,4 +1,4 @@
-import { GAME_INIT, MessageType, SEND_CHECKBOXES, SEND_GAMEBOARD } from '@repo/games/bingo'; // Removed unused `SEND_ID`
+import { GAME_INIT, MessageType, SEND_CHECKBOXES, SEND_GAMEBOARD } from '@repo/games/client/bingo'; // Removed unused `SEND_ID`
 import FindMatchButton from '@/components/buttons/FindMatchButton';
 import useGame from '@/hooks/useGame';
 import { useSocket } from '@/hooks/useSocket';
@@ -6,32 +6,10 @@ import React, { useEffect, useRef, useState } from 'react';
 
 function Landing() {
     const inputRef = useRef<HTMLInputElement | null>(null); // Reference for input field
-    const socket = useSocket(); // WebSocket hook
     const [isFinding, setIsFinding] = useState(false); // State for matchmaking status
-    const { getMessage, sendMessage } = useGame(); // Custom hook to handle game actions
+    const { sendMessage } = useGame(); // Custom hook to handle game actions
 
-    useEffect(() => {
-        if (!socket) return
-        socket.onmessage = (message: MessageEvent) => {
-            console.log('m i mussing something?',)
-            switch (message.type as MessageType) {
-                case SEND_GAMEBOARD: {
-                    console.log("hello in here case send landingPage");
-                    getMessage(SEND_GAMEBOARD, message.data)
-                    break;
-                }
-                case SEND_CHECKBOXES: {
-                    getMessage(SEND_CHECKBOXES, message.data)
-                    break;
-                }
 
-                case GAME_INIT: {
-                    getMessage(GAME_INIT, message.data)
-                    break;
-                }
-            }
-        };
-    }, [socket]);
 
     const handleFindMatch = () => {
         const inputValue = inputRef.current?.value?.trim(); // Ensure input is trimmed

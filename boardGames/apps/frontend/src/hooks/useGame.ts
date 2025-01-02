@@ -1,13 +1,11 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import {
-  ADD_CHECK_MARK,
-  ADD_VALUE_TO_BOX,
-  GAME_INIT,
+  PUT_VALUE_TO_BOX,
+  PUT_GAME_INIT,
   MessageType,
-  SEND_CHECKBOXES,
-  SEND_GAMEBOARD,
-} from "@repo/games/bingoGame";
-import { useState } from "react";
+  PUT_CHECK_MARK,
+  GET_GAME
+} from "@repo/games/client/bingo/messages";
+import { useEffect, useState } from "react";
 import { useSocket } from "./useSocket";
 
 interface WebSocketData {
@@ -19,11 +17,40 @@ function useGame() {
   const [gameBoard, setGameBoard] = useState<null | any>(null);
   const [checkedBoxes, setCheckedBoxes] = useState<null | any>(null);
   const [checkedLines, setCheckedLines] = useState<null | any>(null);
-  const [gameId, setGameId] = useState<null | string >(null)
+  const [gameId, setGameId] = useState<null | string>(null);
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const [gameLoading, setGameLoading] = useState<boolean>(false)
+  const [gameLoading, setGameLoading] = useState<boolean>(false);
+
   const socket = useSocket(); // for sending messages
 
+  useEffect(() => {
+    console.log('how many times running',)
+    if (!socket) return;
+
+    socket.onmessage = (message: MessageEvent) => {
+      const parsedMessage = JSON.parse(message.data)
+      console.log("m i mussing something?", parsedMessage);
+      switch (parsedMessage.type as MessageType) {
+        case SEND_GAMEBOARD: {
+          console.log("hello in here case send landingPage");
+          getMessage(SEND_GAMEBOARD, parsedMessage.data);
+          break;
+        }
+        case SEND_CHECKBOXES: {
+          console.log("he;;p");
+          getMessage(SEND_CHECKBOXES, parsedMessage.data);
+          break;
+        }
+
+        case PUT_GAME_INIT: {
+          console.log('got message from gane.init',)
+          getMessage(GAME_INIT, parsedMessage.data);
+          break;
+        }
+      }
+    };
+
+  }, [socket]);
 
   const getMessage = (type: MessageType, data: any) => {
     switch (type as MessageType) {
@@ -38,15 +65,15 @@ function useGame() {
         break;
       }
       case GAME_INIT: {
-          setGameId(data)
-        }
+        setGameId(data);
+      }
     }
   };
 
   const sendMessage = (type: MessageType, value: string) => {
     if (!socket) return;
     switch (type) {
-      case ADD_CHECK_MARK: {
+      case PUT_CHECK_MARK: {
         const sendingData: WebSocketData = {
           type,
           data: value,
@@ -54,7 +81,7 @@ function useGame() {
         socket.send(JSON.stringify(sendingData));
         break;
       }
-      case ADD_VALUE_TO_BOX: {
+      case PUT_VALUE_TO_BOX: {
         const sendingData: WebSocketData = {
           type,
           data: "lol",
@@ -75,7 +102,15 @@ function useGame() {
     }
   };
 
-  return { gameBoard, checkedBoxes, checkedLines, gameId, gameLoading, sendMessage, getMessage };
+  return {
+    gameBoard,
+    checkedBoxes,
+    checkedLines,
+    gameId,
+    gameLoading,
+    sendMessage,
+    getMessage,
+  };
 }
 
 export default useGame;

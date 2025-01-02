@@ -3,7 +3,7 @@ import Cross from './CssComponents/Cross';
 // import useDummyChecked from '@/hooks/useDummyChecked';
 // import useLineData from '@/hooks/useLineData';
 import useGame from '@/hooks/useGame';
-import { ADD_CHECK_MARK } from '@repo/games/bingo';
+import { ADD_CHECK_MARK } from '@repo/games/client/bingo';
 
 // const dummyData = [
 //   { boxName: "a", boxValue: "6" },

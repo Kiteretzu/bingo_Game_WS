@@ -49,32 +49,36 @@ export class Bingo {
         return this.LineCount >= 5; // A win is when 5 lines are completed
     }
 
-    private validations(): void {
-        let validCount = 0; // Counter to track valid subarrays
+private validations(): void {
+    let validCount = 0; // Counter to track valid subarrays
 
-        // Iterate through each subarray in possibleLines
-        for (let i = 0; i < possibleLines.length; i++) {
-            let isMatch = true;
+    // Clear `lineCheckBoxes` to avoid duplicates
+    this.lineCheckBoxes = [];
 
-            // Check if all elements of the current subarray are included in checkedBoxes
-            for (let j = 0; j < possibleLines[i].length; j++) {
-                if (!this.checkedBoxes.includes(possibleLines[i][j])) {
-                    isMatch = false;
-                    break;
-                }
-            }
+    // Iterate through each subarray in possibleLines
+    for (let i = 0; i < possibleLines.length; i++) {
+        let isMatch = true;
 
-            // If the subarray is fully matched, increment the counter
-            if (isMatch) {
-                this.lineCheckBoxes.push(possibleLines[i]);
-                validCount++;
+        // Check if all elements of the current subarray are included in checkedBoxes
+        for (let j = 0; j < possibleLines[i].length; j++) {
+            if (!this.checkedBoxes.includes(possibleLines[i][j])) {
+                isMatch = false;
+                break;
             }
         }
 
-        this.LineCount = validCount;
-
-        if (this.isVictory()) throw new Error("Game has been won");
+        // If the subarray is fully matched, add it to lineCheckBoxes
+        if (isMatch) {
+            this.lineCheckBoxes.push(possibleLines[i]);
+            validCount++;
+        }
     }
+
+    this.LineCount = validCount;
+
+    // Check if the game is won
+    if (this.isVictory()) throw new Error("Game has been won");
+}
 
     addCheckMark(boxValue: BoxesValue): void {
         // Iterate over the gameBoard and match the boxValue

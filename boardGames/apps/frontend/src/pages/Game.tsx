@@ -1,4 +1,4 @@
-import GameBoard from '@/components/GameBoard';
+import GameBoard from '@/components/BingoBoard';
 import { useSocket } from '@/hooks/useSocket';
 import PlayerDashBoard from '@/components/PlayerDashBoard';
 import ResignButton from '@/components/buttons/ResignButton';
@@ -16,7 +16,7 @@ function Game() {
                 <PlayerDashBoard />
                 <div className=' flex space-y-7 items-center flex-col w-full'>
                     <Messages />
-                    <GameBoard socket={socket} />
+                    <GameBoard  />
                     <ResignButton />
                 </div>
                 <PlayerDashBoard />

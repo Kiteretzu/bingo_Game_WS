@@ -4,7 +4,6 @@ import { v4 as uuidv4 } from "uuid";
 import { Server } from "http";
 import { CustomError } from "../helper/customError"; // Assuming CustomError class is defined
 import { STATUS_CODES } from "../errors";
-import { Socket } from "dgram";
 
 interface ClientsMap {
   [key: string]: WebSocket; // Map of client IDs to WebSocket instances

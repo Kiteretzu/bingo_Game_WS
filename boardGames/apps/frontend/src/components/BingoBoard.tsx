@@ -7,15 +7,9 @@ import { Box, BoxesName, BoxesValue, PUT_CHECK_MARK } from '@repo/games/client/b
 import { useAppSelector } from '@/store/hooks';
 
 
-function GameBoard({ socket }: { socket: WebSocket }) {
+function GameBoard() {
 
-  const { addCheck } = useBingo()
-
-  const checkedBoxes = useAppSelector(state => state.bingo.checks.checkedBoxes)
-  const gameBoard = useAppSelector(state => state.bingo.game.gameBoard)
-  const checkedLines = useAppSelector(state => state.bingo.checks.checkedLines)
-  console.log({ checkedBoxes })
-  console.log({ checkedLines })
+  const { addCheck, checkedBoxes, gameBoard, checkedLines } = useBingo()
 
   const handleAddCheck = (e: React.MouseEvent<HTMLDivElement>) => {
     const boxValue = e.currentTarget.dataset.boxValue;

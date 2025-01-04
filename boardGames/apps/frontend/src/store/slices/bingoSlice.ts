@@ -6,14 +6,13 @@ interface BingoState {
     game: {
         gameId: string
         gameBoard: Box[] | null;
-        players: String[]
+        players: string[]
     }
     checks: {
         checkedBoxes: BoxesName[] | null;
         checkedLines: BoxesName[][] | null;
     }
 }
-
 // Initial state
 const initialState: BingoState = {
     game: {
@@ -22,7 +21,7 @@ const initialState: BingoState = {
         players: []
     },
     checks: {
-        checkedBoxes: [],
+        checkedBoxes: ["a"],
         checkedLines: []
     }
 };

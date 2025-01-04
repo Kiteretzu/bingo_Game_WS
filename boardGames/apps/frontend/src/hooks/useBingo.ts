@@ -15,108 +15,125 @@ import {
   GET_CHECK_MARK,
   BoxesValue,
   PAYLOAD_PUT_GAME_INIT,
-  PUT_GAME_INIT
+  PUT_GAME_INIT,
+  PUT_CANCEL_GAME_INIT,
+  PAYLOAD_PUT_CANCEL_GAME_INIT,
 } from "@repo/games/client/bingo/messages";
 import { useEffect, useState } from "react";
-import { useSocket } from "./useSocket";
 import { useSocketContext } from "@/context/SocketContext";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { initialGameboard, setChecks } from "@/store/slices/bingoSlice";
-import { useActionData } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
+function useBingo() {
+  const reduxState = useAppSelector((state) => ({
+    gameBoard: state.bingo.game.gameBoard,
+    checkedBoxes: state.bingo.checks.checkedBoxes,
+    checkedLines: state.bingo.checks.checkedLines,
+    gameId: state.bingo.game.gameId,
+    players: state.bingo.game.players,
+  }));
 
-function useGame() {
+  const [gameId, setGameId] = useState(reduxState.gameId)
+  const [players, setPlayers] = useState(reduxState.players)
+  const [gameBoard, setGameBoard] = useState<Box[] | null>(reduxState.gameBoard);
+  const [checkedBoxes, setCheckedBoxes] = useState<BoxesName[] | null>(reduxState.checkedBoxes);
+  const [checkedLines, setCheckedLines] = useState<BoxesName[][] | null>(reduxState.checkedLines);
 
-
-  const [gameBoard, setGameBoard] = useState<Box[] | null>(useAppSelector(state => state.bingo.game.gameBoard));
-  const [checkedBoxes, setCheckedBoxes] = useState<BoxesName[] | null>(useAppSelector(state => state.bingo.checks.checkedBoxes));
-  const [checkedLines, setCheckedLines] = useState<BoxesName[][] | null>(useAppSelector(state => state.bingo.checks.checkedLines));
-  const [gameId, setGameId] = useState<string>(useAppSelector(state => state.bingo.game.gameId))
-  const [players, setPlayers] = useState(useAppSelector(state => state.bingo.game.players))
-  const [lastValue, setLastValue] = useState<BoxesValue| "">("")
-  const [response, setResponse] = useState<string>("")
+  const [lastValue, setLastValue] = useState<BoxesValue | "">("");
+  const [response, setResponse] = useState<string>("");
   const [gameLoading, setGameLoading] = useState<boolean>(true);
-  const [socket, setSocket] = useState(useSocketContext())
-  
+  const [socket] = useState<WebSocket>(useSocketContext());
+  const [isFinding, setIsFinding] = useState<boolean>(false);
 
   const dispatch = useAppDispatch();
-  
-  if(!gameBoard) setGameLoading(false)
+  const navigate = useNavigate();
 
-    // all the reciving logics
+  // Function to send data over socket
+  function sendData(type: string, payload: any) {
+    socket.send(JSON.stringify({ type, payload }));
+  }
+
+  useEffect(() => {
+    setGameBoard(reduxState.gameBoard);
+    setCheckedBoxes(reduxState.checkedBoxes);
+    setCheckedLines(reduxState.checkedLines);
+  }, [reduxState.checkedBoxes, reduxState.checkedLines]);
+
+
+  // Sync game board loading state when gameBoard is available
+  useEffect(() => {
+    if (!gameBoard) setGameLoading(false);
+  }, [gameBoard]);
+
+  // Handle receiving socket messages
   useEffect(() => {
     if (!socket) return;
 
     socket.onmessage = (message: MessageEvent) => {
-      const parsedMessage = JSON.parse(message.data) as Message
+      const parsedMessage = JSON.parse(message.data) as Message;
       console.log("parsedMessage: ", parsedMessage);
 
-
       switch (parsedMessage.type as MessageType) {
-
         case GET_RESPONSE: {
-          const data = parsedMessage as PAYLOAD_GET_RESPONSE
-          setResponse(data.payload.message)
+          const data = parsedMessage as PAYLOAD_GET_RESPONSE;
+          setResponse(data.payload.message);
           break;
         }
 
         case GET_GAME: {
-          const data = parsedMessage as PAYLOAD_GET_GAME
-          console.log('got message from get game',)
-          dispatch(initialGameboard(data))
+          const data = parsedMessage as PAYLOAD_GET_GAME;
+          setIsFinding(false);
+          dispatch(initialGameboard(data));
+          navigate(`/game/${data.payload.gameId}`);
           break;
         }
+
         case GET_CHECKBOXES: {
-          const data = parsedMessage as PAYLOAD_GET_CHECKBOXES
-          dispatch(setChecks(data))
+          const data = parsedMessage as PAYLOAD_GET_CHECKBOXES;
+          console.log('inHeree!!!',)
+          dispatch(setChecks(data));
           break;
         }
-        // rare case maybe use for setting response
+
         case GET_CHECK_MARK: {
-          const data = parsedMessage as PAYLOAD_PUT_GET_CHECK_MARK
-          setLastValue(data.payload.value)
+          const data = parsedMessage as PAYLOAD_PUT_GET_CHECK_MARK;
+          setLastValue(data.payload.value);
+          break;
         }
       }
     };
+  }, [socket, dispatch, navigate]);
 
-  }, [socket]);
+  const findMatch = (name: string) => {
+    setIsFinding(true);
+    sendData(PUT_GAME_INIT, { data: name });
+  };
 
-  // temperaory sending string, in future just send userId
-  const findMatch  = (name: string) => {
-    const sendingData : PAYLOAD_PUT_GAME_INIT = {
-      type: PUT_GAME_INIT,
-      payload: {
-        data: name
-      }
-    }
-    socket.send(JSON.stringify(sendingData))
-  }
+  const cancelFindMatch = () => {
+    setIsFinding(false);
+    sendData(PUT_CANCEL_GAME_INIT, {});
+  };
 
   const addCheck = (value: BoxesValue) => {
-    const sendingData : PAYLOAD_PUT_GET_CHECK_MARK = {
-      type: PUT_CHECK_MARK,
-      payload: {
-        gameId: gameId,
-        value
-      }
-    }
-
-    socket.send(JSON.stringify(sendingData))
-  }
-
+    sendData(PUT_CHECK_MARK, { gameId, value });
+  };
 
   return {
     socket,
     gameBoard,
+    players,
     checkedBoxes,
+    isFinding,
     checkedLines,
     gameId,
     gameLoading,
     response,
     lastValue,
     findMatch,
-    addCheck
+    addCheck,
+    cancelFindMatch,
   };
 }
 
-export default useGame;
+export default useBingo;

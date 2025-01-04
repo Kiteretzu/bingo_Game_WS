@@ -1,65 +1,26 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import Cross from './CssComponents/Cross';
 // import useDummyChecked from '@/hooks/useDummyChecked';
 // import useLineData from '@/hooks/useLineData';
-import useGame from '@/hooks/useBingo';
-import { ADD_CHECK_MARK } from '@repo/games/client/bingo';
+import useBingo from '@/hooks/useBingo';
+import { Box, BoxesName, BoxesValue, PUT_CHECK_MARK } from '@repo/games/client/bingo/messages';
+import { useAppSelector } from '@/store/hooks';
 
-// const dummyData = [
-//   { boxName: "a", boxValue: "6" },
-//   { boxName: "b", boxValue: "13" },
-//   { boxName: "c", boxValue: "9" },
-//   { boxName: "d", boxValue: "7" },
-//   { boxName: "e", boxValue: "2" },
-//   { boxName: "f", boxValue: "17" },
-//   { boxName: "g", boxValue: "3" },
-//   { boxName: "h", boxValue: "21" },
-//   { boxName: "i", boxValue: "10" },
-//   { boxName: "j", boxValue: "16" },
-//   { boxName: "k", boxValue: "20" },
-//   { boxName: "l", boxValue: "8" },
-//   { boxName: "m", boxValue: "1" },
-//   { boxName: "n", boxValue: "4" },
-//   { boxName: "o", boxValue: "5" },
-//   { boxName: "p", boxValue: "24" },
-//   { boxName: "q", boxValue: "12" },
-//   { boxName: "r", boxValue: "11" },
-//   { boxName: "s", boxValue: "22" },
-//   { boxName: "t", boxValue: "15" },
-//   { boxName: "u", boxValue: "19" },
-//   { boxName: "v", boxValue: "18" },
-//   { boxName: "w", boxValue: "23" },
-//   { boxName: "x", boxValue: "25" },
-//   { boxName: "y", boxValue: "14" }
-// ];
-
-interface Box {
-  boxName: string,
-  boxValue: string
-}
 
 function GameBoard({ socket }: { socket: WebSocket }) {
-  // const { data, setData } = useDummyChecked();
-  // const { lineData } = useLineData();
 
-  // if (!socket) {return}
-  const { gameBoard, checkedBoxes, checkedLines, sendMessage } = useGame()
+  const { addCheck } = useBingo()
 
-  useEffect(() => {
-    socket.onmessage = (e: MessageEvent) => {
-      console.log('thjis is the message ingameboard ', JSON.stringify(e))
-    }
-
-  }, [socket])
-
-
-  console.log('this is gameBoard', gameBoard)
+  const checkedBoxes = useAppSelector(state => state.bingo.checks.checkedBoxes)
+  const gameBoard = useAppSelector(state => state.bingo.game.gameBoard)
+  const checkedLines = useAppSelector(state => state.bingo.checks.checkedLines)
+  console.log({ checkedBoxes })
+  console.log({ checkedLines })
 
   const handleAddCheck = (e: React.MouseEvent<HTMLDivElement>) => {
-    const boxName = e.currentTarget.getAttribute('data-box-name');
-    if (boxName) {
-      sendMessage(ADD_CHECK_MARK, boxName); // Assuming `addCheckMark` is used to handle clicks
-    }
+    const boxValue = e.currentTarget.dataset.boxValue;
+    if (!boxValue) throw new Error("Invalid Box Value thrown")
+    addCheck(boxValue as BoxesValue)
   };
 
   if (!gameBoard) return null
@@ -67,9 +28,10 @@ function GameBoard({ socket }: { socket: WebSocket }) {
   return (
     <div className="w-full border border-[#535151] bg-[#0c0c0c] rounded-xl grid grid-cols-5 gap-1 p-2 max-w-md min-h-80">
       {gameBoard.map((box: Box) => {
-        const isChecked = checkedBoxes.includes(box.boxName);
+        const isChecked = checkedBoxes?.includes(box.boxName);
+        console.log('isChecked', isChecked)
         const isInLineData =
-          checkedLines && checkedLines.some((line: string[]) => line.includes(box.boxName));
+          checkedLines && checkedLines.some((line: BoxesName[]) => line.includes(box.boxName));
 
         return (
           <div

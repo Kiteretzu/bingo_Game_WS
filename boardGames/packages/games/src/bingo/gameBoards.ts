@@ -24,12 +24,8 @@ export function randomValuesForGameBoard(gameBoard: GameBoard) {
 
     // Shuffle the array
     const shuffledValues = shuffleArray(values) as number[]
-
-    // Iterate over the boxes array and assign shuffled values
-    boxes.forEach((box, index) => {
-        const boxName = Object.keys(box)[0] as BoxesName; // Get the key, i.e., 'a', 'b', etc.
+    boxes.forEach((boxName, index) => {
         const boxValue = shuffledValues[index]?.toString() as BoxesValue; // Get the shuffled value and cast it
-
         // Ensure the game board has the correct structure and assign the shuffled value
         gameBoard[index] = { boxName, boxValue };
     });

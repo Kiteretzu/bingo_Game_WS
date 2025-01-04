@@ -30,7 +30,7 @@ export class GameManager {
     socket.on("message", (data) => {
       try {
         const message = JSON.parse(data.toString()) as Message;
-
+        console.log('this is raw message string', message)
         // Handle different message types
         switch (message.type as MessageType) {
           case PUT_GAME_INIT: {

@@ -1,47 +1,14 @@
-import { GAME_INIT, MessageType, SEND_CHECKBOXES, SEND_GAMEBOARD } from '@repo/games/client/bingo'; // Removed unused `SEND_ID`
+import React, { useRef } from 'react';
 import FindMatchButton from '@/components/buttons/FindMatchButton';
-import useGame from '@/hooks/useBingo';
-import { useSocket } from '@/hooks/useSocket';
-import React, { useEffect, useRef, useState } from 'react';
+import useBingo from '@/hooks/useBingo';
 
 function Landing() {
-    const inputRef = useRef<HTMLInputElement | null>(null); // Reference for input field
-    const [isFinding, setIsFinding] = useState(false); // State for matchmaking status
-    const { sendMessage } = useGame(); // Custom hook to handle game actions
-
-
+    const inputNameRef = useRef<HTMLInputElement>(null); // Create a ref for the input element
+    const { isFinding, findMatch, cancelFindMatch } = useBingo();
 
     const handleFindMatch = () => {
-        const inputValue = inputRef.current?.value?.trim(); // Ensure input is trimmed
-        if (!inputValue) {
-            console.error('Name is required to find a match.');
-            return;
-        }
-
-        setIsFinding(true);
-        console.log('Input value:', inputValue);
-
-        // Send game initialization data
-        try {
-            sendMessage(GAME_INIT, inputValue);
-        } catch (error) {
-            console.error('Error sending game initialization data:', error);
-            setIsFinding(false); // Reset state on error
-        }
-    };
-
-    // Function to handle matchmaking cancellation
-    const handleCancel = () => {
-        setIsFinding(false);
-        console.log('Matchmaking canceled.');
-
-        // Send cancellation data to the server
-        const cancelData = { type: 'cancel_game_init' };
-        try {
-            socket?.send(JSON.stringify(cancelData));
-        } catch (error) {
-            console.error('Error sending cancel data to WebSocket:', error);
-        }
+        const inputName = inputNameRef.current?.value || "safeZone" // Fallback to default if ref is null or empty
+        findMatch(inputName);
     };
 
     return (
@@ -50,13 +17,14 @@ function Landing() {
                 <h1 className="text-3xl font-bold text-white mb-4">Welcome to the Game</h1>
                 <p className="text-gray-400 mb-6">Enter your name to start playing</p>
                 <input
-                    ref={inputRef}
+                    ref={inputNameRef} // Attach the ref to the input element
                     type="text"
+                    defaultValue={"guest#" + Math.floor(Math.random() * 100).toString()} // Default value for the input
                     placeholder="Enter your name"
                     className="w-full px-4 py-2 text-gray-900 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 mb-4"
                 />
                 <FindMatchButton
-                    cancelFindMatch={handleCancel}
+                    cancelFindMatch={cancelFindMatch}
                     isFinding={isFinding}
                     findMatch={handleFindMatch}
                 />

@@ -1,32 +1,5 @@
 // Define the box names from 'a' to 'y'
-export type BoxesName =
-  | "a"
-  | "b"
-  | "c"
-  | "d"
-  | "e"
-  | "f"
-  | "g"
-  | "h"
-  | "i"
-  | "j"
-  | "k"
-  | "l"
-  | "m"
-  | "n"
-  | "o"
-  | "p"
-  | "q"
-  | "r"
-  | "s"
-  | "t"
-  | "u"
-  | "v"
-  | "w"
-  | "x"
-  | "y"
-  | "";
-
+export type BoxesName = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "";
 // Define the possible values for each box, from '1' to '25'
 export type BoxesValue =
   | "1"
@@ -138,6 +111,10 @@ export interface PAYLOAD_PUT_GAME_INIT {
   payload: {
     data: string // change it to something else
   }
+}
+
+export interface PAYLOAD_PUT_CANCEL_GAME_INIT {
+  type : MessageType.PUT_CANCEL_GAME_INIT
 }
 
 export type SEND_GAMEBOARD_DATA = Box[];

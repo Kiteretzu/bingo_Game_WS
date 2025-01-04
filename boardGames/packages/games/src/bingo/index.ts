@@ -14,6 +14,7 @@ export class Bingo {
         this.checkedBoxes = []; // Initialize checkedBoxes here
         this.gameBoard = new Array(25).fill({ boxName: 'a', boxValue: '1' }); // Initialize game board
         randomValuesForGameBoard(this.gameBoard); // Randomly fill the game board
+        console.log('this is the BOARD!!', this.gameBoard)
     }
 
     getGameBoard() {

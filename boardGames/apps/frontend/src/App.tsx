@@ -6,9 +6,7 @@ function App() {
 
   return (
     <>
-      <SocketContextProvider>
-        <AppRoutes />
-      </SocketContextProvider>
+      <AppRoutes />
     </>
   )
 }

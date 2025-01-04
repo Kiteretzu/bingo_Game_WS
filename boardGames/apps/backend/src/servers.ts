@@ -15,8 +15,8 @@ import { expressMiddleware } from "@apollo/server/express4";
 import { ERROR_CODES, STATUS_CODES } from "./errors";
 import { CustomError } from "./helper/customError"; // Assuming CustomError class is defined as discussed
 import buildContext from "graphql-passport/lib/buildContext";
-
-dotenv.config(); // Load environment variables
+import passport from "passport";
+import { configurePassport } from "passport/config";
 
 // Initialize Apollo Server
 export const setupApolloServer = async (httpServer: http.Server) => {
@@ -30,7 +30,7 @@ export const setupApolloServer = async (httpServer: http.Server) => {
     await server.start();
     return server;
   } catch (error: any) {
-    console.log('this is error', error.message)
+    console.log("this is error", error.message);
     throw new CustomError(
       "Unable to initialize Apollo Server",
       STATUS_CODES.APOLLO_SERVER_ERROR,
@@ -40,22 +40,26 @@ export const setupApolloServer = async (httpServer: http.Server) => {
 };
 
 // Setup Express app middleware
-export const setupExpressApp = async   (
+export const setupExpressApp = async (
   app: express.Express,
   apolloServer: ApolloServer
 ) => {
   try {
     app.use(protect("express")); // Overload protection
+    app.use(express.json());
+    app.use(passport.initialize());
+    configurePassport()
+    
     app.use(
       "/graphql",
       cors<cors.CorsRequest>(),
-      express.json(),
       // @ts-ignore // dont know why
-    expressMiddleware<any>(apolloServer, {
-        context: async ({ req, res }) => buildContext({ req, res } ),
-    }),
-);
-    return app; 
+      expressMiddleware<any>(apolloServer, {
+        context: async ({ req, res }) => buildContext({ req, res }),
+      })
+    );
+
+    return app;
   } catch (error) {
     // In case of error setting up Express middleware, throw an appropriate error
     throw new CustomError(

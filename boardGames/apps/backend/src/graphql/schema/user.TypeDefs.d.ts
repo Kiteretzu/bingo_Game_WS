@@ -1,2 +1,0 @@
-export declare const userTypeDef = "#graphql\n  scalar JSON\n\n  type User {\n    id: ID!\n    name: String!\n    password: String!\n    isStudent: Boolean!\n    userType: String!\n    validEmail: Boolean\n    email: String!\n    createdAt: String  # Using DateTime instead of Date\n    guardianContactNo: String\n    otp: String\n  }\n\n  # Query Definitions\n  type Query {\n    authUser: User\n    user(userId: ID!): User\n    test(message: JSON): String\n  }\n";
-//# sourceMappingURL=user.TypeDefs.d.ts.map

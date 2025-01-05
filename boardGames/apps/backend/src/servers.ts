@@ -49,7 +49,7 @@ export const setupExpressApp = async (
     app.use(express.json());
     app.use(passport.initialize());
     configurePassport()
-    
+
     app.use(
       "/graphql",
       cors<cors.CorsRequest>(),
@@ -60,10 +60,10 @@ export const setupExpressApp = async (
     );
 
     return app;
-  } catch (error) {
+  } catch (error: any) {
     // In case of error setting up Express middleware, throw an appropriate error
     throw new CustomError(
-      "Unable to initialize Express app",
+      `Unable to initialize Express app: ${error.message}`,
       STATUS_CODES.EXPRESS_SERVER_ERROR,
       ERROR_CODES.EXPRESS
     );

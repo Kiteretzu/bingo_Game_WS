@@ -2,7 +2,7 @@ import passport from "passport";
 import { Strategy as GoogleStrategy } from "passport-google-oauth20";
 import { Strategy as JwtStrategy, ExtractJwt } from "passport-jwt";
 import jwt from "jsonwebtoken";
-import prisma from './prisma'; // Your prisma instance
+// import prisma from './prisma'; // Your prpisma instance
 
 export const configurePassport = () => {
     // Google OAuth strategy

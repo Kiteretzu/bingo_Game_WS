@@ -5,7 +5,7 @@ import { setupApolloServer, setupExpressApp, setupWebSocket } from './servers'; 
 import { ApolloServer } from '@apollo/server';
 import buildContext from 'graphql-passport/lib/buildContext';
 
-dotenv.config();  // Load environment variables
+dotenv.config({path: '../../.env'});  // Load environment variables
 
 const startServer = async () => {
   try {
@@ -28,8 +28,8 @@ const startServer = async () => {
     httpServer.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}/graphql`);
     });
-  } catch (error) {
-    console.error('Error initializing the server:', error);
+  } catch (error: any) {
+    console.error('Error initializing the server:', error.message);
     process.exit(1);  // Exit the process if server fails to start
   }
 };

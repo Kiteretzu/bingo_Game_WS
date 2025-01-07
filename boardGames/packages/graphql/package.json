@@ -1,0 +1,30 @@
+{
+  "name": "@repo/graphql",
+  "version": "1.0.0",
+  "main": "index.js",
+  "exports": {
+    "./types/server": "./generated/graphql-backend.ts",
+    "./types/client": "./generated/graphql-frontend.ts"
+  },
+  "scripts": {
+    "dev": "pnpm run codegen",
+    "codegen": "graphql-codegen --config codegen.ts"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@apollo/client": "^3.12.4",
+    "apollo-server-express": "^3.13.0",
+    "graphql": "^16.10.0"
+  },
+  "devDependencies": {
+    "@graphql-codegen/cli": "5.0.3",
+    "@graphql-codegen/typescript": "4.1.2",
+    "@graphql-codegen/typescript-operations": "^4.4.0",
+    "@graphql-codegen/typescript-react-apollo": "^4.3.2",
+    "@graphql-codegen/typescript-resolvers": "4.4.1",
+    "typescript": "^5.7.2"
+  }
+}

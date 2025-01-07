@@ -1,16 +1,17 @@
 import { User, Trophy, Swords } from "lucide-react";
 import { useState } from "react";
 import clsx from "clsx";
-
+import axios from "axios";
+import { useNavigate } from "react-router-dom";
 
 export default function ProfileDashboard() {
   // State for tracking if the user is logged in
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-  const handleLogin = () => {
-    // Simulate logging in (this is where you would add your Google login logic)
-    setIsLoggedIn(true);
+  const handleGoogleLogin = () => {
+    window.location.href = "http://localhost:8080/auth/google";
   };
+
 
   const handleLogout = () => {
     // Simulate logging out
@@ -51,10 +52,10 @@ export default function ProfileDashboard() {
         // Button for logging in with Google if not logged in
         <div className="flex justify-center items-center space-x-4">
           <button
-            onClick={handleLogin}
+            onClick={handleGoogleLogin}
             className="flex items-center justify-center bg-blue-600 text-white p-4 rounded-lg shadow-md hover:bg-blue-700 transition duration-300 ease-in-out"
           >
-              <img src="https://icon2.cleanpng.com/20181108/wls/kisspng-youtube-google-logo-google-images-google-account-consulting-crm-the-1-recommended-crm-for-g-suite-1713925039962.webp" className="w-6 h-6 mr-3" alt="Google Logo" />
+            <img src="https://icon2.cleanpng.com/20181108/wls/kisspng-youtube-google-logo-google-images-google-account-consulting-crm-the-1-recommended-crm-for-g-suite-1713925039962.webp" className="w-6 h-6 mr-3" alt="Google Logo" />
             <span className="font-semibold text-lg">Login with Google</span>
           </button>
         </div>

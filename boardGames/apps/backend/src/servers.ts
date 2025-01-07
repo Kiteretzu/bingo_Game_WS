@@ -1,5 +1,4 @@
 import express from "express";
-import dotenv from "dotenv";
 import http from "http";
 import cors from "cors";
 import { ApolloServer } from "@apollo/server";
@@ -7,23 +6,23 @@ import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHt
 import protect from "overload-protection";
 
 // Ensure `typeDefs` and `resolvers` are correctly imported
-import { typeDefs } from "./graphql/schema";
-import { resolvers } from "./graphql/resolvers";
-
+import { schema } from "./routes/graphql/schema";
+buildContext
 import { setupWebSocket } from "./ws/websocket";
 import { expressMiddleware } from "@apollo/server/express4";
 import { ERROR_CODES, STATUS_CODES } from "./errors";
 import { CustomError } from "./helper/customError"; // Assuming CustomError class is defined as discussed
-import buildContext from "graphql-passport/lib/buildContext";
 import passport from "passport";
 import { configurePassport } from "passport/config";
+import authRouter from "routes/auth";
+import { buildContext } from "graphql-passport";
+import customContext from "helper/customContext";
 
 // Initialize Apollo Server
 export const setupApolloServer = async (httpServer: http.Server) => {
   try {
     const server = new ApolloServer({
-      typeDefs,
-      resolvers,
+      schema,
       plugins: [ApolloServerPluginDrainHttpServer({ httpServer })],
     });
 
@@ -47,15 +46,28 @@ export const setupExpressApp = async (
   try {
     app.use(protect("express")); // Overload protection
     app.use(express.json());
-    app.use(passport.initialize());
-    configurePassport()
+    // Enable CORS for all origins
+    app.use(
+      cors({
+        origin: "http://localhost:5173", // Allow your frontend origin
+        methods: ["GET", "POST", "PUT", "DELETE"],
+        allowedHeaders: ["Content-Type", "Authorization"],
+        credentials: true, // Allow cookies or authentication headers
+      })
+    );
 
+
+
+    app.use(passport.initialize());
+    configurePassport();
+
+    app.use("/auth", authRouter);
     app.use(
       "/graphql",
       cors<cors.CorsRequest>(),
       // @ts-ignore // dont know why
       expressMiddleware<any>(apolloServer, {
-        context: async ({ req, res }) => buildContext({ req, res }),
+        context: async ({ req, res }) => customContext({req, res}),
       })
     );
 

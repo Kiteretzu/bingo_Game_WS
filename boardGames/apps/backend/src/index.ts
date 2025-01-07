@@ -4,11 +4,11 @@ import dotenv from 'dotenv';  // Load environment variables
 import { setupApolloServer, setupExpressApp, setupWebSocket } from './servers';  // Import the app initialization functions
 import { ApolloServer } from '@apollo/server';
 import buildContext from 'graphql-passport/lib/buildContext';
-
 dotenv.config({path: '../../.env'});  // Load environment variables
 
 const startServer = async () => {
   try {
+    console.log("Secert", process.env.GOOGLE_CLIENT_SECRET!)
     // Initialize Express app and HTTP server
     const app = express();
     const httpServer = http.createServer(app);

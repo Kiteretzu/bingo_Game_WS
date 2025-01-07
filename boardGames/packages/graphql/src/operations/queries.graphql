@@ -1,0 +1,13 @@
+query landingPage {
+  authUser {
+    displayName
+    email
+    avatar
+    bingoProfile {
+      totalMatches
+      wins
+      losses
+      league
+    }
+  }
+}

@@ -15,7 +15,6 @@ export default function Dashboard() {
                     <div className='grow'>
                         <ProfileDashboard />
                     </div>
-                 
                 </div>
                 <div className="col-span-1 row-span-3">
                     <GameHistory />

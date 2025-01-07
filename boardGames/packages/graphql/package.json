@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "exports": {
+    "./typdefs": "./src/typeDefs/index.ts",
     "./types/server": "./generated/graphql-backend.ts",
     "./types/client": "./generated/graphql-frontend.ts"
   },

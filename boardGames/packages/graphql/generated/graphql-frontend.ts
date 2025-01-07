@@ -110,14 +110,14 @@ export enum Win_Method {
   Resignation = 'RESIGNATION'
 }
 
-export type LandingPageQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type LandingPageQuery = { __typename?: 'Query', authUser?: { __typename?: 'User', displayName?: string | null, email?: string | null, avatar?: string | null, bingoProfile?: { __typename?: 'BingoProfile', totalMatches?: number | null, wins?: number | null, losses?: number | null, league?: Leagues | null } | null } | null };
+export type GetProfileQuery = { __typename?: 'Query', authUser?: { __typename?: 'User', displayName?: string | null, email?: string | null, avatar?: string | null, bingoProfile?: { __typename?: 'BingoProfile', totalMatches?: number | null, wins?: number | null, losses?: number | null, league?: Leagues | null } | null } | null };
 
 
-export const LandingPageDocument = gql`
-    query landingPage {
+export const GetProfileDocument = gql`
+    query getProfile {
   authUser {
     displayName
     email
@@ -133,33 +133,33 @@ export const LandingPageDocument = gql`
     `;
 
 /**
- * __useLandingPageQuery__
+ * __useGetProfileQuery__
  *
- * To run a query within a React component, call `useLandingPageQuery` and pass it any options that fit your needs.
- * When your component renders, `useLandingPageQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetProfileQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetProfileQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useLandingPageQuery({
+ * const { data, loading, error } = useGetProfileQuery({
  *   variables: {
  *   },
  * });
  */
-export function useLandingPageQuery(baseOptions?: Apollo.QueryHookOptions<LandingPageQuery, LandingPageQueryVariables>) {
+export function useGetProfileQuery(baseOptions?: Apollo.QueryHookOptions<GetProfileQuery, GetProfileQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<LandingPageQuery, LandingPageQueryVariables>(LandingPageDocument, options);
+        return Apollo.useQuery<GetProfileQuery, GetProfileQueryVariables>(GetProfileDocument, options);
       }
-export function useLandingPageLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<LandingPageQuery, LandingPageQueryVariables>) {
+export function useGetProfileLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProfileQuery, GetProfileQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<LandingPageQuery, LandingPageQueryVariables>(LandingPageDocument, options);
+          return Apollo.useLazyQuery<GetProfileQuery, GetProfileQueryVariables>(GetProfileDocument, options);
         }
-export function useLandingPageSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<LandingPageQuery, LandingPageQueryVariables>) {
+export function useGetProfileSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProfileQuery, GetProfileQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<LandingPageQuery, LandingPageQueryVariables>(LandingPageDocument, options);
+          return Apollo.useSuspenseQuery<GetProfileQuery, GetProfileQueryVariables>(GetProfileDocument, options);
         }
-export type LandingPageQueryHookResult = ReturnType<typeof useLandingPageQuery>;
-export type LandingPageLazyQueryHookResult = ReturnType<typeof useLandingPageLazyQuery>;
-export type LandingPageSuspenseQueryHookResult = ReturnType<typeof useLandingPageSuspenseQuery>;
-export type LandingPageQueryResult = Apollo.QueryResult<LandingPageQuery, LandingPageQueryVariables>;
+export type GetProfileQueryHookResult = ReturnType<typeof useGetProfileQuery>;
+export type GetProfileLazyQueryHookResult = ReturnType<typeof useGetProfileLazyQuery>;
+export type GetProfileSuspenseQueryHookResult = ReturnType<typeof useGetProfileSuspenseQuery>;
+export type GetProfileQueryResult = Apollo.QueryResult<GetProfileQuery, GetProfileQueryVariables>;

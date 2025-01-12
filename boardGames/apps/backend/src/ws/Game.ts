@@ -14,11 +14,14 @@ import {
   WinMethodTypes,
   PlayerData,
   PlayerGameboardData,
+  TossDecision,
 } from "@repo/games/client/bingo/messages";
 import { Bingo } from "@repo/games/bingo";
 import { sendPayload } from "../helper/wsSend";
 import { client } from "@repo/db/client";
-import { redis_newGame } from "@repo/redis-worker/test";
+import { redis_addMove, redis_newGame, redis_tossGameUpdate } from "@repo/redis-worker/test";
+
+
 
 export class Game {
   public gameId: string;
@@ -29,6 +32,7 @@ export class Game {
   private playerSockets: WebSocket[];
   private playerBoards: Bingo[];
   private playerGameboardData: PlayerGameboardData[];
+  private tossWinner : string // put playerId here
 
   constructor(
     gameId: string,
@@ -57,6 +61,13 @@ export class Game {
     console.log('CHKECER!!!!!', this.playerGameboardData)
     console.log("First player data", this.playerData[0]);
     console.log("Second player data", this.playerData[1]);
+    
+    // Decision of toss winner
+    if(Math.random() <0.50) {
+      this.tossWinner = this.playerData[0].user.bingoProfile.id
+    } else {
+      this.tossWinner = this.playerData[1].user.bingoProfile.id
+    }
 
     // Send game info
     this.playerSockets.forEach((socket, index) => {
@@ -64,15 +75,16 @@ export class Game {
         type: GET_GAME,
         payload: {
           gameId: this.gameId,
+          tossWinner: this.tossWinner,
           players: this.playerData ,
           gameBoard: this.playerBoards[index].getGameBoard(),
         },
       };
       sendPayload(socket, GET_GAME, gameData);
     });
-
+    
     // redisHandle
-redis_newGame(this.gameId, this.playerData, this.playerGameboardData )
+redis_newGame(this.gameId, this.tossWinner, this.playerData,  this.playerGameboardData )
 
   }
 
@@ -109,6 +121,7 @@ redis_newGame(this.gameId, this.playerData, this.playerGameboardData )
 
       const waitingPlayerSocket = isFirstPlayer ? this.p2_socket : this.p1_socket;
       sendPayload(waitingPlayerSocket, GET_CHECK_MARK, checkMarkData);
+      redis_addMove(this.gameId, this.moveCount, value, Date.now())
 
       // sending all checkBoxes data
       this.playerSockets.forEach((socket, index) => {
@@ -129,6 +142,24 @@ redis_newGame(this.gameId, this.playerData, this.playerGameboardData )
       sendPayload(currentPlayerSocket, GET_RESPONSE, error.message);
     }
   }
+
+tossDecision(currentPlayerSocket: WebSocket, decision: TossDecision) {
+  const isFirstPlayer = currentPlayerSocket === this.p1_socket;
+  const isSecondPlayer = currentPlayerSocket === this.p2_socket;
+
+  if (isFirstPlayer && decision === TossDecision.TOSS_GO_SECOND) {
+    // Swap the sockets if the first player chooses "TOSS_GO_SECOND"
+    [this.p1_socket, this.p2_socket] = [this.p2_socket, this.p1_socket];
+    [this.playerData[0], this.playerData[1]] = [this.playerData[1], this.playerData[0]]
+  } else if (isSecondPlayer && decision === TossDecision.TOSS_GO_FIRST) {
+    // Swap the sockets if the second player chooses "TOSS_GO_FIRST"
+    [this.p1_socket, this.p2_socket] = [this.p2_socket, this.p1_socket];
+    [this.playerData[0], this.playerData[1]] = [this.playerData[1], this.playerData[0]]
+  } else return;
+
+  // update the bingoGame with respect to toss Decision
+  redis_tossGameUpdate(this.gameId, this.playerData)
+}
 
   resign(currentPlayerSocket: WebSocket) {
     const isFirstPlayer = currentPlayerSocket === this.p1_socket;

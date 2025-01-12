@@ -1,0 +1,29 @@
+import { GameBoard } from "@repo/games/bingo/messages";
+
+export const obj :GameBoard = [
+  { boxName: 'a', boxValue: "13" },
+  { boxName: 'b', boxValue: "14" },
+  { boxName: 'c', boxValue: "20" },
+  { boxName: 'd', boxValue: "25" },
+  { boxName: 'e', boxValue: "7" },
+  { boxName: 'f', boxValue: "5" },
+  { boxName: 'g', boxValue: "10" },
+  { boxName: 'h', boxValue: "22" },
+  { boxName: 'i', boxValue: "18" },
+  { boxName: 'j', boxValue: "23" },
+  { boxName: 'k', boxValue: "15" },
+  { boxName: 'l', boxValue: "24" },
+  { boxName: 'm', boxValue: "2" },
+  { boxName: 'n', boxValue: "21" },
+  { boxName: 'o', boxValue: "11" },
+  { boxName: 'p', boxValue: "16" },
+  { boxName: 'q', boxValue: "8" },
+  { boxName: 'r', boxValue: "12" },
+  { boxName: 's', boxValue: "19" },
+  { boxName: 't', boxValue: "1" },
+  { boxName: 'u', boxValue: "6" },
+  { boxName: 'v', boxValue: "9" },
+  { boxName: 'w', boxValue: "3" },
+  { boxName: 'x', boxValue: "17" },
+  { boxName: 'y', boxValue: "4" }
+];

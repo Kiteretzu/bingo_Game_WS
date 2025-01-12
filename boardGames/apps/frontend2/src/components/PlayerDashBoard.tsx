@@ -1,6 +1,6 @@
 import React from 'react'
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { Separator } from './ui/separator'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 
 const dummyData = [
   { moveCount: 1, value: "21" },
@@ -8,37 +8,37 @@ const dummyData = [
   { moveCount: 3, value: "50" },
   { moveCount: 4, value: "12" },
   { moveCount: 5, value: "67" },
-  { moveCount: 6, value: "23" },
-  { moveCount: 7, value: "45" },
-  { moveCount: 8, value: "78" },
-  { moveCount: 9, value: "56" },
-  { moveCount: 10, value: "89" },
-  { moveCount: 11, value: "32" },
-  { moveCount: 12, value: "91" }
-];
+]
 
-function PlayerDashBoard() {
+interface PlayerDashBoardProps {
+  player: string
+}
+
+function PlayerDashBoard({ player }: PlayerDashBoardProps) {
   return (
-    <div className='w-full max-w-lg rounded-l-xl bg-gray-800 h-full'>
-      {/* upper part */}
-      <div className=' flex space-x-8 items-center '>
-        <Avatar className='bg-black rounded-xl w-16 h-16 border-[#0c0c0c] border-4'>
-          <AvatarImage src="https://github.com/shadcn.png" />
-          <AvatarFallback className='text-white bg-black'>CN</AvatarFallback>
-        </Avatar>
-
-        <p className='text-2xl font-medium'>Player name</p>
-      </div>
-      <Separator className="my-2" />
-      <div className='grid grid-flow-col py-3 pb-7  grid-rows-7 grid-cols-3 px-9'>
-        {dummyData.map((each) => (
-          <div key={each.moveCount} className="text-white">
-            <span>{each.moveCount}{')'}</span> {each.value}
-          </div>
-        ))}
-      </div>
-    </div>
+    <Card className="w-full max-w-xs bg-gray-800 border-gray-700">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center space-x-3">
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={`https://api.dicebear.com/6.x/initials/svg?seed=${player}`} />
+            <AvatarFallback>{player[0]}</AvatarFallback>
+          </Avatar>
+          <span className="text-lg">{player}</span>
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          {dummyData.map((each) => (
+            <div key={each.moveCount} className="flex justify-between">
+              <span className="text-gray-400">{each.moveCount})</span>
+              <span>{each.value}</span>
+            </div>
+          ))}
+        </div>
+      </CardContent>
+    </Card>
   )
 }
 
 export default PlayerDashBoard
+

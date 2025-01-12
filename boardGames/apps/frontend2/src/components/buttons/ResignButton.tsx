@@ -1,18 +1,19 @@
 import React from 'react'
-import { ActionButton } from './ActionButton'
-import { BiSolidExit } from "react-icons/bi";
-
-
+import { Button } from '@/components/ui/button'
+import { FlagIcon } from 'lucide-react'
 
 function ResignButton() {
     return (
-        <ActionButton className='px-24 w-full font-jaro flex  items-center gap-2 justify-center bg-[#7d1313] text-2xl hover:scale-100 hover:bg-[#722121] '>
-            <BiSolidExit />
-            <p>
-                RESIGN
-            </p>
-        </ActionButton>
+        <Button
+            variant="destructive"
+            size="lg"
+            className="font-semibold px-4 py-2"
+        >
+            <FlagIcon className="mr-2 h-4 w-4" />
+            Resign
+        </Button>
     )
 }
 
 export default ResignButton
+

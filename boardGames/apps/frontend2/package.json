@@ -16,6 +16,9 @@
     "@radix-ui/react-separator": "^1.1.1",
     "@radix-ui/react-slot": "^1.1.1",
     "@radix-ui/react-tooltip": "^1.1.6",
+    "@react-spring/three": "^9.7.5",
+    "@react-three/drei": "^9.120.8",
+    "@react-three/fiber": "^8.17.12",
     "@reduxjs/toolkit": "^2.5.0",
     "@repo/db": "workspace:*",
     "@repo/games": "workspace:*",
@@ -35,6 +38,7 @@
     "redux-persist": "^6.0.0",
     "tailwind-merge": "^2.6.0",
     "tailwindcss-animate": "^1.0.7",
+    "three": "^0.172.0",
     "ws": "^8.18.0"
   },
   "devDependencies": {
@@ -42,6 +46,7 @@
     "@types/node": "^22.10.5",
     "@types/react": "^18.3.18",
     "@types/react-dom": "^18.3.5",
+    "@types/three": "^0.172.0",
     "@types/ws": "^8.5.13",
     "@vitejs/plugin-react": "^4.3.4",
     "@vitejs/plugin-react-swc": "^3.5.0",

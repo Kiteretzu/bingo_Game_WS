@@ -80,6 +80,7 @@ export enum MessageType {
   PUT_CHECK_MARK = "put_check_mark",
   PUT_VALUE_TO_BOX = "put_value_to_box",
   PUT_RESIGN = "put_resign",
+  PUT_TOSS_DECISION = "put_toss_decision",
   // all get
   GET_RESPONSE = "get_server_response",
   GET_GAME = "get_game",
@@ -118,6 +119,7 @@ export interface PAYLOAD_GET_GAME {
   type: MessageType.GET_GAME;
   payload: {
     gameId: string;
+    tossWinner: string;
     players: PlayerData[]; // send playersId only
     gameBoard: Box[];
   };
@@ -194,4 +196,10 @@ interface PlayerProfile {
 export interface PlayerGameboardData {
   playerId: string;
   gameBoard: GameBoard;
+}
+
+
+export enum TossDecision {
+  TOSS_GO_FIRST = 'toss-go-first',
+  TOSS_GO_SECOND = 'toss-go-second'
 }

@@ -105,7 +105,7 @@ function useBingo() {
     };
   }, [socket, dispatch, navigate]);
 
-  const findMatch = (name: string) => {
+  const findMatch = () => {
     setIsFinding(true);
     const token = localStorage.getItem("auth-token")
     console.log('this is findMatch Token', token)

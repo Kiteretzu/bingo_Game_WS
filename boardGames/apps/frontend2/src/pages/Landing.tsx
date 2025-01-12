@@ -11,7 +11,6 @@ import MatchFoundScreen from '@/components/models/match-found-model';
 
 export default function Dashboard() {
     const { findMatch, cancelFindMatch, isFinding } = useBingo()
-    const name = useAppSelector(state => state.profile.displayName) as string
     return (
         <div className="min-h-screen  animate-gradient-flow text-white ">
             <div className="grid p-6 grid-cols-3 grid-rows-6 gap-4 h-screen max-h-screen">
@@ -39,7 +38,7 @@ export default function Dashboard() {
                 {/* Third row */}
                 {/* <MatchFoundScreen /> */}
                 <div className="col-span-1 flex justify-center items-center row-span-1">
-                    <FindMatchButton findMatch={() => findMatch()} cancelFindMatch={cancelFindMatch} isFinding={isFinding} />
+                    <FindMatchButton findMatch={findMatch} cancelFindMatch={cancelFindMatch} isFinding={isFinding} />
                 </div>
             </div>
         </div>

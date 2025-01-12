@@ -1,5 +1,5 @@
 import { User, Trophy, Swords } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import clsx from "clsx";
 import axios from "axios";
 import { useNavigate } from "react-router-dom";
@@ -24,6 +24,10 @@ export default function ProfileDashboard() {
     await persistor.purge()
   };
 
+  useEffect(() => {
+    console.log(profileData.avatar)
+  }, [])
+
   return (
     <div
       className={clsx(
@@ -40,7 +44,7 @@ export default function ProfileDashboard() {
         <div className="flex   items-center">
           <div className="  bg-gray-700 rounded-full flex items-center justify-center mr-4">
             <Avatar className="w-14 h-14" >
-              <AvatarImage src={profileData?.avatar} />
+              <AvatarImage src={profileData.avatar} alt="profile" />
             </Avatar>
           </div>
           <div className="flex-grow p-1 bg-gray-800 rounded-lg shadow-md">

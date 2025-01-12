@@ -17,9 +17,9 @@ function GameBoard() {
   if (!gameBoard) return null
 
   return (
-    <Card className="bg-gray-800/50 border w-full min-w-[370px] border-red-700">
-      <CardContent className="p-0 ">
-        <div className="grid grid-cols-5 gap-2 max-w-md mx-auto">
+    <Card className="bg-gray-800/50 shrink-0 border-none w-full min-w-[370px] lg:min-w-[450px] ">
+      <CardContent className="p-0">
+        <div className="grid grid-cols-5 gap-2  border p-4 rounded-xl border-gray-700 max-w-md mx-auto">
           {obj.map((box: Box) => {
             const isChecked = checkedBoxes?.includes(box.boxName)
             const isInLineData = checkedLines && checkedLines.some((line: BoxesName[]) => line.includes(box.boxName))
@@ -37,7 +37,7 @@ function GameBoard() {
                     ? isInLineData
                       ? "bg-green-500/80 cursor-not-allowed text-white"
                       : "bg-red-500/80 cursor-not-allowed text-white"
-                    : "bg-yellow-400 hover:bg-yellow-500 cursor-pointer text-gray-900"
+                    : "bg-[#f6d947] hover:bg-yellow-500 cursor-pointer text-gray-900"
                   }
                 `}
               >

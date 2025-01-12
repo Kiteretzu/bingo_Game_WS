@@ -1,12 +1,12 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Box, BoxesName, PAYLOAD_GET_CHECKBOXES, PAYLOAD_GET_GAME } from '@repo/games/client/bingo/messages';
+import { Box, BoxesName, PAYLOAD_GET_CHECKBOXES, PAYLOAD_GET_GAME, PlayerData } from '@repo/games/client/bingo/messages';
 
 // Define the initial state type
 interface BingoState {
     game: {
         gameId: string
         gameBoard: Box[] | null;
-        players: string[]
+        players: PlayerData[]
     }
     checks: {
         checkedBoxes: BoxesName[] | null;
@@ -21,7 +21,7 @@ const initialState: BingoState = {
         players: []
     },
     checks: {
-        checkedBoxes: ["a"],
+        checkedBoxes: [],
         checkedLines: []
     }
 };

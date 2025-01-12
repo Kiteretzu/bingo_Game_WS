@@ -16,7 +16,7 @@ interface PlayerDashBoardProps {
 
 function PlayerDashBoard({ player }: PlayerDashBoardProps) {
   return (
-    <Card className="w-full max-w-xs bg-gray-800 border-gray-700">
+    <Card className="w-full bg-gray-800 border-gray-700">
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center space-x-3">
           <Avatar className="h-10 w-10">

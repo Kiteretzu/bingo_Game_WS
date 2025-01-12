@@ -16,42 +16,39 @@ model User {
 }
 
 model BingoProfile {
-  id                  String               @id @default(uuid())
-  totalMatches        Int? @default(0)
-  wins                Int? @default(0)
-  losses              Int? @default(0)
-  lines_count         Int? @default(0)
-  firstBlood_count    Int? @default(0)
-  doubleKill_count    Int? @default(0)
-  tripleKill_count    Int? @default(0)
-  perfectionist_count Int? @default(0)
-  rampage_count       Int? @default(0)
-  mmr                 Int? @default(0)
-  league              Leagues? @default(BRONZE)
+  id                  String      @id @default(uuid())
+  totalMatches        Int         @default(0)
+  wins                Int         @default(0)
+  losses              Int         @default(0)
+  lines_count         Int         @default(0)
+  firstBlood_count    Int         @default(0)
+  doubleKill_count    Int         @default(0)
+  tripleKill_count    Int         @default(0)
+  perfectionist_count Int         @default(0)
+  rampage_count       Int         @default(0)
+  mmr                 Int         @default(0)
+  league              Leagues     @default(BRONZE)
   preferredBoards     Json[]
-  gameHistory         BingoGame[] // Game history for the bingo profile
-  User                User                 @relation(fields: [userId], references: [googleId])
-  userId              String               @unique
+  gameHistory         BingoGame[] @relation("GamePlayers")
+  userId              String      @unique
+  User                User        @relation(fields: [userId], references: [googleId])
 }
 
 model BingoGame {
-  id           String        @id @unique @default(cuid())
-  player1Id    String?
-  player2Id    String?
-  gameboards   Json[] // Game boards in JSON format
-  matchHistory Json[] // Match history in JSON format
-  winMethod    Win_method? // Enum for win method
-  Bingo        BingoProfile? @relation(fields: [bingoId], references: [id])
-  bingoId      String?
-  gameWinnerId String?
-  tossWinnerId String?
+  gameId            String         @id @default(cuid())
+  players       BingoProfile[] @relation("GamePlayers")
+  gameboards    Json         // Game boards in JSON format
+  matchHistory  Json      // Match history in JSON format
+  winMethod     Win_method?
+  gameWinnerId  String?
+  tossWinnerId  String?
 }
 
 model BingoPlayerRecords {
-  id             String        @id @default(cuid()) // Unique identifier for the record
-  player1Id      String
-  player2Id      String
-  ratio          Json? // Store ratio as a JSON object with player-specific ratios
+  id        String @id @default(cuid()) // Unique identifier for the record
+  player1Id String
+  player2Id String
+  ratio     Json? // Store ratio as a JSON object with player-specific ratios
 
   @@unique([player1Id, player2Id]) // Composite unique constraint to ensure a unique record for the pair of users
 }

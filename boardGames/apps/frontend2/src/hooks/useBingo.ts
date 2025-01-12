@@ -107,7 +107,9 @@ function useBingo() {
 
   const findMatch = (name: string) => {
     setIsFinding(true);
-    sendData(PUT_GAME_INIT, { data: name });
+    const token = localStorage.getItem("auth-token")
+    console.log('this is findMatch Token', token)
+    sendData(PUT_GAME_INIT, { token });
   };
 
   const cancelFindMatch = () => {

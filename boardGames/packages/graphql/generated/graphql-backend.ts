@@ -19,14 +19,11 @@ export type Scalars = {
 
 export type BingoGame = {
   __typename?: 'BingoGame';
-  bingoId?: Maybe<Scalars['String']['output']>;
-  bingoProfile?: Maybe<BingoProfile>;
+  Players?: Maybe<Array<Maybe<BingoProfile>>>;
   gameWinnerId?: Maybe<Scalars['String']['output']>;
   gameboards?: Maybe<Array<Maybe<Scalars['JSON']['output']>>>;
   id: Scalars['String']['output'];
   matchHistory?: Maybe<Array<Maybe<Scalars['JSON']['output']>>>;
-  player1Id?: Maybe<Scalars['String']['output']>;
-  player2Id?: Maybe<Scalars['String']['output']>;
   tossWinnerId?: Maybe<Scalars['String']['output']>;
   winMethod?: Maybe<Win_Method>;
 };
@@ -207,14 +204,11 @@ export type ResolversParentTypes = {
 };
 
 export type BingoGameResolvers<ContextType = any, ParentType extends ResolversParentTypes['BingoGame'] = ResolversParentTypes['BingoGame']> = {
-  bingoId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  bingoProfile?: Resolver<Maybe<ResolversTypes['BingoProfile']>, ParentType, ContextType>;
+  Players?: Resolver<Maybe<Array<Maybe<ResolversTypes['BingoProfile']>>>, ParentType, ContextType>;
   gameWinnerId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   gameboards?: Resolver<Maybe<Array<Maybe<ResolversTypes['JSON']>>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   matchHistory?: Resolver<Maybe<Array<Maybe<ResolversTypes['JSON']>>>, ParentType, ContextType>;
-  player1Id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
-  player2Id?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   tossWinnerId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   winMethod?: Resolver<Maybe<ResolversTypes['Win_method']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;

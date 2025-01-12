@@ -5,13 +5,15 @@ import {
   PAYLOAD_GET_GAME,
   PAYLOAD_PUT_GET_CHECK_MARK,
   GET_CHECK_MARK,
-  GET_CHECKBOXES
+  GET_CHECKBOXES,
+  GET_VICTORY,
+  GET_LOST
 } from "@repo/games/client/bingo/messages";
 import { WebSocket } from "ws";
 MessageType;
 
 
-export function sendPayload(to: WebSocket, type: MessageType, data: any): void {
+export function sendPayload(to: WebSocket, type: MessageType, data?: any): void {
   switch (type) {
     case GET_RESPONSE: {
       to.send(
@@ -36,8 +38,16 @@ export function sendPayload(to: WebSocket, type: MessageType, data: any): void {
     }
 
     case GET_CHECKBOXES: {
-      console.log('this is the sending checkboxesData',data )
         to.send(JSON.stringify(data as PAYLOAD_PUT_GET_CHECK_MARK))
+        break;
+    }
+    case GET_VICTORY: {
+        to.send(JSON.stringify(type as MessageType.GET_VICTORY))
+        break;
+    }
+    case GET_LOST: {
+        to.send(JSON.stringify(type as MessageType.GET_LOST))
+        break;
     }
   }
 

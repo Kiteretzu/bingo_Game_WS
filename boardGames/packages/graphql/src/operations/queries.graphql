@@ -1,4 +1,4 @@
-query getProfile {
+query getAuthProfile {
   authUser {
     displayName
     email
@@ -9,5 +9,19 @@ query getProfile {
       losses
       league
     }
+  }
+}
+
+query getServerPlayerProfile($googleId: String!) {
+  user(googleId: $googleId) {
+    googleId
+    displayName
+    avatar
+    bingoProfile {
+      id
+      mmr
+      league
+    }
+    
   }
 }

@@ -40,9 +40,9 @@ export const configurePassport = () => {
 
           // Generate JWT token for the user
           const token = jwt.sign(
-            { id: user.googleId, email: user.email },
+            { googleId: user.googleId, email: user.email },
             process.env.JWT_SECRET!,
-            { expiresIn: "1h" }
+            { expiresIn: "4h" }
           );
 
           // Send the user and token in the done callback

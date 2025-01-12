@@ -1,4 +1,3 @@
-
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
@@ -7,7 +6,7 @@ import { PlayerProfile } from "./player-profile"
 
 interface Player {
     name: string
-    image: string   
+    image: string
     record: string
 }
 
@@ -29,39 +28,63 @@ export default function MatchFoundScreen({ player1, player2, onAccept }: MatchFo
     }
 
     return (
-        <div className="flex items-center justify-center min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 p-4">
+        <div className="flex items-center absolute inset-0 justify-center bg-opacity-50 bg-gray-800">
             <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ duration: 0.3 }}
             >
-                <Card className="w-full max-w-md">
+                <Card className="w-full border-none bg-[#1C1C1E] max-w-md shadow-xl rounded-lg">
                     <CardHeader>
-                        <CardTitle className="text-2xl text-center">Match Found!</CardTitle>
+                        <CardTitle className="text-3xl text-white font-semibold text-center">Match Found!</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <div className="flex justify-between items-center space-x-4">
+                        <div className="flex relative justify-between items-center space-x-6">
+                            {/* Player 1 */}
                             <motion.div
                                 initial={{ x: -50, opacity: 0 }}
                                 animate={{ x: 0, opacity: 1 }}
                                 transition={{ delay: 0.2 }}
                             >
-                                <PlayerProfile {...player1} />
+                                <div className="flex flex-col items-center justify-center">
+                                    <PlayerProfile {...player1} />
+                                    <span className="text-white mt-3 text-lg">Player 1</span>
+                                </div>
                             </motion.div>
+
+                            {/* VS Logo */}
                             <motion.div
                                 initial={{ scale: 0 }}
                                 animate={{ scale: 1 }}
                                 transition={{ delay: 0.4 }}
-                                className="text-3xl font-bold"
+                                className="relative text-4xl font-bold text-white"
                             >
-                                VS
+                                <motion.p
+                                    initial={{ opacity: 0, y: 0 }}
+                                    animate={{ opacity: 1, y: -55 }}
+                                    transition={{ duration: 0.9 }}
+                                    className="absolute top-0 transform "
+                                >
+                                    <span className="text-green-600">2</span>-
+                                    <span className="text-red-600">3</span>
+                                </motion.p>
+                                <img
+                                    src="https://upload.wikimedia.org/wikipedia/commons/7/70/Street_Fighter_VS_logo.png"
+                                    className="w-14"
+                                    alt="VS Logo"
+                                />
                             </motion.div>
+
+                            {/* Player 2 */}
                             <motion.div
                                 initial={{ x: 50, opacity: 0 }}
                                 animate={{ x: 0, opacity: 1 }}
                                 transition={{ delay: 0.6 }}
                             >
-                                <PlayerProfile {...player2} />
+                                <div className="flex flex-col items-center justify-center">
+                                    <PlayerProfile {...player2} />
+                                    <span className="text-white mt-3 text-lg">Player 2</span>
+                                </div>
                             </motion.div>
                         </div>
                     </CardContent>
@@ -70,7 +93,7 @@ export default function MatchFoundScreen({ player1, player2, onAccept }: MatchFo
                             size="lg"
                             onClick={handleAccept}
                             disabled={isAccepting}
-                            className="w-full max-w-xs"
+                            className="w-full max-w-xs bg-blue-600 hover:bg-blue-500 text-white font-semibold rounded-lg"
                         >
                             {isAccepting ? "Accepting..." : "Accept Match"}
                         </Button>
@@ -80,4 +103,3 @@ export default function MatchFoundScreen({ player1, player2, onAccept }: MatchFo
         </div>
     )
 }
-

@@ -1,34 +1,33 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
 import { GetProfileQuery } from '@repo/graphql/types/client';
 
-// Define the bingo profile type
-type Maybe<T> = T | null | undefined;
-
 interface BingoProfile {
-  totalMatches: Maybe<number>;
-  wins: Maybe<number>;
-  losses: Maybe<number>;
-  league: Maybe<string>;
+  totalMatches?: number;
+  wins?: number;
+  losses?: number;
+  league?: string;
 }
 
 // Define the profile state type
 interface ProfileState {
-  displayName: Maybe<string>;
-  email: Maybe<string>;
-  avatar: Maybe<string>;
-  bingoProfile: BingoProfile;
+  isAuth: boolean;
+  displayName?: string;
+  email?: string;
+  avatar?: string;
+  bingoProfile?: BingoProfile;
 }
 
 // Initial state
 const initialState: ProfileState = {
-  displayName: null,
-  email: null,
-  avatar: null,
+  isAuth: false,
+  displayName: "",
+  email: "",
+  avatar: "",
   bingoProfile: {
-    totalMatches: null,
-    wins: null,
-    losses: null,
-    league: null,
+    totalMatches: 0,
+    wins: 0,
+    losses: 0,
+    league: "",
   },
 };
 
@@ -38,25 +37,26 @@ const profileSlice = createSlice({
   initialState,
   reducers: {
     initialize: (state, action: PayloadAction<GetProfileQuery | undefined>) => {
-      const authUser = action.payload?.authUser
+      const authUser = action.payload?.authUser;
 
       // Mutate the state directly
-      console.log('this is', action.payload)
       if (authUser) {
-        state.displayName = authUser.displayName ?? null;
-        state.email = authUser.email ?? null;
-        state.avatar = authUser.avatar ?? null;
+        state.isAuth = true; // Mark user as authenticated
+        state.displayName = authUser.displayName ?? undefined;
+        state.email = authUser.email ?? undefined;
+        state.avatar = authUser.avatar ?? undefined;
         state.bingoProfile = {
-          totalMatches: authUser.bingoProfile?.totalMatches ?? null,
-          wins: authUser.bingoProfile?.wins ?? null,
-          losses: authUser.bingoProfile?.losses ?? null,
-          league: authUser.bingoProfile?.league ?? null,
+          totalMatches: authUser.bingoProfile?.totalMatches ?? undefined,
+          wins: authUser.bingoProfile?.wins ?? undefined,
+          losses: authUser.bingoProfile?.losses ?? undefined,
+          league: authUser.bingoProfile?.league ?? undefined,
         };
       }
     },
+    logout: () => initialState, // Reset state to initial values
   },
 });
 
 // Export actions and reducer
-export const { initialize } = profileSlice.actions;
+export const { initialize, logout } = profileSlice.actions;
 export default profileSlice.reducer;

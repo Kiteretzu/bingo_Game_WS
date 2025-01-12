@@ -20,14 +20,11 @@ export type Scalars = {
 
 export type BingoGame = {
   __typename?: 'BingoGame';
-  bingoId?: Maybe<Scalars['String']['output']>;
-  bingoProfile?: Maybe<BingoProfile>;
+  Players?: Maybe<Array<Maybe<BingoProfile>>>;
   gameWinnerId?: Maybe<Scalars['String']['output']>;
   gameboards?: Maybe<Array<Maybe<Scalars['JSON']['output']>>>;
   id: Scalars['String']['output'];
   matchHistory?: Maybe<Array<Maybe<Scalars['JSON']['output']>>>;
-  player1Id?: Maybe<Scalars['String']['output']>;
-  player2Id?: Maybe<Scalars['String']['output']>;
   tossWinnerId?: Maybe<Scalars['String']['output']>;
   winMethod?: Maybe<Win_Method>;
 };
@@ -110,14 +107,21 @@ export enum Win_Method {
   Resignation = 'RESIGNATION'
 }
 
-export type GetProfileQueryVariables = Exact<{ [key: string]: never; }>;
+export type GetAuthProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetProfileQuery = { __typename?: 'Query', authUser?: { __typename?: 'User', displayName?: string | null, email?: string | null, avatar?: string | null, bingoProfile?: { __typename?: 'BingoProfile', totalMatches?: number | null, wins?: number | null, losses?: number | null, league?: Leagues | null } | null } | null };
+export type GetAuthProfileQuery = { __typename?: 'Query', authUser?: { __typename?: 'User', displayName?: string | null, email?: string | null, avatar?: string | null, bingoProfile?: { __typename?: 'BingoProfile', totalMatches?: number | null, wins?: number | null, losses?: number | null, league?: Leagues | null } | null } | null };
+
+export type GetServerPlayerProfileQueryVariables = Exact<{
+  googleId: Scalars['String']['input'];
+}>;
 
 
-export const GetProfileDocument = gql`
-    query getProfile {
+export type GetServerPlayerProfileQuery = { __typename?: 'Query', user?: { __typename?: 'User', googleId: string, displayName?: string | null, avatar?: string | null, bingoProfile?: { __typename?: 'BingoProfile', id: string, mmr?: number | null, league?: Leagues | null } | null } | null };
+
+
+export const GetAuthProfileDocument = gql`
+    query getAuthProfile {
   authUser {
     displayName
     email
@@ -133,33 +137,80 @@ export const GetProfileDocument = gql`
     `;
 
 /**
- * __useGetProfileQuery__
+ * __useGetAuthProfileQuery__
  *
- * To run a query within a React component, call `useGetProfileQuery` and pass it any options that fit your needs.
- * When your component renders, `useGetProfileQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * To run a query within a React component, call `useGetAuthProfileQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAuthProfileQuery` returns an object from Apollo Client that contains loading, error, and data properties
  * you can use to render your UI.
  *
  * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
  *
  * @example
- * const { data, loading, error } = useGetProfileQuery({
+ * const { data, loading, error } = useGetAuthProfileQuery({
  *   variables: {
  *   },
  * });
  */
-export function useGetProfileQuery(baseOptions?: Apollo.QueryHookOptions<GetProfileQuery, GetProfileQueryVariables>) {
+export function useGetAuthProfileQuery(baseOptions?: Apollo.QueryHookOptions<GetAuthProfileQuery, GetAuthProfileQueryVariables>) {
         const options = {...defaultOptions, ...baseOptions}
-        return Apollo.useQuery<GetProfileQuery, GetProfileQueryVariables>(GetProfileDocument, options);
+        return Apollo.useQuery<GetAuthProfileQuery, GetAuthProfileQueryVariables>(GetAuthProfileDocument, options);
       }
-export function useGetProfileLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetProfileQuery, GetProfileQueryVariables>) {
+export function useGetAuthProfileLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAuthProfileQuery, GetAuthProfileQueryVariables>) {
           const options = {...defaultOptions, ...baseOptions}
-          return Apollo.useLazyQuery<GetProfileQuery, GetProfileQueryVariables>(GetProfileDocument, options);
+          return Apollo.useLazyQuery<GetAuthProfileQuery, GetAuthProfileQueryVariables>(GetAuthProfileDocument, options);
         }
-export function useGetProfileSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetProfileQuery, GetProfileQueryVariables>) {
+export function useGetAuthProfileSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAuthProfileQuery, GetAuthProfileQueryVariables>) {
           const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
-          return Apollo.useSuspenseQuery<GetProfileQuery, GetProfileQueryVariables>(GetProfileDocument, options);
+          return Apollo.useSuspenseQuery<GetAuthProfileQuery, GetAuthProfileQueryVariables>(GetAuthProfileDocument, options);
         }
-export type GetProfileQueryHookResult = ReturnType<typeof useGetProfileQuery>;
-export type GetProfileLazyQueryHookResult = ReturnType<typeof useGetProfileLazyQuery>;
-export type GetProfileSuspenseQueryHookResult = ReturnType<typeof useGetProfileSuspenseQuery>;
-export type GetProfileQueryResult = Apollo.QueryResult<GetProfileQuery, GetProfileQueryVariables>;
+export type GetAuthProfileQueryHookResult = ReturnType<typeof useGetAuthProfileQuery>;
+export type GetAuthProfileLazyQueryHookResult = ReturnType<typeof useGetAuthProfileLazyQuery>;
+export type GetAuthProfileSuspenseQueryHookResult = ReturnType<typeof useGetAuthProfileSuspenseQuery>;
+export type GetAuthProfileQueryResult = Apollo.QueryResult<GetAuthProfileQuery, GetAuthProfileQueryVariables>;
+export const GetServerPlayerProfileDocument = gql`
+    query getServerPlayerProfile($googleId: String!) {
+  user(googleId: $googleId) {
+    googleId
+    displayName
+    avatar
+    bingoProfile {
+      id
+      mmr
+      league
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetServerPlayerProfileQuery__
+ *
+ * To run a query within a React component, call `useGetServerPlayerProfileQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetServerPlayerProfileQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetServerPlayerProfileQuery({
+ *   variables: {
+ *      googleId: // value for 'googleId'
+ *   },
+ * });
+ */
+export function useGetServerPlayerProfileQuery(baseOptions: Apollo.QueryHookOptions<GetServerPlayerProfileQuery, GetServerPlayerProfileQueryVariables> & ({ variables: GetServerPlayerProfileQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetServerPlayerProfileQuery, GetServerPlayerProfileQueryVariables>(GetServerPlayerProfileDocument, options);
+      }
+export function useGetServerPlayerProfileLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetServerPlayerProfileQuery, GetServerPlayerProfileQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetServerPlayerProfileQuery, GetServerPlayerProfileQueryVariables>(GetServerPlayerProfileDocument, options);
+        }
+export function useGetServerPlayerProfileSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetServerPlayerProfileQuery, GetServerPlayerProfileQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetServerPlayerProfileQuery, GetServerPlayerProfileQueryVariables>(GetServerPlayerProfileDocument, options);
+        }
+export type GetServerPlayerProfileQueryHookResult = ReturnType<typeof useGetServerPlayerProfileQuery>;
+export type GetServerPlayerProfileLazyQueryHookResult = ReturnType<typeof useGetServerPlayerProfileLazyQuery>;
+export type GetServerPlayerProfileSuspenseQueryHookResult = ReturnType<typeof useGetServerPlayerProfileSuspenseQuery>;
+export type GetServerPlayerProfileQueryResult = Apollo.QueryResult<GetServerPlayerProfileQuery, GetServerPlayerProfileQueryVariables>;

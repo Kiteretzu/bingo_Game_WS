@@ -5,11 +5,16 @@ import HowToPlay from '../components/HowToPlay';
 import DeveloperMessage from '../components/DeveloperMessage';
 import FindMatchButton from '../components/buttons/FindMatchButton';
 import "@/components/test.css";
+import useBingo from '@/hooks/useBingo';
+import { useAppSelector } from '@/store/hooks';
+import MatchFoundScreen from '@/components/models/match-found-model';
 
 export default function Dashboard() {
+    const { findMatch, cancelFindMatch, isFinding } = useBingo()
+    const name = useAppSelector(state => state.profile.displayName) as string
     return (
-        <div className="min-h-screen animate-gradient-flow text-white ">
-            <div className="grid p-6 grid-cols-3 grid-rows-6 gap-4 h-screen">
+        <div className="min-h-screen  animate-gradient-flow text-white ">
+            <div className="grid p-6 grid-cols-3 grid-rows-6 gap-4 h-screen max-h-screen">
                 {/* First row */}
                 <div className="col-span-1 row-span-1 flex">
                     <div className='grow'>
@@ -32,8 +37,9 @@ export default function Dashboard() {
                 </div>
 
                 {/* Third row */}
-                <div className="col-span-1 flex justify-center border items-center row-span-1">
-                    <FindMatchButton />
+                {/* <MatchFoundScreen /> */}
+                <div className="col-span-1 flex justify-center items-center row-span-1">
+                    <FindMatchButton findMatch={() => findMatch()} cancelFindMatch={cancelFindMatch} isFinding={isFinding} />
                 </div>
             </div>
         </div>

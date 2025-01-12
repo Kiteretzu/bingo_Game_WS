@@ -1,5 +1,31 @@
 // Define the box names from 'a' to 'y'
-export type BoxesName = "a" | "b" | "c" | "d" | "e" | "f" | "g" | "h" | "i" | "j" | "k" | "l" | "m" | "n" | "o" | "p" | "q" | "r" | "s" | "t" | "u" | "v" | "w" | "x" | "y" | "";
+export type BoxesName =
+  | "a"
+  | "b"
+  | "c"
+  | "d"
+  | "e"
+  | "f"
+  | "g"
+  | "h"
+  | "i"
+  | "j"
+  | "k"
+  | "l"
+  | "m"
+  | "n"
+  | "o"
+  | "p"
+  | "q"
+  | "r"
+  | "s"
+  | "t"
+  | "u"
+  | "v"
+  | "w"
+  | "x"
+  | "y"
+  | "";
 // Define the possible values for each box, from '1' to '25'
 export type BoxesValue =
   | "1"
@@ -37,21 +63,33 @@ export type Box = {
 // Define the game board type
 export type GameBoard = Box[];
 
+export enum WinMethodTypes {
+  RESIGNATION = "resign",
+  ABANDON = "abondon",
+  BINGO = "bingo",
+}
+
+export const RESIGNATION = WinMethodTypes.RESIGNATION;
+export const ABANDON = WinMethodTypes.ABANDON;
+export const BINGO = WinMethodTypes.BINGO;
+
 // Enum for message types
 export enum MessageType {
   PUT_GAME_INIT = "put_game_init",
   PUT_CANCEL_GAME_INIT = "put_cancel_game_init",
   PUT_CHECK_MARK = "put_check_mark",
   PUT_VALUE_TO_BOX = "put_value_to_box",
+  PUT_RESIGN = "put_resign",
   // all get
   GET_RESPONSE = "get_server_response",
   GET_GAME = "get_game",
   GET_CHECK_MARK = "get_check_mark",
   GET_CHECKBOXES = "get_check_boxes",
-
+  GET_VICTORY = "get_victory",
+  GET_LOST = "get_lost",
   // consideration
-  GET_GAME_ID = "get_game_id",
-  GET_GAMEBOARD = "send_game_board",
+  // GET_GAME_ID = "get_game_id",
+  // GET_GAMEBOARD = "send_game_board",
 }
 
 // server response mesages
@@ -62,12 +100,14 @@ export const PUT_GAME_INIT = MessageType.PUT_GAME_INIT;
 export const PUT_CANCEL_GAME_INIT = MessageType.PUT_CANCEL_GAME_INIT;
 export const PUT_VALUE_TO_BOX = MessageType.PUT_VALUE_TO_BOX;
 export const PUT_CHECK_MARK = MessageType.PUT_CHECK_MARK;
-export const GET_CHECK_MARK = MessageType.GET_CHECK_MARK
+export const PUT_RESIGN = MessageType.PUT_RESIGN;
+export const GET_CHECK_MARK = MessageType.GET_CHECK_MARK;
 export const GET_RESPONSE = MessageType.GET_RESPONSE;
 export const GET_GAME = MessageType.GET_GAME;
 export const GET_CHECKBOXES = MessageType.GET_CHECKBOXES;
-export const GET_GAMEBOARD = MessageType.GET_GAMEBOARD;
-export const GET_GAME_ID = MessageType.GET_GAME_ID;
+export const GET_VICTORY = MessageType.GET_VICTORY;
+export const GET_LOST = MessageType.GET_LOST;
+
 // Data interface for the message data
 export interface DATA {
   gameId: string;
@@ -75,54 +115,83 @@ export interface DATA {
 }
 
 export interface PAYLOAD_GET_GAME {
-  type: MessageType.GET_GAME
+  type: MessageType.GET_GAME;
   payload: {
     gameId: string;
-    players: string[]; // change it to sockets later
+    players: PlayerData[]; // send playersId only
     gameBoard: Box[];
-  }
+  };
 }
 
 export interface PAYLOAD_GET_RESPONSE {
-  type: MessageType.GET_RESPONSE
+  type: MessageType.GET_RESPONSE;
   payload: {
-    message: string
-  }
+    message: string;
+  };
 }
 
 export interface PAYLOAD_PUT_GET_CHECK_MARK {
-  type: MessageType.PUT_CHECK_MARK | MessageType.GET_CHECK_MARK
+  type: MessageType.PUT_CHECK_MARK | MessageType.GET_CHECK_MARK;
   payload: {
     gameId: string;
     value: BoxesValue;
-  }
+  };
 }
 
 export interface PAYLOAD_GET_CHECKBOXES {
-  type: MessageType.GET_CHECKBOXES
+  type: MessageType.GET_CHECKBOXES;
   payload: {
     checkedBoxes: BoxesName[];
     checkedLines: BoxesName[][];
-  }
+  };
 }
 
 export interface PAYLOAD_PUT_GAME_INIT {
-  type: MessageType.PUT_GAME_INIT
+  type: MessageType.PUT_GAME_INIT;
   payload: {
-    data: string // change it to something else
-  }
+    token: string;
+  };
+}
+
+export interface PAYLOAD_PUT_RESIGN {
+  type: MessageType.PUT_RESIGN;
+  payload: {
+    gameId: string;
+  };
 }
 
 export interface PAYLOAD_PUT_CANCEL_GAME_INIT {
-  type : MessageType.PUT_CANCEL_GAME_INIT
+  type: MessageType.PUT_CANCEL_GAME_INIT;
 }
 
 export type SEND_GAMEBOARD_DATA = Box[];
 export type SEND_ID_DATA = string;
 
-
 // Message interface with type constrained to the MessageType enum
 export interface Message {
   type: MessageType; // type is now an enum value
   payload: any;
+}
+
+// player data stored i
+// very DIfferent
+
+export interface PlayerData {
+  user: {
+    googleId: string;
+    displayName: string;
+    avatar: string;
+    bingoProfile: PlayerProfile;
+  }
+}
+
+interface PlayerProfile {
+  id: string;
+  mmr: number;
+  league: string | null;
+}
+
+export interface PlayerGameboardData {
+  playerId: string;
+  gameBoard: GameBoard;
 }

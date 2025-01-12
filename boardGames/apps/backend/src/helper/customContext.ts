@@ -41,7 +41,6 @@ export const customContext = ({ req, res }: ContextParams) => {
   const getUser = async () => {
     try {
       const header = req.headers.authorization;
-        console.log("this is header", header)
       if (!header) {
         throw new GraphQLError("Authorization header is missing", {
           extensions: { code: "UNAUTHENTICATED" },
@@ -57,17 +56,16 @@ export const customContext = ({ req, res }: ContextParams) => {
         process.env.JWT_SECRET!
       ) as DECODED_TOKEN;
 
-      console.log('this is the decodedToken', decodedToken)
       // Fetch the user from the database using the decoded token
-      const user = await client.user.findFirst({
+      const user = await client.user.findUnique({
         where: {
-          email: decodedToken.email,
+         googleId: decodedToken.googleId,
         },
         include: {
           bingoProfile: true,
         },
       });
-      console.log({user})
+      console.log("Auth User profile", {user})
 
       if (!user) {
         throw new GraphQLError("User not found", {

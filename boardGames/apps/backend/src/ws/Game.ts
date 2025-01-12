@@ -5,86 +5,101 @@ import {
   GET_RESPONSE,
   GET_GAME,
   PAYLOAD_GET_GAME,
-  PUT_CHECK_MARK,
   GET_CHECKBOXES,
   PAYLOAD_PUT_GET_CHECK_MARK,
   GET_CHECK_MARK,
   PAYLOAD_GET_CHECKBOXES,
+  GET_LOST,
+  GET_VICTORY,
+  WinMethodTypes,
+  PlayerData,
+  PlayerGameboardData,
 } from "@repo/games/client/bingo/messages";
 import { Bingo } from "@repo/games/bingo";
 import { sendPayload } from "../helper/wsSend";
+import { client } from "@repo/db/client";
+import { redis_newGame } from "@repo/redis-worker/test";
 
 export class Game {
   public gameId: string;
-  public player1: WebSocket;
-  public player2: WebSocket;
-  private player1_Data: string;
-  private player2_Data: string;
-  private player1_GameBoard: Bingo;
-  private player2_GameBoard: Bingo;
-  private players: WebSocket[];
-  private gameBoards: Bingo[];
   private moveCount: number;
+  public p1_socket: WebSocket;
+  public p2_socket: WebSocket;
+  private playerData: PlayerData[];
+  private playerSockets: WebSocket[];
+  private playerBoards: Bingo[];
+  private playerGameboardData: PlayerGameboardData[];
 
   constructor(
-    id: string,
-    player1: WebSocket,
-    player2: WebSocket,
-    p1_data: string,
-    p2_data: string
+    gameId: string,
+    p1_socket: WebSocket,
+    p2_socket: WebSocket,
+    p1_data: PlayerData,
+    p2_data: PlayerData
   ) {
-    this.gameId = id;
+    this.gameId = gameId;
     this.moveCount = 1;
-    this.player1 = player1;
-    this.player2 = player2;
-
-    this.player1_Data = p1_data;
-    this.player2_Data = p2_data;
-    this.player1_GameBoard = new Bingo();
-    this.player2_GameBoard = new Bingo();
-
-    console.log("player1 data", this.player1_Data);
-    console.log("player2 data", this.player2_Data);
-    // putting things assigend values array
-    this.players = [player1, player2];
-    this.gameBoards = [this.player1_GameBoard, this.player2_GameBoard];
+    this.p1_socket = p1_socket;
+    this.p2_socket = p2_socket;
+    this.playerSockets = [p1_socket, p2_socket];
+    this.playerBoards = [new Bingo(), new Bingo()];
+    this.playerData = [p1_data, p2_data]
+    this.playerGameboardData = [
+      {
+        playerId: this.playerData[0].user.bingoProfile.id,
+        gameBoard: this.playerBoards[0].getGameBoard(),
+      },
+      {
+        playerId: this.playerData[1].user.bingoProfile.id,
+        gameBoard: this.playerBoards[1].getGameBoard(),
+      },
+    ];
+    console.log('CHKECER!!!!!', this.playerGameboardData)
+    console.log("First player data", this.playerData[0]);
+    console.log("Second player data", this.playerData[1]);
 
     // Send game info
-    this.players.forEach((player, index) => {
-      const sending_game_data: PAYLOAD_GET_GAME = {
+    this.playerSockets.forEach((socket, index) => {
+      const gameData: PAYLOAD_GET_GAME = {
         type: GET_GAME,
         payload: {
           gameId: this.gameId,
-          players: [this.player1_Data, this.player2_Data],
-          gameBoard: this.gameBoards[index].getGameBoard(),
+          players: this.playerData ,
+          gameBoard: this.playerBoards[index].getGameBoard(),
         },
       };
-      sendPayload(player, GET_GAME, sending_game_data);
+      sendPayload(socket, GET_GAME, gameData);
     });
+
+    // redisHandle
+redis_newGame(this.gameId, this.playerData, this.playerGameboardData )
+
   }
 
-  addCheck(currentPlayer: WebSocket, value: BoxesValue) {
+  private endGame(method: WinMethodTypes, winner: string) {}
+
+  addCheck(currentPlayerSocket: WebSocket, value: BoxesValue) {
     if (Number(value) > 25) {
-      sendPayload(currentPlayer, GET_RESPONSE, "Value should be less than 25");
+      sendPayload(currentPlayerSocket, GET_RESPONSE, "Value should be less than 25");
       return;
     }
 
-    const isPlayer1 = currentPlayer === this.player1;
-    const isPlayer2 = currentPlayer === this.player2;
-    const isPlayer1Turn = this.moveCount % 2 === 1 && isPlayer1;
-    const isPlayer2Turn = this.moveCount % 2 === 0 && isPlayer2;
+    const isFirstPlayer = currentPlayerSocket === this.p1_socket;
+    const isSecondPlayer = currentPlayerSocket === this.p2_socket;
+    const isFirstPlayerTurn = this.moveCount % 2 === 1 && isFirstPlayer;
+    const isSecondPlayerTurn = this.moveCount % 2 === 0 && isSecondPlayer;
 
-    if (!(isPlayer1Turn || isPlayer2Turn)) {
-      sendPayload(currentPlayer, GET_RESPONSE, "Please wait for your turn");
+    if (!(isFirstPlayerTurn || isSecondPlayerTurn)) {
+      sendPayload(currentPlayerSocket, GET_RESPONSE, "Please wait for your turn");
       return;
     }
 
     try {
       // Apply the check mark to the appropriate player's board
-      this.gameBoards.forEach((gameBoard) => gameBoard.addCheckMark(value));
+      this.playerBoards.forEach((board) => board.addCheckMark(value));
 
       // Send the check mark data to the opponent
-      const data: PAYLOAD_PUT_GET_CHECK_MARK = {
+      const checkMarkData: PAYLOAD_PUT_GET_CHECK_MARK = {
         type: GET_CHECK_MARK,
         payload: {
           gameId: this.gameId,
@@ -92,27 +107,56 @@ export class Game {
         },
       };
 
-      const waitingPlayer = isPlayer1 ? this.player2 : this.player1;
-      sendPayload(waitingPlayer, GET_CHECK_MARK, data);
+      const waitingPlayerSocket = isFirstPlayer ? this.p2_socket : this.p1_socket;
+      sendPayload(waitingPlayerSocket, GET_CHECK_MARK, checkMarkData);
 
       // sending all checkBoxes data
-
-      this.players.forEach((player, index) => {
-        const data : PAYLOAD_GET_CHECKBOXES = {
+      this.playerSockets.forEach((socket, index) => {
+        const checkBoxesData: PAYLOAD_GET_CHECKBOXES = {
           type: GET_CHECKBOXES,
-          payload:{
-            checkedBoxes: this.gameBoards[index].getCheckBoxes(),
-            checkedLines: this.gameBoards[index].getLineCheckBoxes(),
-          }
+          payload: {
+            checkedBoxes: this.playerBoards[index].getCheckBoxes(),
+            checkedLines: this.playerBoards[index].getLineCheckBoxes(),
+          },
         };
-        sendPayload(player, GET_CHECKBOXES, data );
+        sendPayload(socket, GET_CHECKBOXES, checkBoxesData);
       });
 
       // Increment the move count
       this.moveCount++;
     } catch (error: any) {
       console.error("ERROR", error.mesages);
-      sendPayload(currentPlayer, GET_RESPONSE, error.message);
+      sendPayload(currentPlayerSocket, GET_RESPONSE, error.message);
+    }
+  }
+
+  resign(currentPlayerSocket: WebSocket) {
+    const isFirstPlayer = currentPlayerSocket === this.p1_socket;
+    const isSecondPlayer = currentPlayerSocket === this.p2_socket;
+
+    if (isFirstPlayer) {
+      // Notify first player that they lost
+      sendPayload(this.p1_socket, GET_LOST, {
+        message: "You resigned and lost the game.",
+      });
+      // Notify second player that they won
+      sendPayload(this.p2_socket, GET_VICTORY, {
+        message: "Your opponent resigned. You won!",
+      });
+    } else if (isSecondPlayer) {
+      // Notify second player that they lost
+      sendPayload(this.p2_socket, GET_LOST, {
+        message: "You resigned and lost the game.",
+      });
+      // Notify first player that they won
+      sendPayload(this.p1_socket, GET_VICTORY, {
+        message: "Your opponent resigned. You won!",
+      });
+    }
+
+    // Cleanup logic
+    if (isFirstPlayer || isSecondPlayer) {
+      // this.endGame();
     }
   }
 }

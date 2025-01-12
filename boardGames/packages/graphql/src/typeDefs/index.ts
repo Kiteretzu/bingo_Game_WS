@@ -5,6 +5,8 @@ export const typeDefs = gql`
   scalar JSON
 
 
+   scalar JSON
+
   enum Leagues {
     BRONZE
     SILVER
@@ -45,19 +47,16 @@ export const typeDefs = gql`
     league: Leagues
     preferredBoards: [JSON]
     gameHistory: [BingoGame]
-    user: User
     userId: String!
+    user: User
   }
 
   type BingoGame {
     id: String!
-    player1Id: String
-    player2Id: String
+    Players: [BingoProfile]
     gameboards: [JSON]
     matchHistory: [JSON]
     winMethod: Win_method
-    bingoProfile: BingoProfile
-    bingoId: String
     gameWinnerId: String
     tossWinnerId: String
   }
@@ -68,7 +67,7 @@ export const typeDefs = gql`
     player2Id: String!
     ratio: JSON
   }
-
+  
   # Queries
   type Query {
     authUser: User

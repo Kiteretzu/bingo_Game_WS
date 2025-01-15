@@ -24,6 +24,7 @@ import { useSocketContext } from "@/context/SocketContext";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { initialGameboard, setChecks } from "@/store/slices/bingoSlice";
 import { useNavigate } from "react-router-dom";
+import { useDialogContext } from "@/context/DialogContext";
 
 function useBingo() {
   const reduxState = useAppSelector((state) => ({
@@ -48,6 +49,7 @@ function useBingo() {
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
+  const { setIsMatchFound, setMatchFoundData} = useDialogContext()
 
   // Function to send data over socket
   function sendData(type: string, payload: any) {
@@ -85,7 +87,9 @@ function useBingo() {
           const data = parsedMessage as PAYLOAD_GET_GAME;
           setIsFinding(false);
           dispatch(initialGameboard(data));
-          navigate(`/game/${data.payload.gameId}`);
+          setIsMatchFound(true)
+          setMatchFoundData(data.payload.players)
+          // navigate(`/game/${data.payload.gameId}`);
           break;
         }
 

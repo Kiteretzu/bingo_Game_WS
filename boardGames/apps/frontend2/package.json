@@ -17,7 +17,7 @@
     "@radix-ui/react-separator": "^1.1.1",
     "@radix-ui/react-slot": "^1.1.1",
     "@radix-ui/react-tooltip": "^1.1.6",
-    "@react-spring/three": "^9.7.5",
+    "@react-s pring/three": "^9.7.5",
     "@react-three/drei": "^9.120.8",
     "@react-three/fiber": "^8.17.12",
     "@reduxjs/toolkit": "^2.5.0",

@@ -20,7 +20,7 @@ function GameBoard() {
     <Card className="bg-gray-800/50 shrink-0 border-none w-full min-w-[370px] lg:min-w-[450px] ">
       <CardContent className="p-0">
         <div className="grid grid-cols-5 gap-2  border p-4 rounded-xl border-gray-700 max-w-md mx-auto">
-          {obj.map((box: Box) => {
+          {gameBoard.map((box: Box) => {
             const isChecked = checkedBoxes?.includes(box.boxName)
             const isInLineData = checkedLines && checkedLines.some((line: BoxesName[]) => line.includes(box.boxName))
 

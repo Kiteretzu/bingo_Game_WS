@@ -1,7 +1,7 @@
 import React, { useRef } from 'react';
 import FindMatchButton from '@/components/buttons/FindMatchButton';
 import useBingo from '@/hooks/useBingo';
-import MatchFoundScreen from '@/components/models/match-found-model';
+import MatchFoundScreen from '@/components/dialog/matchFound-dialog';
 
 
 const dummyPlayer1 = {

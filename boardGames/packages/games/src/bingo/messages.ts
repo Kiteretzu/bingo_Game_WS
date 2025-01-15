@@ -162,6 +162,13 @@ export interface PAYLOAD_PUT_RESIGN {
   };
 }
 
+export interface PAYLOAD_PUT_TOSS_DECISION {
+  type: MessageType.PUT_TOSS_DECISION;
+  payload: {
+    decision: TossDecision
+  }
+}
+
 export interface PAYLOAD_PUT_CANCEL_GAME_INIT {
   type: MessageType.PUT_CANCEL_GAME_INIT;
 }
@@ -178,6 +185,12 @@ export interface Message {
 // player data stored i
 // very DIfferent
 
+interface PlayerProfile {
+  id: string;
+  mmr: number;
+  league: string | null;
+}
+
 export interface PlayerData {
   user: {
     googleId: string;
@@ -187,11 +200,6 @@ export interface PlayerData {
   }
 }
 
-interface PlayerProfile {
-  id: string;
-  mmr: number;
-  league: string | null;
-}
 
 export interface PlayerGameboardData {
   playerId: string;

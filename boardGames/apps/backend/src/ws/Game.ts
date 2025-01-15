@@ -84,8 +84,8 @@ export class Game {
     });
     
     // redisHandle
-redis_newGame(this.gameId, this.tossWinner, this.playerData,  this.playerGameboardData )
-
+    redis_newGame(this.gameId, this.tossWinner, this.playerData,  this.playerGameboardData )
+    console.log('redis newGame',)
   }
 
   private endGame(method: WinMethodTypes, winner: string) {}
@@ -122,6 +122,7 @@ redis_newGame(this.gameId, this.tossWinner, this.playerData,  this.playerGameboa
       const waitingPlayerSocket = isFirstPlayer ? this.p2_socket : this.p1_socket;
       sendPayload(waitingPlayerSocket, GET_CHECK_MARK, checkMarkData);
       redis_addMove(this.gameId, this.moveCount, value, Date.now())
+      console.log('addMove reduis')
 
       // sending all checkBoxes data
       this.playerSockets.forEach((socket, index) => {

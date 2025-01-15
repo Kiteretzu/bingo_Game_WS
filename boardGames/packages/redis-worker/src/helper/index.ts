@@ -62,7 +62,7 @@ export const redis_newGame = async (
       },
     };
 
-    await redisClient.lPush("new-game", JSON.stringify(newGameObj));
+    await redisClient.lPush("game-requests", JSON.stringify(newGameObj));
   } catch (error) {
     console.error("Error interacting with Redis:", error);
   } finally {

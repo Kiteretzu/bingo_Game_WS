@@ -6,6 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles } from "lucide-react";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { PlayerData } from "@repo/games/bingo/messages";
+import { useNavigate } from "react-router-dom";
+import { useAppSelector } from "@/store/hooks";
 
 interface MatchFoundScreenProps {
     data: PlayerData[];
@@ -14,14 +16,22 @@ interface MatchFoundScreenProps {
 export default function MatchFoundScreen({ data }: MatchFoundScreenProps) {
     const [countdown, setCountdown] = useState(5);
     const [player1, player2] = data;
+    const navigate = useNavigate()
+    const bingoId = useAppSelector(state => state.bingo.game.gameId)
 
     useEffect(() => {
         const timer = setInterval(() => {
-            setCountdown((prevCount) => (prevCount > 1 ? prevCount - 1 : 1));
+            setCountdown((prevCount) => {
+                if (prevCount === 1) {
+                    clearInterval(timer); // Stop the timer
+                    navigate(`game/${bingoId}`); // Navigate when the countdown reaches 1
+                }
+                return prevCount > 1 ? prevCount - 1 : prevCount;
+            });
         }, 1000);
 
-        return () => clearInterval(timer);
-    }, []);
+        return () => clearInterval(timer); // Cleanup timer on unmount
+    }, [navigate, bingoId]);
 
     return (
         <div className="flex items-center absolute inset-0 justify-center bg-opacity-80 bg-gray-800 backdrop-blur-sm">

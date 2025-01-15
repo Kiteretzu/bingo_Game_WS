@@ -18,6 +18,7 @@ import {
   PUT_GAME_INIT,
   PUT_CANCEL_GAME_INIT,
   PAYLOAD_PUT_CANCEL_GAME_INIT,
+  GET_VICTORY,
 } from "@repo/games/client/bingo/messages";
 import { useEffect, useState } from "react";
 import { useSocketContext } from "@/context/SocketContext";
@@ -104,6 +105,10 @@ function useBingo() {
           const data = parsedMessage as PAYLOAD_PUT_GET_CHECK_MARK;
           setLastValue(data.payload.value);
           break;
+        }
+        case GET_VICTORY: {
+          console.log('hereeee VICTORY!!',)
+          navigate("/victory")
         }
       }
     };

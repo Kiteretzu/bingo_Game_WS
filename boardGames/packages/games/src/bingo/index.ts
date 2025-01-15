@@ -77,7 +77,7 @@ private validations(): void {
     this.LineCount = validCount;
 
     // Check if the game is won
-    if (this.isVictory()) throw new Error("Game has been won");
+    if (this.isVictory()) throw "VICTORY";
 }
 
     addCheckMark(boxValue: BoxesValue): void {

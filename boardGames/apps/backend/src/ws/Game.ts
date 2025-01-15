@@ -85,10 +85,14 @@ export class Game {
     
     // redisHandle
     redis_newGame(this.gameId, this.tossWinner, this.playerData,  this.playerGameboardData )
-    console.log('redis newGame',)
   }
 
-  private endGame(method: WinMethodTypes, winner: string) {}
+  private endGame(method: WinMethodTypes, winner: string) {
+    // send GET_VICTORY
+    // send GET_LOST
+
+    // and save the goals and results in db
+  }
 
   addCheck(currentPlayerSocket: WebSocket, value: BoxesValue) {
     if (Number(value) > 25) {
@@ -122,7 +126,6 @@ export class Game {
       const waitingPlayerSocket = isFirstPlayer ? this.p2_socket : this.p1_socket;
       sendPayload(waitingPlayerSocket, GET_CHECK_MARK, checkMarkData);
       redis_addMove(this.gameId, this.moveCount, value, Date.now())
-      console.log('addMove reduis')
 
       // sending all checkBoxes data
       this.playerSockets.forEach((socket, index) => {
@@ -139,7 +142,11 @@ export class Game {
       // Increment the move count
       this.moveCount++;
     } catch (error: any) {
-      console.error("ERROR", error.mesages);
+      if(error == "VICTORY"){
+        if(this.playerBoards[0].isVictory()) sendPayload(this.playerSockets[0], GET_VICTORY)
+        else if(this.playerBoards[1].isVictory()) sendPayload(this.playerSockets[1], GET_VICTORY)
+      }
+      console.error("ERROR", error);
       sendPayload(currentPlayerSocket, GET_RESPONSE, error.message);
     }
   }

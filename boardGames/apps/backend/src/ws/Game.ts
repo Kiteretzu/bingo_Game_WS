@@ -121,16 +121,17 @@ export class Game {
     } = this.getPlayerContext(currentPlayerSocket);
     switch (gameEndMethod) {
       case GameEndMethod.BINGO: {
-        const VictoryPayload: PAYLOAD_GET_VICTORY = {
+        const VictoryPayload: PAYLOAD_GET_VICTORY['payload'] = {
           method: GameEndMethod.BINGO,
           message: "Bingo!",
+          data: {}
         };
-        const LostPayload: PAYLOAD_GET_LOST = {
+        const LostPayload: PAYLOAD_GET_LOST['payload'] = {
           method: GameEndMethod.BINGO,
           message: "You lost!",
         };
         if (currentPlayerBoard.isVictory()) {
-          sendPayload(currentSocket, GET_VICTORY, VictoryPayload);
+          sendPayload(currentSocket, GET_VICTORY, {...VictoryPayload, data: currentPlayerBoard.getGoals()});
           sendPayload(opponentSocket, GET_LOST, LostPayload);
           opponentPlayerBoard.setGameOver(true);
           console.log("Current player won");
@@ -143,18 +144,19 @@ export class Game {
         break;
       }
       case GameEndMethod.RESIGNATION: {
-      const VictoryPayload: PAYLOAD_GET_VICTORY = {
+      const VictoryPayload: PAYLOAD_GET_VICTORY['payload'] = {
         method: GameEndMethod.RESIGNATION,
         message: "Your opponent resigned. You won!",
+        data: {}
       };
-      const LostPayload: PAYLOAD_GET_LOST = {
+      const LostPayload: PAYLOAD_GET_LOST['payload'] = {
         method: GameEndMethod.RESIGNATION,
         message: "You resigned and lost the game.",
       };
 
       // Simplified logic
       sendPayload(currentSocket, GET_LOST, LostPayload);
-      sendPayload(opponentSocket, GET_VICTORY, VictoryPayload);
+      sendPayload(opponentSocket, GET_VICTORY, {...VictoryPayload, data: opponentPlayerBoard.getGoals()});
       console.log("Game ended due to resignation.");
       break;
       }
@@ -224,6 +226,7 @@ export class Game {
 
       // check if game is won by "Bingo" win method
       if (currentPlayerBoard.isGameOver() || opponentPlayerBoard.isGameOver()) {
+        console.log('in hereGameOVer', currentPlayerBoard.LineCount, opponentPlayerBoard.LineCount)
         this.endGame(currentPlayerSocket, GameEndMethod.BINGO);
       }
     } catch (error: any) {

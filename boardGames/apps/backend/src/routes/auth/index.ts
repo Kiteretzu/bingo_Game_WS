@@ -13,7 +13,9 @@ authRouter.get(
   "/google/callback",
   passport.authenticate("google", { session: false, failureRedirect: "/" }),
   (req, res) => {
+
     const { token } = req.user as PASSPORT_AUTH_USER;
+    console.log('this is tokeN!!!!! ', token)
     // Redirect with the token or send it as JSON, but not both.
     res.redirect(`http://localhost:5173/profile?token=${token}`);
   }

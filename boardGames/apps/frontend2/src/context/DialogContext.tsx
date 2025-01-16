@@ -7,7 +7,7 @@ type DialogContextType = {
     matchFoundData: any; // Replace `any` with the specific type if possible.
     setMatchFoundData: React.Dispatch<React.SetStateAction<any>>;
     isVictory: boolean;
-    setIsVictory: React.Dispatch<React.SetStateAction<boolean>>; 
+    setIsVictory: React.Dispatch<React.SetStateAction<boolean>>;
     victoryData: any; // Replace `any` with the specific type.
     setVictoryData: React.Dispatch<React.SetStateAction<any>>;
     isLost: boolean;

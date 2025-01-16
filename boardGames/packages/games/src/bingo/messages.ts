@@ -133,14 +133,19 @@ export interface PAYLOAD_GET_RESPONSE {
 }
 
 export interface PAYLOAD_GET_VICTORY {
-  // type: MessageType.GET_VICTORY;
+  type: MessageType.GET_VICTORY;
+  payload: {
     method: GameEndMethod,
-    message: string
+    message: string,
+    data: any
+  }
 }
 export interface PAYLOAD_GET_LOST {
-  // type: MessageType.GET_LOST;
+  type: MessageType.GET_LOST;
+  payload: {
     method: GameEndMethod,
     message: string
+  }
 }
 
 export interface PAYLOAD_PUT_GET_CHECK_MARK {

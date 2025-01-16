@@ -18,7 +18,7 @@ function App() {
     <>
       <SocketContextProvider>
         <DialogContextProvider>
-          <AppRoutes />
+        <AppRoutes />
         </DialogContextProvider>
       </SocketContextProvider>
     </>

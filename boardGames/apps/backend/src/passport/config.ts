@@ -16,7 +16,7 @@ export const configurePassport = () => {
       },
       async (accessToken, refreshToken, profile, done) => {
         const { id, displayName } = profile;
-
+        console.log('IN PASSPORT!!!!',)
         try {
           // Check if the user exists in the database
           let user = await client.user.findUnique({
@@ -42,7 +42,7 @@ export const configurePassport = () => {
           const token = jwt.sign(
             { googleId: user.googleId, email: user.email },
             process.env.JWT_SECRET!,
-            { expiresIn: "4h" }
+            { expiresIn: "24h" }
           );
 
           // Send the user and token in the done callback

@@ -6,13 +6,10 @@ import DeveloperMessage from '../components/DeveloperMessage';
 import FindMatchButton from '../components/buttons/FindMatchButton';
 import "@/components/test.css";
 import useBingo from '@/hooks/useBingo';
-import { useAppSelector } from '@/store/hooks';
-import { useDialogContext } from '@/context/DialogContext';
 import MatchFoundScreen from '@/components/dialog/matchFound-dialog';
 
 export default function Dashboard() {
-    const { findMatch, cancelFindMatch, isFinding } = useBingo()
-    const {isMatchFound, matchFoundData} = useDialogContext()
+    const { findMatch, cancelFindMatch, isFinding, isMatchFound, matchFoundData } = useBingo()
     const dummyPLayerData = [
         {
             "user": {

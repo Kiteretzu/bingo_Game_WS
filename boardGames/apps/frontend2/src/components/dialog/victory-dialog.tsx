@@ -5,19 +5,18 @@ import { motion, AnimatePresence } from "framer-motion"
 import { Trophy, X } from 'lucide-react'
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import { useDialogContext } from "@/context/DialogContext"
+import useBingo from "@/hooks/useBingo"
 
 interface VictoryDialogProps {
     isOpen: boolean
-    onClose?: () => void
     winMethod: string
     totalMMR: number
-    baseMMR: number
+    baseMMR: number,
 }
 
-export function VictoryDialog({ isOpen, onClose, winMethod, totalMMR, baseMMR }: VictoryDialogProps) {
+export function VictoryDialog({ isOpen, winMethod, totalMMR, baseMMR }: VictoryDialogProps) {
     const [animatedMMR, setAnimatedMMR] = useState(0)
-    const {setIsVictory} = useDialogContext()
+    const { setIsVictory, isVictory } = useBingo()
 
 
     useEffect(() => {
@@ -32,7 +31,7 @@ export function VictoryDialog({ isOpen, onClose, winMethod, totalMMR, baseMMR }:
     }, [isOpen, totalMMR])
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
+        <Dialog open={isOpen}>
             <DialogContent className="sm:max-w-[500px] border-none bg-gradient-to-br from-[#323250] to-[#14141a] p-0">
                 <AnimatePresence>
                     {isOpen && (
@@ -47,8 +46,11 @@ export function VictoryDialog({ isOpen, onClose, winMethod, totalMMR, baseMMR }:
                                     <Trophy className="mr-3 h-12 w-12" />
                                     Victory!
                                 </DialogTitle>
-                                <DialogClose onClick={() => setIsVictory(false)} asChild>
+                                <DialogClose asChild>
                                     <Button
+                                        onClick={() => {
+                                            console.log('wow',isVictory)
+                                            setIsVictory(false)}}
                                         variant="ghost"
                                         size="icon"
                                         className="absolute right-2 top-2 rounded-full bg-gray-700 hover:bg-gray-600 focus:ring-2 focus:ring-yellow-400 transition-colors duration-200"

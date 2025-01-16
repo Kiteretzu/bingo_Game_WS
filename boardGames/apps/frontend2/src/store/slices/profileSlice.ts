@@ -1,5 +1,5 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { GetProfileQuery } from '@repo/graphql/types/client';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import { GetAuthProfileQuery } from "@repo/graphql/types/client";
 
 interface BingoProfile {
   totalMatches?: number;
@@ -33,10 +33,17 @@ const initialState: ProfileState = {
 
 // Create the slice
 const profileSlice = createSlice({
-  name: 'profile',
+  name: "profile",
   initialState,
   reducers: {
-    initialize: (state, action: PayloadAction<GetProfileQuery | undefined>) => {
+    initialize: (
+      state,
+      action: PayloadAction<GetAuthProfileQuery | undefined>
+    ) => {
+      if (!action.payload) {
+        return initialState; // Reset state directly
+      }
+      console.log("this is action", action);
       const authUser = action.payload?.authUser;
 
       // Mutate the state directly
@@ -53,7 +60,10 @@ const profileSlice = createSlice({
         };
       }
     },
-    logout: () => initialState, // Reset state to initial values
+    logout: () => {
+      localStorage.removeItem('auth-token')
+      return initialState
+    }, // Reset state to initial values
   },
 });
 

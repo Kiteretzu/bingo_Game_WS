@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Skull, MinusCircle, X, Minus } from 'lucide-react'
 import { AnimatePresence, motion } from 'framer-motion'
 import { Button } from '../ui/button'
-import { useDialogContext } from '@/context/DialogContext'
+import useBingo from '@/hooks/useBingo'
 
 interface LostDialogProps {
     isOpen: boolean
@@ -22,7 +22,7 @@ export default function LostDialog({
     mmrLost
 }: LostDialogProps) {
     const [animatedMMR, setAnimatedMMR] = useState(0)
-    const { setIsLost } = useDialogContext()
+    const { setIsLost } = useBingo()
 
     useEffect(() => {
         if (isOpen) {

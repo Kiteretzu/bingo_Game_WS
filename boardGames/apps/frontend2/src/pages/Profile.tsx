@@ -8,6 +8,7 @@ function Profile() {
         const token = queryParams.get('token')
         if (token) {
             localStorage.setItem("auth-token", token)
+
             navigate("/")
         }
     }, [])

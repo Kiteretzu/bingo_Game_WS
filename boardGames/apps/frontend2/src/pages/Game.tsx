@@ -1,25 +1,25 @@
 'use client'
 
 import GameBoard from '@/components/BingoBoard'
-import { useSocket } from '@/hooks/useSocket'
 import PlayerDashBoard from '@/components/PlayerDashBoard'
 import ResignButton from '@/components/buttons/ResignButton'
 import Messages from '@/components/Messages'
 import { Card, CardContent } from '@/components/ui/card'
 import { EmoteSelector } from '@/components/EmoteSelector'
 import { PlayerGoals } from '@/components/player-goals'
-import { useDialogContext } from '@/context/DialogContext'
 import { VictoryDialog } from '@/components/dialog/victory-dialog'
+import useBingo from '@/hooks/useBingo'
 import LostDialog from '@/components/dialog/lost-dialog'
+import  "@/components/test.css";
 
 export default function Game() {
 
-    const { isVictory, isLost } = useDialogContext()
+    const { isVictory, isLost, setIsVictory } = useBingo()
 
     console.log({ isVictory, isLost })
 
     return (
-        <div className="h-screen overflow-hidden bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 text-white flex flex-col">
+        <div className="h-screen overflow-hidden animate-gradient-flow text-white flex flex-col">
             <div className="flex justify-center items-center h-20 py-12 bg-gray-900/80 shadow-lg mb-5 ">
                 <img
                     src="/Bingo.png"
@@ -41,7 +41,7 @@ export default function Game() {
                     <PlayerDashBoard player="Player 2" />
                 </CardContent>
             </Card>
-            <VictoryDialog totalMMR={502} winMethod='Domination' isOpen={true} baseMMR={404} />
+            <VictoryDialog totalMMR={502} winMethod='Domination' isOpen={isVictory} baseMMR={404} />
             <LostDialog isOpen={isLost} mmrLost={24} lostMethod='DOMINATION' />
         </div>
     )

@@ -63,7 +63,7 @@ export default function GameHistory() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="bg-gray-800 p-6 rounded-lg shadow-lg h-full flex flex-col"
+      className="bg-gray-800 border border-gray-500/25 p-6 rounded-lg shadow-lg h-full flex flex-col"
     >
       <motion.h2
         initial={{ y: -20 }}

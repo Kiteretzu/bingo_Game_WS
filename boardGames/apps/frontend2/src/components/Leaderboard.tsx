@@ -1,6 +1,6 @@
 'use client'
 
-import { Trophy, Medal, Award } from 'lucide-react'
+import { Trophy, Medal, Award, StarIcon, WavesLadder, WavesLadderIcon } from 'lucide-react'
 import { motion } from 'framer-motion'
 
 type Player = {
@@ -44,7 +44,7 @@ const itemVariants = {
 export default function Leaderboard() {
   return (
     <motion.div
-      className="bg-gray-800 p-6 rounded-lg shadow-lg h-full flex flex-col"
+      className="bg-gray-800 border border-gray-500/25 p-6 rounded-lg shadow-lg h-full flex flex-col"
       initial="hidden"
       animate="visible"
       variants={containerVariants}
@@ -53,7 +53,7 @@ export default function Leaderboard() {
         className="text-2xl font-bold mb-6 text-gray-100 flex items-center"
         variants={itemVariants}
       >
-        <Trophy className="mr-2 text-yellow-500" />
+        <WavesLadderIcon className="mr-2 text-yellow-500" />
         Leaderboard
       </motion.h2>
 

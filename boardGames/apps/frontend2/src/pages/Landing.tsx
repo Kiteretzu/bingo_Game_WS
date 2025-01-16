@@ -7,6 +7,8 @@ import FindMatchButton from '../components/buttons/FindMatchButton';
 import "@/components/test.css";
 import useBingo from '@/hooks/useBingo';
 import MatchFoundScreen from '@/components/dialog/matchFound-dialog';
+import FriendList from '@/components/FriendList';
+import FindMatch from '@/components/FindMatch';
 
 export default function Dashboard() {
     const { findMatch, cancelFindMatch, isFinding, isMatchFound, matchFoundData } = useBingo()
@@ -53,8 +55,11 @@ export default function Dashboard() {
                 </div>
 
                 {/* Second row */}
-                <div className="col-span-1 row-span-5">
+                <div className="col-span-1 row-span-2">
                     <HowToPlay />
+                </div>
+                <div className="col-span-1 row-span-3">
+                    <FriendList />
                 </div>
                 <div className="col-span-1 row-span-2">
                     <DeveloperMessage />
@@ -62,10 +67,8 @@ export default function Dashboard() {
 
                 {/* Third row */}
                 {isMatchFound && <MatchFoundScreen data={matchFoundData} />}
-                {/* <MatchFoundScreen data={dummyPLayerData} /> */}
-                <div className="col-span-1 flex justify-center items-center row-span-1">
-                    <FindMatchButton findMatch={findMatch} cancelFindMatch={cancelFindMatch} isFinding={isFinding} />
-                </div>
+                <FindMatch />
+                
             </div>
         </div>
     );

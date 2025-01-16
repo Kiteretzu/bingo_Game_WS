@@ -41,9 +41,9 @@ export function PlayerGoals() {
     };
 
     return (
-        <div className="w-full max-h-fit bg-gray-900 text-gray-100 shadow-xl border-gray-800">
-            <CardHeader className="space-y-1 border-b border-gray-800">
-                <CardTitle className="text-2xl font-bold flex items-center justify-center text-amber-500">
+        <Card className="w-full bg-gray-800 text-gray-100 shadow-lg border-gray-700">
+            <CardHeader className="space-y-1 py-3 border-b border-gray-700 bg-gray-800/50">
+                <CardTitle className="text-2xl font-bold flex items-center justify-center text-amber-400">
                     <Trophy className="mr-2" />
                     Player Goals
                 </CardTitle>
@@ -54,35 +54,30 @@ export function PlayerGoals() {
             <CardContent className="pt-4">
                 <TooltipProvider>
                     <ul className="space-y-2">
-                        {initialGoals.map((goal, index) => {
+                        {initialGoals.map((goal) => {
                             const isCompleted = completedGoals.has(goal.id);
                             return (
                                 <li
                                     key={goal.id}
-                                    className={`flex items-center space-x-3 rounded-lg p-3 ${isCompleted ? 'bg-gray-700' : 'bg-gray-800'
-                                        }`}
+                                    className={`flex items-center space-x-3 rounded-lg p-3 ${isCompleted ? 'bg-gray-700/50' : 'bg-gray-700/30'
+                                        } transition-colors duration-200 ease-in-out`}
                                 >
                                     <Checkbox
                                         id={goal.id}
                                         checked={isCompleted}
                                         onCheckedChange={() => toggleGoalCompletion(goal.id)}
-                                        className="border-gray-600 data-[state=checked]:bg-transparent data-[state=checked]:border-white"
+                                        className="border-gray-500 data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500"
                                     />
                                     <label
                                         htmlFor={goal.id}
                                         className="flex-grow text-sm font-medium flex items-center justify-between cursor-pointer"
                                     >
-                                        <span>
-                                            <span
-                                                className={`${isCompleted ? 'line-through text-red-500/90 ' : ''
-                                                    }`}
-                                            >
-                                                {goal.name}
-                                            </span>
+                                        <span className={`${isCompleted ? 'line-through text-gray-400' : 'text-gray-100'}`}>
+                                            {goal.name}
                                         </span>
                                         <Tooltip>
                                             <TooltipTrigger asChild>
-                                                <span className="p-1 rounded-full">
+                                                <span className="p-1 rounded-full hover:bg-gray-600 transition-colors duration-200">
                                                     <Info className="w-4 h-4 text-gray-400" />
                                                 </span>
                                             </TooltipTrigger>
@@ -100,6 +95,7 @@ export function PlayerGoals() {
                     </ul>
                 </TooltipProvider>
             </CardContent>
-        </div>
+        </Card>
     );
 }
+

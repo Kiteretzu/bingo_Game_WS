@@ -20,8 +20,6 @@ type DialogContextType = {
 export const DialogContext = createContext<DialogContextType | null>(null);
 
 const DialogContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-    const socket = useSocket(); // Manage WebSocket connection.
-
     // States for dialog logic
     const [isMatchFound, setIsMatchFound] = useState(false);
     const [matchFoundData, setMatchFoundData] = useState<any>(null); // Replace `any` with a specific type.

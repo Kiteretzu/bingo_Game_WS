@@ -1,40 +1,30 @@
-'use client'
+"use client"
 
-import { useState, useEffect } from 'react'
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
-import { Trophy, Target, Zap, Star, Flame, Check, X } from 'lucide-react'
-
-interface GoalBonus {
-    icon: React.ElementType
-    text: string
-    active: boolean
-    mmr: number
-}
+import { useState, useEffect } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { Trophy, X } from 'lucide-react'
+import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
+import { useDialogContext } from "@/context/DialogContext"
 
 interface VictoryDialogProps {
     isOpen: boolean
-    onClose: () => void
+    onClose?: () => void
     winMethod: string
+    totalMMR: number
     baseMMR: number
-    goalBonuses: GoalBonus[]
 }
 
-export default function VictoryDialog({
-    isOpen,
-    onClose,
-    winMethod,
-    baseMMR,
-    goalBonuses
-}: VictoryDialogProps) {
+export function VictoryDialog({ isOpen, onClose, winMethod, totalMMR, baseMMR }: VictoryDialogProps) {
     const [animatedMMR, setAnimatedMMR] = useState(0)
-    const totalMMR = baseMMR + goalBonuses.reduce((sum, bonus) => bonus.active ? sum + bonus.mmr : sum, 0)
+    const {setIsVictory} = useDialogContext()
+
 
     useEffect(() => {
         if (isOpen) {
             const timer = setTimeout(() => {
                 setAnimatedMMR(totalMMR)
-            }, 500)
+            }, 100)
             return () => clearTimeout(timer)
         } else {
             setAnimatedMMR(0)
@@ -43,53 +33,54 @@ export default function VictoryDialog({
 
     return (
         <Dialog open={isOpen} onOpenChange={onClose}>
-            <DialogContent className="sm:max-w-[425px] bg-gray-900 text-white">
-                <DialogHeader>
-                    <DialogTitle className="text-4xl font-bold text-center flex items-center justify-center text-yellow-400">
-                        <Trophy className="mr-2 h-8 w-8" />
-                        Victory!
-                    </DialogTitle>
-                </DialogHeader>
-                <div className="mt-6 space-y-6">
-                    <div className="text-center">
-                        <h3 className="text-lg font-semibold mb-2 text-gray-300">Win Method</h3>
-                        <Badge variant="secondary" className="text-md px-3 py-1 bg-gray-700 text-white">
-                            {winMethod}
-                        </Badge>
-                    </div>
-                    <div className="text-center">
-                        <h3 className="text-lg font-semibold mb-2 text-gray-300">Total MMR Gained</h3>
-                        <span className="text-3xl font-bold text-green-400">
-                            +{animatedMMR}
-                        </span>
-                    </div>
-                    <div>
-                        <h3 className="text-lg font-semibold mb-4 text-center text-gray-300">Goal Bonuses</h3>
-                        <ul className="space-y-3">
-                            {goalBonuses.map((bonus, index) => (
-                                <li key={index} className="flex items-center justify-between p-2 rounded-lg bg-gray-800">
-                                    <div className="flex items-center">
-                                        {bonus.active ? (
-                                            <Check className="mr-2 h-5 w-5 text-green-400" />
-                                        ) : (
-                                            <X className="mr-2 h-5 w-5 text-red-400" />
-                                        )}
-                                        <span className={`flex items-center ${bonus.active ? 'text-white' : 'text-gray-400'}`}>
-                                            <bonus.icon className="mr-2 h-4 w-4" />
-                                            {bonus.text}
-                                        </span>
+            <DialogContent className="sm:max-w-[500px] border-none bg-gradient-to-br from-[#323250] to-[#14141a] p-0">
+                <AnimatePresence>
+                    {isOpen && (
+                        <motion.div
+                            initial={{ scale: 0.9, opacity: 0 }}
+                            animate={{ scale: 1, opacity: 1 }}
+                            exit={{ scale: 0.9, opacity: 0 }}
+                            transition={{ duration: 0.3, type: "spring" }}
+                        >
+                            <DialogHeader className="relative text-center py-6">
+                                <DialogTitle className="text-5xl font-bold text-yellow-400 flex items-center justify-center">
+                                    <Trophy className="mr-3 h-12 w-12" />
+                                    Victory!
+                                </DialogTitle>
+                                <DialogClose onClick={() => setIsVictory(false)} asChild>
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="absolute right-2 top-2 rounded-full bg-gray-700 hover:bg-gray-600 focus:ring-2 focus:ring-yellow-400 transition-colors duration-200"
+                                    >
+                                        <X className="h-4 w-4 text-yellow-400" />
+                                        <span className="sr-only">Close</span>
+                                    </Button>
+                                </DialogClose>
+                            </DialogHeader>
+
+                            <div className="p-6">
+                                <div className="text-center mb-6">
+                                    <h3 className="text-lg font-semibold text-gray-300">Win Method</h3>
+                                    <div className="text-md px-4 py-2 bg-gray-700 text-white rounded-md inline-block">
+                                        {winMethod}
                                     </div>
-                                    <span className={`font-semibold ${bonus.active ? 'text-green-400' : 'text-gray-500'}`}>
-                                        +{bonus.mmr}
+                                </div>
+
+                                <div className="text-center mb-6">
+                                    <h3 className="text-lg font-semibold text-gray-300">Total MMR Gained</h3>
+                                    <span className="text-5xl font-bold text-green-400 animate-pulse">
+                                        +{animatedMMR}
                                     </span>
-                                </li>
-                            ))}
-                        </ul>
-                    </div>
-                    <div className="text-center text-sm text-gray-400">
-                        Base MMR: +{baseMMR} | Bonus MMR: +{totalMMR - baseMMR}
-                    </div>
-                </div>
+                                </div>
+
+                                <div className="text-center text-sm text-gray-400">
+                                    Base MMR: +{baseMMR} | Bonus MMR: +{animatedMMR - baseMMR}
+                                </div>
+                            </div>
+                        </motion.div>
+                    )}
+                </AnimatePresence>
             </DialogContent>
         </Dialog>
     )

@@ -63,15 +63,15 @@ export type Box = {
 // Define the game board type
 export type GameBoard = Box[];
 
-export enum WinMethodTypes {
+export enum GameEndMethod {
   RESIGNATION = "resign",
   ABANDON = "abondon",
   BINGO = "bingo",
 }
 
-export const RESIGNATION = WinMethodTypes.RESIGNATION;
-export const ABANDON = WinMethodTypes.ABANDON;
-export const BINGO = WinMethodTypes.BINGO;
+export const RESIGNATION = GameEndMethod.RESIGNATION;
+export const ABANDON = GameEndMethod.ABANDON;
+export const BINGO = GameEndMethod.BINGO;
 
 // Enum for message types
 export enum MessageType {
@@ -130,6 +130,17 @@ export interface PAYLOAD_GET_RESPONSE {
   payload: {
     message: string;
   };
+}
+
+export interface PAYLOAD_GET_VICTORY {
+  // type: MessageType.GET_VICTORY;
+    method: GameEndMethod,
+    message: string
+}
+export interface PAYLOAD_GET_LOST {
+  // type: MessageType.GET_LOST;
+    method: GameEndMethod,
+    message: string
 }
 
 export interface PAYLOAD_PUT_GET_CHECK_MARK {

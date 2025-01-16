@@ -19,6 +19,7 @@ import {
   PUT_CANCEL_GAME_INIT,
   PAYLOAD_PUT_CANCEL_GAME_INIT,
   GET_VICTORY,
+  GET_LOST,
 } from "@repo/games/client/bingo/messages";
 import { useEffect, useState } from "react";
 import { useSocketContext } from "@/context/SocketContext";
@@ -50,7 +51,7 @@ function useBingo() {
 
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const { setIsMatchFound, setMatchFoundData} = useDialogContext()
+  const { setIsMatchFound, setMatchFoundData, setIsVictory, setVictoryData, setIsLost, setLostData} = useDialogContext()
 
   // Function to send data over socket
   function sendData(type: string, payload: any) {
@@ -107,8 +108,13 @@ function useBingo() {
           break;
         }
         case GET_VICTORY: {
-          console.log('hereeee VICTORY!!',)
-          navigate("/victory")
+          setIsVictory(true)
+          console.log('VICTORY IS MINE BABY!!!',)
+          break;
+        }
+        case GET_LOST: {
+          setIsLost(true)
+          break;
         }
       }
     };

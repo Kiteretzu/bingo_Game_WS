@@ -8,11 +8,15 @@ import Messages from '@/components/Messages'
 import { Card, CardContent } from '@/components/ui/card'
 import { EmoteSelector } from '@/components/EmoteSelector'
 import { PlayerGoals } from '@/components/player-goals'
+import { useDialogContext } from '@/context/DialogContext'
+import { VictoryDialog } from '@/components/dialog/victory-dialog'
+import LostDialog from '@/components/dialog/lost-dialog'
 
 export default function Game() {
-    const socket: WebSocket | null = useSocket()
 
-    if (!socket) return null
+    const { isVictory, isLost } = useDialogContext()
+
+    console.log({ isVictory, isLost })
 
     return (
         <div className="h-screen overflow-hidden bg-gradient-to-br from-gray-900 via-slate-800 to-gray-900 text-white flex flex-col">
@@ -37,6 +41,8 @@ export default function Game() {
                     <PlayerDashBoard player="Player 2" />
                 </CardContent>
             </Card>
+            <VictoryDialog totalMMR={502} winMethod='Domination' isOpen={true} baseMMR={404} />
+            <LostDialog isOpen={isLost} mmrLost={24} lostMethod='DOMINATION' />
         </div>
     )
 }

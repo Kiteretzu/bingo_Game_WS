@@ -7,7 +7,8 @@ import {
   GET_CHECK_MARK,
   GET_CHECKBOXES,
   GET_VICTORY,
-  GET_LOST
+  GET_LOST,
+  PAYLOAD_GET_RECIEVE_EMOTE
 } from "@repo/games/client/bingo/messages";
 import { WebSocket } from "ws";
 
@@ -55,6 +56,16 @@ export function sendPayload(to: WebSocket, type: MessageType, data?: any): void 
         JSON.stringify({
           type,
           payload: data, // Send an empty payload for GET_LOST
+        })
+      );
+      break;
+    }
+
+    case MessageType.GET_RECIEVE_EMOTE: {
+      to.send(
+        JSON.stringify({
+          type,
+          payload: data as PAYLOAD_GET_RECIEVE_EMOTE["payload"],
         })
       );
       break;

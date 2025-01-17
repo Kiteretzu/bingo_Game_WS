@@ -91,6 +91,8 @@ export enum MessageType {
   // consideration
   // GET_GAME_ID = "get_game_id",
   // GET_GAMEBOARD = "send_game_board",
+  PUT_SEND_EMOTE = "put_send_emote",
+  GET_RECIEVE_EMOTE = "get_recieve_emote", 
 }
 
 // server response mesages
@@ -108,6 +110,8 @@ export const GET_GAME = MessageType.GET_GAME;
 export const GET_CHECKBOXES = MessageType.GET_CHECKBOXES;
 export const GET_VICTORY = MessageType.GET_VICTORY;
 export const GET_LOST = MessageType.GET_LOST;
+export const PUT_SEND_EMOTE = MessageType.PUT_SEND_EMOTE;
+export const GET_RECIEVE_EMOTE = MessageType.GET_RECIEVE_EMOTE;
 
 // Data interface for the message data
 export interface DATA {
@@ -147,6 +151,22 @@ export interface PAYLOAD_GET_LOST {
     message: string
   }
 }
+
+export interface PAYLOAD_PUT_SEND_EMOTE {
+ type: MessageType.PUT_SEND_EMOTE;
+  payload: {
+    gameId: string;
+    emote: string;
+  } 
+}
+
+export interface PAYLOAD_GET_RECIEVE_EMOTE {
+  type: MessageType.GET_RECIEVE_EMOTE;
+  payload: {
+    emote: string;
+  }
+}
+
 
 export interface PAYLOAD_PUT_GET_CHECK_MARK {
   type: MessageType.PUT_CHECK_MARK | MessageType.GET_CHECK_MARK;

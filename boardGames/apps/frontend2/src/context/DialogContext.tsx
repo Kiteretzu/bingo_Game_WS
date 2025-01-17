@@ -14,6 +14,8 @@ type DialogContextType = {
     setIsLost: React.Dispatch<React.SetStateAction<boolean>>;
     lostData: any; // Replace `any` with the specific type.
     setLostData: React.Dispatch<React.SetStateAction<any>>;
+    emote: string;
+    setEmote: React.Dispatch<React.SetStateAction<string>>;
 };
 
 // Create a context with a default value of `null`
@@ -27,6 +29,7 @@ const DialogContextProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const [victoryData, setVictoryData] = useState<any>(null); // Replace `any` with a specific type.
     const [isLost, setIsLost] = useState(false);
     const [lostData, setLostData] = useState<any>(null); // Replace `any` with a specific type.
+    const [emote, setEmote] = useState<string>("");
 
     return (
         <DialogContext.Provider
@@ -43,6 +46,8 @@ const DialogContextProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 setIsLost,
                 lostData,
                 setLostData,
+                emote,
+                setEmote,
             }}
         >
             {children}

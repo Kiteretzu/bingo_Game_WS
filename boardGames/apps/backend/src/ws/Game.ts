@@ -18,6 +18,8 @@ import {
   GameEndMethod,
   PAYLOAD_GET_VICTORY,
   PAYLOAD_GET_LOST,
+  MessageType,
+  PAYLOAD_GET_RECIEVE_EMOTE,
 } from "@repo/games/client/bingo/messages";
 import { Bingo } from "@repo/games/bingo";
 import { sendPayload } from "../helper/wsSend";
@@ -121,17 +123,20 @@ export class Game {
     } = this.getPlayerContext(currentPlayerSocket);
     switch (gameEndMethod) {
       case GameEndMethod.BINGO: {
-        const VictoryPayload: PAYLOAD_GET_VICTORY['payload'] = {
+        const VictoryPayload: PAYLOAD_GET_VICTORY["payload"] = {
           method: GameEndMethod.BINGO,
           message: "Bingo!",
-          data: {}
+          data: {},
         };
-        const LostPayload: PAYLOAD_GET_LOST['payload'] = {
+        const LostPayload: PAYLOAD_GET_LOST["payload"] = {
           method: GameEndMethod.BINGO,
           message: "You lost!",
         };
         if (currentPlayerBoard.isVictory()) {
-          sendPayload(currentSocket, GET_VICTORY, {...VictoryPayload, data: currentPlayerBoard.getGoals()});
+          sendPayload(currentSocket, GET_VICTORY, {
+            ...VictoryPayload,
+            data: currentPlayerBoard.getGoals(),
+          });
           sendPayload(opponentSocket, GET_LOST, LostPayload);
           opponentPlayerBoard.setGameOver(true);
           console.log("Current player won");
@@ -144,25 +149,27 @@ export class Game {
         break;
       }
       case GameEndMethod.RESIGNATION: {
-      const VictoryPayload: PAYLOAD_GET_VICTORY['payload'] = {
-        method: GameEndMethod.RESIGNATION,
-        message: "Your opponent resigned. You won!",
-        data: {}
-      };
-      const LostPayload: PAYLOAD_GET_LOST['payload'] = {
-        method: GameEndMethod.RESIGNATION,
-        message: "You resigned and lost the game.",
-      };
+        const VictoryPayload: PAYLOAD_GET_VICTORY["payload"] = {
+          method: GameEndMethod.RESIGNATION,
+          message: "Your opponent resigned. You won!",
+          data: {},
+        };
+        const LostPayload: PAYLOAD_GET_LOST["payload"] = {
+          method: GameEndMethod.RESIGNATION,
+          message: "You resigned and lost the game.",
+        };
 
-      // Simplified logic
-      sendPayload(currentSocket, GET_LOST, LostPayload);
-      sendPayload(opponentSocket, GET_VICTORY, {...VictoryPayload, data: opponentPlayerBoard.getGoals()});
-      console.log("Game ended due to resignation.");
-      break;
+        // Simplified logic
+        sendPayload(currentSocket, GET_LOST, LostPayload);
+        sendPayload(opponentSocket, GET_VICTORY, {
+          ...VictoryPayload,
+          data: opponentPlayerBoard.getGoals(),
+        });
+        console.log("Game ended due to resignation.");
+        break;
       }
       // abondon logic and when it get invoked
       case GameEndMethod.ABANDON: {
-
         break;
       }
     }
@@ -226,7 +233,11 @@ export class Game {
 
       // check if game is won by "Bingo" win method
       if (currentPlayerBoard.isGameOver() || opponentPlayerBoard.isGameOver()) {
-        console.log('in hereGameOVer', currentPlayerBoard.LineCount, opponentPlayerBoard.LineCount)
+        console.log(
+          "in hereGameOVer",
+          currentPlayerBoard.LineCount,
+          opponentPlayerBoard.LineCount
+        );
         this.endGame(currentPlayerSocket, GameEndMethod.BINGO);
       }
     } catch (error: any) {
@@ -258,5 +269,15 @@ export class Game {
 
   resign(currentPlayerSocket: WebSocket) {
     this.endGame(currentPlayerSocket, GameEndMethod.RESIGNATION);
+  }
+
+  sendEmote(currentPlayerSocket: WebSocket, emote: string) {
+    const { opponentPlayerSocket } = this.getPlayerContext(currentPlayerSocket);
+
+    const data : PAYLOAD_GET_RECIEVE_EMOTE['payload'] = {
+      emote  
+    }
+
+    sendPayload(opponentPlayerSocket, MessageType.GET_RECIEVE_EMOTE, data)
   }
 }

@@ -9,6 +9,7 @@ datasource db {
 
 model User {
   googleId     String        @id @unique @default(uuid())
+  isAdmin      Boolean       @default(false)
   displayName  String?
   email        String?
   avatar       String?

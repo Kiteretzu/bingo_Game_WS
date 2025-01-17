@@ -15,6 +15,8 @@ import {
   PUT_RESIGN,
   PAYLOAD_PUT_RESIGN,
   PlayerData,
+  PUT_SEND_EMOTE,
+  PAYLOAD_PUT_SEND_EMOTE,
 } from "@repo/games/client/bingo/messages";
 import { getPlayerData } from "./helper";
 import { redis_newGame } from "@repo/redis-worker/test";
@@ -118,6 +120,16 @@ export class GameManager {
             if (game) {
               game.resign(socket);
             }
+          }
+
+          case PUT_SEND_EMOTE: {
+            const data = message as PAYLOAD_PUT_SEND_EMOTE;
+            const gameId = data.payload.gameId;
+            const game: Game | undefined = this.games.get(gameId);
+            if (game) {
+              game.sendEmote(socket, data.payload.emote);
+            }
+            break;
           }
 
           default:

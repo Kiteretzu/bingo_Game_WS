@@ -13,7 +13,9 @@ import {
   GET_CHECK_MARK,
   GET_VICTORY,
   GET_LOST,
-  BoxesValue,
+  PUT_SEND_EMOTE,
+  GET_RECIEVE_EMOTE,
+  PAYLOAD_GET_RECIEVE_EMOTE,
 } from "@repo/games/client/bingo/messages";
 import { MessageType, PAYLOAD_GET_GAME, PAYLOAD_GET_RESPONSE, PAYLOAD_GET_CHECKBOXES, PAYLOAD_PUT_GET_CHECK_MARK, PAYLOAD_GET_VICTORY, PAYLOAD_GET_LOST } from "@repo/games/client/bingo/messages";
 import { useDialogContext } from "@/context/DialogContext";
@@ -34,7 +36,7 @@ function useBingo() {
 
   // Dialog-related states
 
-const {setIsVictory, isLost, isMatchFound, isVictory, lostData, matchFoundData, setIsLost, setIsMatchFound, setLostData, setMatchFoundData, setVictoryData, victoryData} = useDialogContext()
+const {setIsVictory, isLost, isMatchFound, isVictory, lostData, matchFoundData, setIsLost, setIsMatchFound, setLostData, setMatchFoundData, setVictoryData, victoryData, emote, setEmote} = useDialogContext()
   // Sync Redux state for game-related logic
   const gameId = reduxState.gameId;
   const gameBoard = reduxState.gameBoard;
@@ -101,6 +103,12 @@ const {setIsVictory, isLost, isMatchFound, isVictory, lostData, matchFoundData, 
           setIsLost(true);
           break;
         }
+
+        case GET_RECIEVE_EMOTE: {
+          const data = parsedMessage as PAYLOAD_GET_RECIEVE_EMOTE;
+          setEmote(data.payload.emote);
+          break;
+        }
       }
     };
   }, [socket, dispatch]);
@@ -120,6 +128,10 @@ const {setIsVictory, isLost, isMatchFound, isVictory, lostData, matchFoundData, 
     sendData(PUT_CHECK_MARK, { gameId, value });
   };
 
+  const sendEmote = (emote: string) => {
+    sendData(PUT_SEND_EMOTE, { gameId, emote });
+  }
+
   return {
     gameBoard,
     checkedBoxes,
@@ -130,6 +142,7 @@ const {setIsVictory, isLost, isMatchFound, isVictory, lostData, matchFoundData, 
     matchFoundData,
     gameLoading,
     response,
+    emote,
     lastValue,
     isLost,
     isVictory,
@@ -137,6 +150,7 @@ const {setIsVictory, isLost, isMatchFound, isVictory, lostData, matchFoundData, 
     setIsLost,
     findMatch,
     addCheck,
+    sendEmote,
     cancelFindMatch,
   };
 }

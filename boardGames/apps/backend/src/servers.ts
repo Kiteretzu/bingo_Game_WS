@@ -17,6 +17,7 @@ import { configurePassport } from "passport/config";
 import authRouter from "routes/auth";
 import { buildContext } from "graphql-passport";
 import customContext from "helper/customContext";
+import adminRouter from "routes/auth/adminAuth";
 
 // Initialize Apollo Server
 export const setupApolloServer = async (httpServer: http.Server) => {
@@ -62,6 +63,7 @@ export const setupExpressApp = async (
     configurePassport();
 
     app.use("/auth", authRouter);
+    app.use("/admin", adminRouter)
     app.use(
       "/graphql",
       cors<cors.CorsRequest>(),

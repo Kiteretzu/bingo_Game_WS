@@ -23,6 +23,7 @@ import {
   PAYLOAD_GET_UPDATED_GAME,
   GET_UPDATED_GAME,
   MatchHistory,
+  GoalType,
 } from "@repo/games/client/bingo/messages";
 import { Bingo } from "@repo/games/bingo";
 import { sendPayload } from "../helper/wsSend";
@@ -117,6 +118,145 @@ export class Game {
     };
   }
 
+  private mmrAllocation(winnerSocket: WebSocket): {winner: any, loser: any} {
+    const { currentPlayerBoard, opponentPlayerBoard } =
+      this.getPlayerContext(winnerSocket);
+    let totalWinningPoints = 0;
+    let totalLosingPoints = 0;
+    const baseWinningPoints = Math.floor(Math.random() * 5) + 20;
+    const baseLosingPoints = Math.floor(Math.random() * 5) + 35;
+
+    // now calculate bonus points on basis of goals
+    let bonusPoints = 0;
+    let firstBloodPoints = 0;
+    let doubleKillPoints = 0;
+    let tripleKillPoints = 0;
+    let perfectionistPoints = 0;
+    let rampagePoints = 0;
+
+    const goals = currentPlayerBoard.getGoals();
+    goals.forEach((goal) => {
+      switch (goal.goalName) {
+        case GoalType.FIRST_BLOOD: {
+          // on random give 2-6 points
+          firstBloodPoints += Math.floor(Math.random() * 5) + 2;
+          break;
+        }
+        case GoalType.DOUBLE_KILL: {
+          // on random give 6-12 points
+          doubleKillPoints += Math.floor(Math.random() * 6) + 6;
+          break;
+        }
+        case GoalType.TRIPLE_KILL: {
+          // on random give 12-18 points
+          tripleKillPoints += Math.floor(Math.random() * 6) + 12;
+          break;
+        }
+        case GoalType.PERFECTIONIST: {
+          // on random give 25-35 points
+          perfectionistPoints += Math.floor(Math.random() * 10) + 25;
+          break;
+        }
+        case GoalType.RAMPAGE: {
+          // on random give 18-25 points
+          rampagePoints += Math.floor(Math.random() * 7) + 18;
+          break;
+        }
+      }
+    });
+    totalWinningPoints +=
+      baseWinningPoints +
+      firstBloodPoints +
+      doubleKillPoints +
+      tripleKillPoints +
+      perfectionistPoints +
+      rampagePoints;
+    totalLosingPoints += baseLosingPoints;
+    return {
+      winner: {
+        totalWinningPoints,
+        baseWinningPoints,
+        firstBloodPoints,
+        doubleKillPoints,
+        tripleKillPoints,
+        perfectionistPoints,
+        rampagePoints,
+      },
+      loser: {
+        totalLosingPoints,
+        baseLosingPoints,
+      },
+    };
+  }
+
+  private bingoEndGame(socket: WebSocket) {
+    const {
+      currentPlayerBoard,
+      opponentPlayerBoard,
+      currentPlayerSocket,
+      opponentPlayerSocket,
+    } = this.getPlayerContext(socket);
+    const VictoryPayload: PAYLOAD_GET_VICTORY["payload"] = {
+      method: GameEndMethod.BINGO,
+      message: "Bingo! You won!",
+      data: null,
+    };
+    const LostPayload: PAYLOAD_GET_LOST["payload"] = {
+      method: GameEndMethod.BINGO,
+      message: "You lost! Your opponent won the game.",
+      data: null,
+    };
+    if (currentPlayerBoard.isVictory()) {
+      const {winner, loser} = this.mmrAllocation(currentPlayerSocket);
+      console.log("Current player won");
+
+      sendPayload(currentPlayerSocket, GET_VICTORY, {
+        ...VictoryPayload,
+        data: winner,
+      });
+      sendPayload(opponentPlayerSocket, GET_LOST, {...LostPayload, data: loser});
+      opponentPlayerBoard.setGameOver(true);
+
+    } else if (opponentPlayerBoard.isVictory()) {
+          const {winner, loser} = this.mmrAllocation(opponentPlayerSocket);
+
+      sendPayload(opponentPlayerSocket, GET_VICTORY, {
+        ...VictoryPayload,
+        goals: winner,
+      });
+      sendPayload(currentPlayerSocket, GET_LOST, {...LostPayload, data: loser});
+      currentPlayerBoard.setGameOver(true);
+      console.log("Opponent player won");
+    }
+  }
+
+  private resignationEndGame(socket: WebSocket) {
+    const {
+      currentPlayerBoard,
+      opponentPlayerBoard,
+      currentPlayerSocket,
+      opponentPlayerSocket,
+    } = this.getPlayerContext(socket);
+
+    const {winner, loser} = this.mmrAllocation(opponentPlayerSocket);
+
+    const VictoryPayload: PAYLOAD_GET_VICTORY["payload"] = {
+      method: GameEndMethod.RESIGNATION,
+      message: "Your opponent resigned. You won!",
+      data: winner, // as currentSocket resigned
+    };
+    const LostPayload: PAYLOAD_GET_LOST["payload"] = {
+      method: GameEndMethod.RESIGNATION,
+      message: "You resigned and lost the game.",
+      data: loser,
+    };
+
+    // Simplified logic
+    sendPayload(currentPlayerSocket, GET_LOST, LostPayload);
+    sendPayload(opponentPlayerSocket, GET_VICTORY, VictoryPayload);
+    console.log("Game ended due to resignation.");
+  }
+
   private endGame(
     currentPlayerSocket: WebSocket,
     gameEndMethod: GameEndMethod
@@ -129,46 +269,11 @@ export class Game {
     } = this.getPlayerContext(currentPlayerSocket);
     switch (gameEndMethod) {
       case GameEndMethod.BINGO: {
-        const VictoryPayload: PAYLOAD_GET_VICTORY["payload"] = {
-          method: GameEndMethod.BINGO,
-          message: "Bingo! You won!",
-          goals: null,
-        };
-        const LostPayload: PAYLOAD_GET_LOST["payload"] = {
-          method: GameEndMethod.BINGO,
-          message: "You lost! Your opponent won the game.",
-        };
-        if (currentPlayerBoard.isVictory()) {
-          sendPayload(currentSocket, GET_VICTORY, {
-            ...VictoryPayload,
-            goals: currentPlayerBoard.getGoals(),
-          });
-          sendPayload(opponentSocket, GET_LOST, LostPayload);
-          opponentPlayerBoard.setGameOver(true);
-          console.log("Current player won");
-        } else if (opponentPlayerBoard.isVictory()) {
-          sendPayload(opponentSocket, GET_VICTORY, {...VictoryPayload, goals: opponentPlayerBoard.getGoals()});
-          sendPayload(currentSocket, GET_LOST, LostPayload);
-          currentPlayerBoard.setGameOver(true);
-          console.log("Opponent player won");
-        }
+        this.bingoEndGame(currentPlayerSocket);
         break;
       }
       case GameEndMethod.RESIGNATION: {
-        const VictoryPayload: PAYLOAD_GET_VICTORY["payload"] = {
-          method: GameEndMethod.RESIGNATION,
-          message: "Your opponent resigned. You won!",
-          goals: opponentPlayerBoard.getGoals(), // as currentSocket resigned
-        };
-        const LostPayload: PAYLOAD_GET_LOST["payload"] = {
-          method: GameEndMethod.RESIGNATION,
-          message: "You resigned and lost the game.",
-        };
-
-        // Simplified logic
-        sendPayload(currentSocket, GET_LOST, LostPayload);
-        sendPayload(opponentSocket, GET_VICTORY, VictoryPayload);
-        console.log("Game ended due to resignation.");
+        this.resignationEndGame(currentPlayerSocket);
         break;
       }
       // TODO abondon logic and when it get invoked
@@ -193,8 +298,9 @@ export class Game {
     sendPayload(opponentSocket, GET_CHECK_MARK, checkMarkData);
   }
 
-  private saveMove(currentPlayerSocket:WebSocket, value: BoxesValue) {
-    const {isFirstPlayerTurn, firstPlayerId, secondPlayerId} =  this.getPlayerContext(currentPlayerSocket);
+  private saveMove(currentPlayerSocket: WebSocket, value: BoxesValue) {
+    const { isFirstPlayerTurn, firstPlayerId, secondPlayerId } =
+      this.getPlayerContext(currentPlayerSocket);
 
     this.matchHistory.push({
       move: this.moveCount,
@@ -202,12 +308,17 @@ export class Game {
       by: isFirstPlayerTurn ? firstPlayerId : secondPlayerId,
       timestamp: Date.now(),
     });
-    redis_addMove(this.gameId, this.moveCount, value, isFirstPlayerTurn? firstPlayerId: secondPlayerId , Date.now(),);
+    redis_addMove(
+      this.gameId,
+      this.moveCount,
+      value,
+      isFirstPlayerTurn ? firstPlayerId : secondPlayerId,
+      Date.now()
+    );
   }
 
   private broadcastUpdatedGame() {
     this.playerSockets.forEach((socket, index) => {
-      
       const updatedGameData: PAYLOAD_GET_UPDATED_GAME = {
         type: GET_UPDATED_GAME,
         payload: {
@@ -220,9 +331,9 @@ export class Game {
         },
       };
 
-      console.log('this is index', index, this.playerBoards[index].getGoals());
+      console.log("this is index", index, this.playerBoards[index].getGoals());
 
-      sendPayload(socket, GET_UPDATED_GAME , updatedGameData);
+      sendPayload(socket, GET_UPDATED_GAME, updatedGameData);
     });
   }
 
@@ -230,27 +341,25 @@ export class Game {
     currentPlayerBoard: Bingo,
     opponentPlayerBoard: Bingo
   ) {
-    console.log('in here checking bloodStatus',)
+    console.log("in here checking bloodStatus");
     if (
       currentPlayerBoard.LineCount <= 1 &&
       opponentPlayerBoard.LineCount === 0
     ) {
-      console.log('Player one got firstBlood',)
+      console.log("Player one got firstBlood");
       currentPlayerBoard.setFirstBlood(true);
-      console.log('this is player one goals', currentPlayerBoard.getGoals())
+      console.log("this is player one goals", currentPlayerBoard.getGoals());
       opponentPlayerBoard.setFirstBlood(false);
-          this.gotFirstBlood = true;
+      this.gotFirstBlood = true;
     } else if (
-    
       currentPlayerBoard.LineCount === 0 &&
       opponentPlayerBoard.LineCount <= 1
     ) {
-        console.log('Player two got firstBlood');
+      console.log("Player two got firstBlood");
       currentPlayerBoard.setFirstBlood(false);
       opponentPlayerBoard.setFirstBlood(true);
-          this.gotFirstBlood = true;
+      this.gotFirstBlood = true;
     }
-
   }
 
   addCheck(currentPlayerSocket: WebSocket, value: BoxesValue) {
@@ -289,17 +398,17 @@ export class Game {
 
       // Save the move in the database and moveHistory
       this.saveMove(currentPlayerSocket, value);
-      
+
       //check for first blood
-      if(!this.gotFirstBlood) {
-      this.checkFirstBloodStatus(currentPlayerBoard, opponentPlayerBoard);
+      if (!this.gotFirstBlood) {
+        this.checkFirstBloodStatus(currentPlayerBoard, opponentPlayerBoard);
       }
       // get the updated ChecksBoxes to all players
       this.broadcastUpdatedGame();
-      
+
       // Increment the move count
       this.moveCount++;
-      
+
       // check if game is won by "Bingo" win method
       if (currentPlayerBoard.isGameOver() || opponentPlayerBoard.isGameOver()) {
         this.endGame(currentPlayerSocket, GameEndMethod.BINGO);

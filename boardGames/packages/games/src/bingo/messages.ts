@@ -166,7 +166,7 @@ export interface PAYLOAD_GET_VICTORY {
   payload: {
     method: GameEndMethod;
     message: string;
-    goals: Goals[] | null;
+    data: any | null;
   };
 }
 export interface PAYLOAD_GET_LOST {
@@ -174,6 +174,7 @@ export interface PAYLOAD_GET_LOST {
   payload: {
     method: GameEndMethod;
     message: string;
+    data: any | null;
   };
 }
 

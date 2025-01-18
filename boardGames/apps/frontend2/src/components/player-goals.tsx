@@ -55,7 +55,7 @@ export function PlayerGoals() {
                 </p>
             </CardHeader>
             <CardContent className="pt-4">
-                <TooltipProvider>
+                <TooltipProvider delayDuration={150}>
                     <ul className="space-y-2">
                         {goals.map((goal) => {
                             // const isCompleted = completedGoals.has(goal.id);

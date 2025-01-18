@@ -8,6 +8,7 @@ import { Separator } from "@/components/ui/separator"
 import { Swords, CoinsIcon } from 'lucide-react'
 import useBingo from '@/hooks/useBingo'
 import { MatchHistory } from '@repo/games/bingo/messages'
+import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@radix-ui/react-tooltip'
 
 function PlayerDashBoard() {
   const { matchHistory, playersData, tossWinner } = useBingo()
@@ -32,9 +33,9 @@ function PlayerDashBoard() {
       <CardHeader className="p-0">
         <CardTitle className="flex flex-col py-3 justify-center items-center border-b border-gray-700">
           <div className="text-2xl font-bold text-center text-amber-400 flex items-center justify-center space-x-2">
-            <span className='max-w-[15ch'>{player1.name}</span>
+            <span className='max-w-[15ch truncate'>{player1.name}</span>
             <Swords className="w-6 h-6" />
-            <span className='max-w-[15ch]'>{player2.name}</span>
+            <span className='max-w-[15ch] truncate'>{player2.name}</span>
           </div>
           <div className="text-sm text-gray-400 flex flex-col items-center">
             <div className="flex items-center mb-1">
@@ -81,19 +82,38 @@ const PlayerColumn = React.memo(({ playerData }: PlayerColumnProps) => {
   const playerKey = isPlayer1 ? 'Player 1' : 'Player 2'
   const borderColor = isPlayer1 ? 'border-blue-400 text-blue-400' : 'border-red-400 text-red-400'
 
+  const tooltipBorderColor = isPlayer1 ? 'border-blue-900' : 'border-red-900'
+
+  const tooltipContent = isPlayer1
+    ? "First move is done by Player 1"
+    : "Second move is done by Player 2"
+
+  
   return (
     <div className="flex-1">
-      <div className="flex items-center justify-center space-x-3 mb-4">
+      <div className="flex items-center justify-center space-x-3 mb-4  select-none">
         <Avatar className="h-16 w-16 border-2 border-amber-400">
           <AvatarImage src={avatar} />
           <AvatarFallback>{name.charAt(0)}</AvatarFallback>
         </Avatar>
-        <div className="text-center">
-          <h3 className="text-lg font-semibold  max-w-[15ch] truncate text-gray-100">{name}</h3>
-          <Badge variant="outline" className={borderColor}>
-            {playerKey}
-          </Badge>
-        </div>
+        <TooltipProvider delayDuration={100}>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="text-center select-none">
+                <h3 className="text-lg font-semibold max-w-[15ch]  truncate text-gray-100">{name}</h3>
+                <Badge variant="outline" className={borderColor}>
+                  {playerKey}
+                </Badge>
+              </div>
+            </TooltipTrigger>
+            <TooltipContent
+              side="top"
+              className={`bg-gray-800/45 text-xs text-gray-100 border ${tooltipBorderColor}`}
+            >
+              <p>{tooltipContent}</p>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
       </div>
       <div className="space-y-2 text-sm">
         {moves.map((move, index) => (

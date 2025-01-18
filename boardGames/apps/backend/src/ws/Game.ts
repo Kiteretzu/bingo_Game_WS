@@ -24,6 +24,7 @@ import {
   GET_UPDATED_GAME,
   MatchHistory,
   GoalType,
+  EndGame,
 } from "@repo/games/client/bingo/messages";
 import { Bingo } from "@repo/games/bingo";
 import { sendPayload } from "../helper/wsSend";
@@ -33,6 +34,7 @@ import {
   redis_newGame,
   redis_tossGameUpdate,
 } from "@repo/redis-worker/test";
+import { kStringMaxLength } from "buffer";
 
 export class Game {
   public gameId: string;
@@ -107,6 +109,8 @@ export class Game {
       isSecondPlayer: !isFirstPlayer,
       isFirstPlayerTurn: this.moveCount % 2 === 1 && isFirstPlayer,
       isSecondPlayerTurn: this.moveCount % 2 === 0 && !isFirstPlayer,
+      currentPlayer: isFirstPlayer ? this.playerData[0] : this.playerData[1],
+      opponentPlayer: isFirstPlayer ? this.playerData[1] : this.playerData[0],
       currentPlayerBoard: isFirstPlayer
         ? this.playerBoards[0]
         : this.playerBoards[1],
@@ -118,7 +122,10 @@ export class Game {
     };
   }
 
-  private mmrAllocation(winnerSocket: WebSocket): {winner: any, loser: any} {
+  private mmrAllocation(winnerSocket: WebSocket): {
+    winnerMMR: any;
+    loserMMR: any;
+  } {
     const { currentPlayerBoard, opponentPlayerBoard } =
       this.getPlayerContext(winnerSocket);
     let totalWinningPoints = 0;
@@ -173,7 +180,7 @@ export class Game {
       rampagePoints;
     totalLosingPoints += baseLosingPoints;
     return {
-      winner: {
+      winnerMMR: {
         totalWinningPoints,
         baseWinningPoints,
         firstBloodPoints,
@@ -182,19 +189,21 @@ export class Game {
         perfectionistPoints,
         rampagePoints,
       },
-      loser: {
+      loserMMR: {
         totalLosingPoints,
         baseLosingPoints,
       },
     };
   }
 
-  private bingoEndGame(socket: WebSocket) {
+  private bingoEndGame(socket: WebSocket): EndGame {
     const {
       currentPlayerBoard,
       opponentPlayerBoard,
       currentPlayerSocket,
       opponentPlayerSocket,
+      currentPlayer,
+      opponentPlayer,
     } = this.getPlayerContext(socket);
     const VictoryPayload: PAYLOAD_GET_VICTORY["payload"] = {
       method: GameEndMethod.BINGO,
@@ -207,26 +216,69 @@ export class Game {
       data: null,
     };
     if (currentPlayerBoard.isVictory()) {
-      const {winner, loser} = this.mmrAllocation(currentPlayerSocket);
+      const { winnerMMR, loserMMR } = this.mmrAllocation(currentPlayerSocket);
       console.log("Current player won");
 
       sendPayload(currentPlayerSocket, GET_VICTORY, {
         ...VictoryPayload,
-        data: winner,
+        data: winnerMMR,
       });
-      sendPayload(opponentPlayerSocket, GET_LOST, {...LostPayload, data: loser});
+      sendPayload(opponentPlayerSocket, GET_LOST, {
+        ...LostPayload,
+        data: loserMMR,
+      });
       opponentPlayerBoard.setGameOver(true);
 
+      return {
+        winner: {
+          id: currentPlayer.user.bingoProfile.id,
+          winnerMMR,
+          winnerGoal: {
+            ...currentPlayerBoard.getGoals(),
+          },
+          lineCount: currentPlayerBoard.LineCount,
+        },
+        loser: {
+          id: opponentPlayer.user.bingoProfile.id,
+          loserMMR,
+          loserGoal: {
+            ...opponentPlayerBoard.getGoals(),
+          },
+          lineCount: opponentPlayerBoard.LineCount,
+        },
+      };
     } else if (opponentPlayerBoard.isVictory()) {
-          const {winner, loser} = this.mmrAllocation(opponentPlayerSocket);
+      const { winnerMMR, loserMMR } = this.mmrAllocation(opponentPlayerSocket);
+      console.log("Opponent player won");
 
       sendPayload(opponentPlayerSocket, GET_VICTORY, {
         ...VictoryPayload,
-        goals: winner,
+        goals: winnerMMR,
       });
-      sendPayload(currentPlayerSocket, GET_LOST, {...LostPayload, data: loser});
+      sendPayload(currentPlayerSocket, GET_LOST, {
+        ...LostPayload,
+        data: loserMMR,
+      });
       currentPlayerBoard.setGameOver(true);
-      console.log("Opponent player won");
+
+      return {
+        winner: {
+          id: opponentPlayer.user.bingoProfile.id,
+          winnerMMR,
+          winnerGoal: {
+            ...opponentPlayerBoard.getGoals(),
+          },
+          lineCount: opponentPlayerBoard.LineCount,
+        },
+        loser: {
+          id: currentPlayer.user.bingoProfile.id,
+          loserMMR,
+          loserGoal: {
+            ...currentPlayerBoard.getGoals(),
+          },
+          lineCount: currentPlayerBoard.LineCount,
+        },
+      };
     }
   }
 
@@ -238,7 +290,7 @@ export class Game {
       opponentPlayerSocket,
     } = this.getPlayerContext(socket);
 
-    const {winner, loser} = this.mmrAllocation(opponentPlayerSocket);
+    const { winner, loser } = this.mmrAllocation(opponentPlayerSocket);
 
     const VictoryPayload: PAYLOAD_GET_VICTORY["payload"] = {
       method: GameEndMethod.RESIGNATION,
@@ -261,15 +313,10 @@ export class Game {
     currentPlayerSocket: WebSocket,
     gameEndMethod: GameEndMethod
   ) {
-    const {
-      currentPlayerBoard,
-      opponentPlayerBoard,
-      currentPlayerSocket: currentSocket,
-      opponentPlayerSocket: opponentSocket,
-    } = this.getPlayerContext(currentPlayerSocket);
+
     switch (gameEndMethod) {
       case GameEndMethod.BINGO: {
-        this.bingoEndGame(currentPlayerSocket);
+        const {winner, loser} = this.bingoEndGame(currentPlayerSocket);
         break;
       }
       case GameEndMethod.RESIGNATION: {

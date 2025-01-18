@@ -64,9 +64,9 @@ export type Box = {
 export type GameBoard = Box[];
 
 export enum GameEndMethod {
-  RESIGNATION = "resign",
-  ABANDON = "abondon",
-  BINGO = "bingo",
+  RESIGNATION = "RESIGNATION",
+  ABANDON = "ABANDON",
+  BINGO = "BINGO",
 }
 
 export const RESIGNATION = GameEndMethod.RESIGNATION;
@@ -278,6 +278,23 @@ export interface PlayerGameboardData {
 export enum TossDecision {
   TOSS_GO_FIRST = "toss-go-first",
   TOSS_GO_SECOND = "toss-go-second",
+}
+
+// very important
+export interface EndGame {
+  winner: {
+    id: string;
+    winnerMMR: number;
+    winnerGoal: Goals[]
+    lineCount: number;
+  }
+  loser: {
+    id: string;
+    loserMMR: number;
+    loserGoal: Goals[];
+    lineCount: number;
+  }
+  winMethod: GameEndMethod;
 }
 
 

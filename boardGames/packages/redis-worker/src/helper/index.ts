@@ -2,12 +2,13 @@ import { client } from "@repo/db/client";
 import {
   BoxesValue,
   GET_GAME,
+  Goals,
   PlayerData,
   PlayerGameboardData,
 } from "@repo/games/bingo/messages";
 import { createClient } from "redis";
 
-import { REQUESTS } from "types";
+import { REDIS_PAYLOAD_END_GAME, REQUESTS } from "types";
 
 // const getter = async (type: REQUESTS) => {
 //     const timerstamp = Date.now()
@@ -146,3 +147,31 @@ export const redis_tossGameUpdate = async (
     await redisClient.disconnect();
   }
 };
+
+
+
+
+export const redis_saveEndGame = async ({gameId, winner, loser, winMethod}: REDIS_PAYLOAD_END_GAME['payload']) => {
+  const redisClient = createClient();
+
+  try {
+    await redisClient.connect();
+
+    const obj: REDIS_PAYLOAD_END_GAME = {
+      type: "end-game",
+      payload: {
+        gameId,
+        winner,
+        loser,
+        winMethod
+      },
+    };
+
+    // Push the new move into the Redis queue
+    await redisClient.lPush("game-requests", JSON.stringify(obj));
+  } catch (error) {
+    console.error("Error interacting with Redis in redis_addMove:", error);
+  } finally {
+    await redisClient.disconnect();
+  }
+}

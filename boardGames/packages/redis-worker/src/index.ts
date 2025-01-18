@@ -1,10 +1,13 @@
 import { client } from "@repo/db/client";
 import {
   BoxesValue,
+  Goals,
+  GoalType,
   PlayerData,
   PlayerGameboardData,
 } from "@repo/games/bingo/messages";
 import { createClient } from "redis";
+import { REDIS_PAYLOAD_END_GAME } from "types";
 
 // Create and connect the Redis client
 const redisClient = createClient();
@@ -19,7 +22,11 @@ const redisClient = createClient();
   }
 })();
 
-export type RequestType = "new-game" | "add-move" | "toss-update-game";
+export type RequestType =
+  | "new-game"
+  | "add-move"
+  | "toss-update-game"
+  | "end-game";
 
 export interface GameRequest {
   type: RequestType;
@@ -87,6 +94,12 @@ class RedisQueueProcessor {
                 requestData.payload as TossUpdatePayload
               );
               break;
+            case "end-game":
+              // Handle end-game request
+              await this.handleEndGame(
+                requestData.payload as REDIS_PAYLOAD_END_GAME["payload"]
+              );
+              break;
             default:
               console.error(`Unknown request type: ${requestData.type}`);
           }
@@ -97,6 +110,139 @@ class RedisQueueProcessor {
         // Optional: Delay before retrying to avoid infinite rapid retries
         await delay(1000);
       }
+    }
+  }
+
+  private async handleEndGame(payload: REDIS_PAYLOAD_END_GAME["payload"]) {
+    console.log("Handling 'end-game' request for gameId:", payload.gameId);
+    try {
+      const game = await client.bingoGame.findUnique({
+        where: {
+          gameId: payload.gameId,
+        },
+      });
+
+      if (!game) {
+        console.error("Game not found for gameId:", payload.gameId);
+        return;
+      }
+
+      //Update the winner and winMethod
+      const updatedGame = await client.bingoGame.update({
+        where: {
+          gameId: payload.gameId,
+        },
+        data: {
+          gameWinnerId: {
+            set: payload.winner.id,
+          },
+          winMethod: payload.winMethod,
+        },
+      });
+
+      // now updating the winner's MMR and his achievements
+
+      const winner = await client.bingoProfile.update({
+        where: {
+          id: payload.winner.id,
+        },
+        data: {
+          mmr: {
+            increment: payload.winner.winnerMMR,
+          },
+          firstBlood_count: {
+            increment: payload.winner.winnerGoal.filter(
+              (e) => e.goalName.includes(GoalType.FIRST_BLOOD) && e.isCompleted
+            ).length,
+          },
+          doubleKill_count: {
+            increment: payload.winner.winnerGoal.filter(
+              (e) => e.goalName.includes(GoalType.DOUBLE_KILL) && e.isCompleted
+            ).length,
+          },
+          tripleKill_count: {
+            increment: payload.winner.winnerGoal.filter(
+              (e) => e.goalName.includes(GoalType.TRIPLE_KILL) && e.isCompleted
+            ).length,
+          },
+          rampage_count: {
+            increment: payload.winner.winnerGoal.filter(
+              (e) => e.goalName.includes(GoalType.RAMPAGE) && e.isCompleted
+            ).length,
+          },
+          perfectionist_count: {
+            increment: payload.winner.winnerGoal.filter(
+              (e) => e.goalName.includes(GoalType.PERFECTIONIST) && e.isCompleted
+            ).length,
+          },
+          lines_count: {
+            increment: payload.winner.lineCount
+          },
+          totalMatches: {
+            increment: 1
+          },
+          wins: {
+            increment: 1
+          },
+          gameHistory: {
+            connect: {
+              gameId: payload.gameId
+            }
+          }
+        },
+      });
+
+      const loser = await client.bingoProfile.update({
+        where: {
+          id: payload.loser.id,
+        },
+        data: {
+          mmr: {
+            decrement: payload.loser.loserMMR,
+          },
+          firstBlood_count: {
+            increment: payload.loser.loserGoal.filter(
+              (e) => e.goalName.includes(GoalType.FIRST_BLOOD) && e.isCompleted
+            ).length,
+          },
+          doubleKill_count: {
+            increment: payload.loser.loserGoal.filter(
+              (e) => e.goalName.includes(GoalType.DOUBLE_KILL) && e.isCompleted
+            ).length,
+          },
+          tripleKill_count: {
+            increment: payload.loser.loserGoal.filter(
+              (e) => e.goalName.includes(GoalType.TRIPLE_KILL) && e.isCompleted
+            ).length,
+          },
+          rampage_count: {
+            increment: payload.loser.loserGoal.filter(
+              (e) => e.goalName.includes(GoalType.RAMPAGE) && e.isCompleted
+            ).length,
+          },
+          perfectionist_count: {
+            increment: payload.loser.loserGoal.filter(
+              (e) => e.goalName.includes(GoalType.PERFECTIONIST) && e.isCompleted
+            ).length,
+          },
+          lines_count: {
+            increment: payload.loser.lineCount
+          },
+          totalMatches: {
+            increment: 1
+          },
+          losses: {
+            increment: 1
+          },
+          gameHistory: {
+            connect: {
+              gameId: payload.gameId
+            }
+          }
+        },
+      });
+    } catch (error) {
+      console.error("Error deleting game:", error);
     }
   }
 
@@ -136,7 +282,7 @@ class RedisQueueProcessor {
               moveCount: payload.moveCount,
               value: payload.value,
               time: payload.time,
-              bingoProfileId: payload.by, 
+              bingoProfileId: payload.by,
             },
           },
         },

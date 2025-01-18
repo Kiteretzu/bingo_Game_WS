@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSocketContext } from "@/context/SocketContext";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import { initialGameboard, setChecks, setIsLost, setIsMatchFound, setIsVictory, setMatchFoundData } from "@/store/slices/bingoSlice";
+import { initialGameboard, setUpdatedGame } from "@/store/slices/bingoSlice";
 import { useNavigate } from "react-router-dom";
 import {
   PUT_GAME_INIT,
@@ -16,17 +16,23 @@ import {
   PUT_SEND_EMOTE,
   GET_RECIEVE_EMOTE,
   PAYLOAD_GET_RECIEVE_EMOTE,
+  GET_UPDATED_GAME,
+  PAYLOAD_GET_UPDATED_GAME,
 } from "@repo/games/client/bingo/messages";
 import { MessageType, PAYLOAD_GET_GAME, PAYLOAD_GET_RESPONSE, PAYLOAD_GET_CHECKBOXES, PAYLOAD_PUT_GET_CHECK_MARK, PAYLOAD_GET_VICTORY, PAYLOAD_GET_LOST } from "@repo/games/client/bingo/messages";
 import { useDialogContext } from "@/context/DialogContext";
+import { m } from "framer-motion";
 
 function useBingo() {
-  const reduxState = useAppSelector((state) => ({
+  const bingoState = useAppSelector((state) => ({
     gameBoard: state.bingo.game.gameBoard,
     checkedBoxes: state.bingo.checks.checkedBoxes,
     checkedLines: state.bingo.checks.checkedLines,
     gameId: state.bingo.game.gameId,
-    players: state.bingo.game.players,
+    playersData: state.bingo.game.players, // dont know where it will be used
+    goals : state.bingo.goals,
+    matchHistory: state.bingo.matchHistory,
+    tossWinner: state.bingo.game.tossWinner,
 
   }));
 
@@ -38,10 +44,14 @@ function useBingo() {
 
 const {setIsVictory, isLost, isMatchFound, isVictory, lostData, matchFoundData, setIsLost, setIsMatchFound, setLostData, setMatchFoundData, setVictoryData, victoryData, emote, setEmote} = useDialogContext()
   // Sync Redux state for game-related logic
-  const gameId = reduxState.gameId;
-  const gameBoard = reduxState.gameBoard;
-  const checkedBoxes = reduxState.checkedBoxes;
-  const checkedLines = reduxState.checkedLines;
+  const gameId = bingoState.gameId;
+  const gameBoard = bingoState.gameBoard;
+  const checkedBoxes = bingoState.checkedBoxes;
+  const checkedLines = bingoState.checkedLines;
+  const playersData = bingoState.playersData;
+  const goals = bingoState.goals;
+  const matchHistory = bingoState.matchHistory;
+  const tossWinner = bingoState.tossWinner;
   let lastValue = "";
   const [response, setResponse] = useState<string>("");
   const [gameLoading, setGameLoading] = useState<boolean>(true);
@@ -76,13 +86,7 @@ const {setIsVictory, isLost, isMatchFound, isVictory, lostData, matchFoundData, 
           setIsFinding(false);
           dispatch(initialGameboard(data));
           setIsMatchFound(true);
-          setMatchFoundData(data.payload.players);
-          break;
-        }
-
-        case GET_CHECKBOXES: {
-          const data = parsedMessage as PAYLOAD_GET_CHECKBOXES;
-          dispatch(setChecks(data));
+          setMatchFoundData(data.payload.players); // contextApi
           break;
         }
 
@@ -107,6 +111,12 @@ const {setIsVictory, isLost, isMatchFound, isVictory, lostData, matchFoundData, 
         case GET_RECIEVE_EMOTE: {
           const data = parsedMessage as PAYLOAD_GET_RECIEVE_EMOTE;
           setEmote(data.payload.emote);
+          break;
+        }
+        case GET_UPDATED_GAME: {
+          const data = parsedMessage as PAYLOAD_GET_UPDATED_GAME;
+          dispatch(setUpdatedGame(data));
+
           break;
         }
       }
@@ -146,8 +156,14 @@ const {setIsVictory, isLost, isMatchFound, isVictory, lostData, matchFoundData, 
     lastValue,
     isLost,
     isVictory,
-    setIsVictory,
-    setIsLost,
+    tossWinner,
+  // lostData,
+    // victoryData,
+    playersData, // same as matchFound data
+    goals,
+    matchHistory,
+    setIsVictory, // for dialog
+    setIsLost, // for dialog
     findMatch,
     addCheck,
     sendEmote,

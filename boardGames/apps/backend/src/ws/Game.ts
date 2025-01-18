@@ -20,6 +20,9 @@ import {
   PAYLOAD_GET_LOST,
   MessageType,
   PAYLOAD_GET_RECIEVE_EMOTE,
+  PAYLOAD_GET_UPDATED_GAME,
+  GET_UPDATED_GAME,
+  MatchHistory,
 } from "@repo/games/client/bingo/messages";
 import { Bingo } from "@repo/games/bingo";
 import { sendPayload } from "../helper/wsSend";
@@ -40,7 +43,8 @@ export class Game {
   private playerBoards: Bingo[];
   private playerGameboardData: PlayerGameboardData[];
   private tossWinner: string;
-  private moveHistory: { move: number; value: BoxesValue; timestamp: number }[] = [];
+  private gotFirstBlood: boolean = false;
+  private matchHistory: MatchHistory = [];
 
   constructor(
     gameId: string,
@@ -95,9 +99,10 @@ export class Game {
 
   private getPlayerContext(currentPlayerSocket: WebSocket) {
     const isFirstPlayer = currentPlayerSocket === this.p1_socket;
-
     return {
       isFirstPlayer,
+      firstPlayerId: this.playerData[0].user.bingoProfile.id,
+      secondPlayerId: this.playerData[1].user.bingoProfile.id,
       isSecondPlayer: !isFirstPlayer,
       isFirstPlayerTurn: this.moveCount % 2 === 1 && isFirstPlayer,
       isSecondPlayerTurn: this.moveCount % 2 === 0 && !isFirstPlayer,
@@ -126,23 +131,23 @@ export class Game {
       case GameEndMethod.BINGO: {
         const VictoryPayload: PAYLOAD_GET_VICTORY["payload"] = {
           method: GameEndMethod.BINGO,
-          message: "Bingo!",
-          data: {},
+          message: "Bingo! You won!",
+          goals: null,
         };
         const LostPayload: PAYLOAD_GET_LOST["payload"] = {
           method: GameEndMethod.BINGO,
-          message: "You lost!",
+          message: "You lost! Your opponent won the game.",
         };
         if (currentPlayerBoard.isVictory()) {
           sendPayload(currentSocket, GET_VICTORY, {
             ...VictoryPayload,
-            data: currentPlayerBoard.getGoals(),
+            goals: currentPlayerBoard.getGoals(),
           });
           sendPayload(opponentSocket, GET_LOST, LostPayload);
           opponentPlayerBoard.setGameOver(true);
           console.log("Current player won");
         } else if (opponentPlayerBoard.isVictory()) {
-          sendPayload(opponentSocket, GET_VICTORY, VictoryPayload);
+          sendPayload(opponentSocket, GET_VICTORY, {...VictoryPayload, goals: opponentPlayerBoard.getGoals()});
           sendPayload(currentSocket, GET_LOST, LostPayload);
           currentPlayerBoard.setGameOver(true);
           console.log("Opponent player won");
@@ -153,7 +158,7 @@ export class Game {
         const VictoryPayload: PAYLOAD_GET_VICTORY["payload"] = {
           method: GameEndMethod.RESIGNATION,
           message: "Your opponent resigned. You won!",
-          data: {},
+          goals: opponentPlayerBoard.getGoals(), // as currentSocket resigned
         };
         const LostPayload: PAYLOAD_GET_LOST["payload"] = {
           method: GameEndMethod.RESIGNATION,
@@ -162,14 +167,11 @@ export class Game {
 
         // Simplified logic
         sendPayload(currentSocket, GET_LOST, LostPayload);
-        sendPayload(opponentSocket, GET_VICTORY, {
-          ...VictoryPayload,
-          data: opponentPlayerBoard.getGoals(),
-        });
+        sendPayload(opponentSocket, GET_VICTORY, VictoryPayload);
         console.log("Game ended due to resignation.");
         break;
       }
-      // abondon logic and when it get invoked
+      // TODO abondon logic and when it get invoked
       case GameEndMethod.ABANDON: {
         break;
       }
@@ -191,20 +193,36 @@ export class Game {
     sendPayload(opponentSocket, GET_CHECK_MARK, checkMarkData);
   }
 
-  private saveMove(value: BoxesValue) {
-    redis_addMove(this.gameId, this.moveCount, value,this.playerData[0].user.bingoProfile.id, Date.now(),);
+  private saveMove(currentPlayerSocket:WebSocket, value: BoxesValue) {
+    const {isFirstPlayerTurn, firstPlayerId, secondPlayerId} =  this.getPlayerContext(currentPlayerSocket);
+
+    this.matchHistory.push({
+      move: this.moveCount,
+      value,
+      by: isFirstPlayerTurn ? firstPlayerId : secondPlayerId,
+      timestamp: Date.now(),
+    });
+    redis_addMove(this.gameId, this.moveCount, value, isFirstPlayerTurn? firstPlayerId: secondPlayerId , Date.now(),);
   }
 
-  private broadcastUpdatedBoards() {
+  private broadcastUpdatedGame() {
     this.playerSockets.forEach((socket, index) => {
-      const checkBoxesData: PAYLOAD_GET_CHECKBOXES = {
-        type: GET_CHECKBOXES,
+      
+      const updatedGameData: PAYLOAD_GET_UPDATED_GAME = {
+        type: GET_UPDATED_GAME,
         payload: {
-          checkedBoxes: this.playerBoards[index].getCheckBoxes(),
-          checkedLines: this.playerBoards[index].getLineCheckBoxes(),
+          goals: this.playerBoards[index].getGoals(),
+          checks: {
+            checkedBoxes: this.playerBoards[index].getCheckBoxes(),
+            checkedLines: this.playerBoards[index].getLineCheckBoxes(),
+          },
+          matchHistory: this.matchHistory,
         },
       };
-      sendPayload(socket, GET_CHECKBOXES, checkBoxesData);
+
+      console.log('this is index', index, this.playerBoards[index].getGoals());
+
+      sendPayload(socket, GET_UPDATED_GAME , updatedGameData);
     });
   }
 
@@ -212,19 +230,27 @@ export class Game {
     currentPlayerBoard: Bingo,
     opponentPlayerBoard: Bingo
   ) {
+    console.log('in here checking bloodStatus',)
     if (
-      currentPlayerBoard.LineCount === 1 &&
+      currentPlayerBoard.LineCount <= 1 &&
       opponentPlayerBoard.LineCount === 0
     ) {
+      console.log('Player one got firstBlood',)
       currentPlayerBoard.setFirstBlood(true);
+      console.log('this is player one goals', currentPlayerBoard.getGoals())
       opponentPlayerBoard.setFirstBlood(false);
+          this.gotFirstBlood = true;
     } else if (
+    
       currentPlayerBoard.LineCount === 0 &&
-      opponentPlayerBoard.LineCount === 1
+      opponentPlayerBoard.LineCount <= 1
     ) {
+        console.log('Player two got firstBlood');
       currentPlayerBoard.setFirstBlood(false);
       opponentPlayerBoard.setFirstBlood(true);
+          this.gotFirstBlood = true;
     }
+
   }
 
   addCheck(currentPlayerSocket: WebSocket, value: BoxesValue) {
@@ -261,18 +287,19 @@ export class Game {
       // Notify the opponent about the move
       this.notifyOpponent(opponentPlayerSocket, value);
 
-      // Save the move in the database
-      this.saveMove(value);
-
+      // Save the move in the database and moveHistory
+      this.saveMove(currentPlayerSocket, value);
+      
+      //check for first blood
+      if(!this.gotFirstBlood) {
+      this.checkFirstBloodStatus(currentPlayerBoard, opponentPlayerBoard);
+      }
       // get the updated ChecksBoxes to all players
-      this.broadcastUpdatedBoards();
-
+      this.broadcastUpdatedGame();
+      
       // Increment the move count
       this.moveCount++;
-
-      //check for first blood
-      this.checkFirstBloodStatus(currentPlayerBoard, opponentPlayerBoard);
-
+      
       // check if game is won by "Bingo" win method
       if (currentPlayerBoard.isGameOver() || opponentPlayerBoard.isGameOver()) {
         this.endGame(currentPlayerSocket, GameEndMethod.BINGO);

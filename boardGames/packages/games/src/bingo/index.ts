@@ -1,6 +1,6 @@
 import { boxes, possibleLines } from "./boxes_and_ways";
 import { randomValuesForGameBoard } from "./gameBoards";
-import { BoxesName, BoxesValue, GameBoard } from "./messages";
+import { BoxesName, BoxesValue, GameBoard, Goals, GoalType } from "./messages";
 
 export class Bingo {
   public lineCheckBoxes: BoxesName[][]; // An array of arrays for storing matched lines
@@ -72,35 +72,38 @@ export class Bingo {
     return this.gameOver;
   }
 
-private validations(): void {
+  private validations(): void {
     let newLines = 0;
 
     // Iterate over all possible lines
     for (const possibleLine of possibleLines) {
-        // Check if all boxes in the line are in checkedBoxes
-        const isMatch = possibleLine.every((boxName) => this.checkedBoxes.includes(boxName));
+      // Check if all boxes in the line are in checkedBoxes
+      const isMatch = possibleLine.every((boxName) =>
+        this.checkedBoxes.includes(boxName)
+      );
 
-        // Check if this line is already part of lineCheckBoxes
-        const isAlreadyTracked = this.lineCheckBoxes.some(
-            (trackedLine) => JSON.stringify(trackedLine) === JSON.stringify(possibleLine)
-        );
+      // Check if this line is already part of lineCheckBoxes
+      const isAlreadyTracked = this.lineCheckBoxes.some(
+        (trackedLine) =>
+          JSON.stringify(trackedLine) === JSON.stringify(possibleLine)
+      );
 
-        // Add the line if it matches and is not already tracked
-        if (isMatch && !isAlreadyTracked) {
-            this.lineCheckBoxes.push(possibleLine);
-            newLines++;
-        }
+      // Add the line if it matches and is not already tracked
+      if (isMatch && !isAlreadyTracked) {
+        this.lineCheckBoxes.push(possibleLine);
+        newLines++;
+      }
     }
 
     this.LineCount += newLines;
 
-    console.log('Now the lineCount is', this.LineCount);
+    // console.log('Now the lineCount is', this.LineCount);
 
     if (this.LineCount >= 5) {
-        console.log('Bingo game over with lineCount:', this.LineCount);
-        this.gameOver = true;
+      console.log("Bingo game over with lineCount:", this.LineCount);
+      this.gameOver = true;
     }
-}
+  }
 
   addCheckMark(boxValue: BoxesValue): void {
     if (this.gameOver) return;
@@ -123,7 +126,7 @@ private validations(): void {
 
     // Handle doubleKill and thirdKill
 
-    console.log('newLines here in addCheckMark', newLines)
+    // console.log('newLines here in addCheckMark', newLines)
     this.doubleKill = newLines === 2;
     this.tripleKill = newLines === 3;
 
@@ -156,31 +159,32 @@ private validations(): void {
   }
 
   isPerfectionist(): boolean {
-    return this.checkedBoxes.length > 0 && this.checkedBoxes.length / this.LineCount >= 5;
+    return this.checkedBoxes.length === 25 && this.LineCount === 5;
   }
 
   isDoubleKill(): boolean {
-    return this.doubleKill
+    return this.doubleKill;
   }
   isTripleKill(): boolean {
-    return this.tripleKill
+    return this.tripleKill;
   }
 
   isFirstBlood(): boolean {
-    return this.firstBlood
+    return this.firstBlood;
   }
 
   isRampage(): boolean {
     return this.LineCount > 6;
   }
 
-  getGoals(): any {
-    return {
-        firstBlood: this.firstBlood,
-        doubleKill : this.doubleKill,
-        tripleKill: this.tripleKill,
-        perfectionist: this.isPerfectionist(),
-        rampage: this.isRampage() 
-    }
+  getGoals(): Goals[] {
+    return [
+      {goalName: GoalType.FIRST_BLOOD, isCompleted: this.isFirstBlood()},
+      {goalName: GoalType.DOUBLE_KILL, isCompleted: this.isDoubleKill()},
+      {goalName: GoalType.TRIPLE_KILL, isCompleted: this.isTripleKill()},
+      {goalName: GoalType.PERFECTIONIST, isCompleted: this.isPerfectionist()},
+      {goalName: GoalType.RAMPAGE, isCompleted: this.isRampage()},
+
+    ];
   }
 }

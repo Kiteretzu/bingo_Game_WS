@@ -10,6 +10,7 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Trophy, Info } from 'lucide-react';
+import useBingo from '@/hooks/useBingo';
 
 interface Goal {
     id: string;
@@ -27,6 +28,8 @@ const initialGoals: Goal[] = [
 
 export function PlayerGoals() {
     const [completedGoals, setCompletedGoals] = useState<Set<string>>(new Set());
+
+    const { goals } = useBingo()
 
     const toggleGoalCompletion = (goalId: string) => {
         setCompletedGoals((prev) => {
@@ -54,26 +57,26 @@ export function PlayerGoals() {
             <CardContent className="pt-4">
                 <TooltipProvider>
                     <ul className="space-y-2">
-                        {initialGoals.map((goal) => {
-                            const isCompleted = completedGoals.has(goal.id);
+                        {goals.map((goal) => {
+                            // const isCompleted = completedGoals.has(goal.id);
                             return (
                                 <li
-                                    key={goal.id}
-                                    className={`flex items-center space-x-3 rounded-lg p-3 ${isCompleted ? 'bg-gray-700/50' : 'bg-gray-700/30'
+                                    key={goal.goalName}
+                                    className={`flex items-center space-x-3 rounded-lg p-3 ${goal ? 'bg-gray-700/50' : 'bg-gray-700/30'
                                         } transition-colors duration-200 ease-in-out`}
                                 >
                                     <Checkbox
-                                        id={goal.id}
-                                        checked={isCompleted}
-                                        onCheckedChange={() => toggleGoalCompletion(goal.id)}
+                                        id={goal.goalName}
+                                        checked={goal.isCompleted}
+                                        onCheckedChange={() => toggleGoalCompletion(goal.goalName)}
                                         className="border-gray-500 data-[state=checked]:bg-amber-500 data-[state=checked]:border-amber-500"
                                     />
                                     <label
-                                        htmlFor={goal.id}
+                                        htmlFor={goal.goalName}
                                         className="flex-grow text-sm font-medium flex items-center justify-between cursor-pointer"
                                     >
-                                        <span className={`${isCompleted ? 'line-through text-gray-400' : 'text-gray-100'}`}>
-                                            {goal.name}
+                                        <span className={`${goal.isCompleted ? 'line-through text-gray-400' : 'text-gray-100'}`}>
+                                            {goal.goalName}
                                         </span>
                                         <Tooltip>
                                             <TooltipTrigger asChild>
@@ -85,7 +88,7 @@ export function PlayerGoals() {
                                                 side="right"
                                                 className="bg-gray-700 text-gray-100 border-gray-600"
                                             >
-                                                <p className="text-sm">{goal.description}</p>
+                                                <p className="text-sm">Still in working progress</p>
                                             </TooltipContent>
                                         </Tooltip>
                                     </label>

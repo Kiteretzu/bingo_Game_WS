@@ -88,11 +88,12 @@ export enum MessageType {
   GET_CHECKBOXES = "get_check_boxes",
   GET_VICTORY = "get_victory",
   GET_LOST = "get_lost",
+  GET_UPDATED_GAME = "get_updated_game",
   // consideration
   // GET_GAME_ID = "get_game_id",
   // GET_GAMEBOARD = "send_game_board",
   PUT_SEND_EMOTE = "put_send_emote",
-  GET_RECIEVE_EMOTE = "get_recieve_emote", 
+  GET_RECIEVE_EMOTE = "get_recieve_emote",
 }
 
 // server response mesages
@@ -112,6 +113,8 @@ export const GET_VICTORY = MessageType.GET_VICTORY;
 export const GET_LOST = MessageType.GET_LOST;
 export const PUT_SEND_EMOTE = MessageType.PUT_SEND_EMOTE;
 export const GET_RECIEVE_EMOTE = MessageType.GET_RECIEVE_EMOTE;
+export const PUT_TOSS_DECISION = MessageType.PUT_TOSS_DECISION;
+export const GET_UPDATED_GAME = MessageType.GET_UPDATED_GAME;
 
 // Data interface for the message data
 export interface DATA {
@@ -135,37 +138,60 @@ export interface PAYLOAD_GET_RESPONSE {
     message: string;
   };
 }
+export enum GoalType {
+  FIRST_BLOOD = "First blood",
+  DOUBLE_KILL = "Double Kill",
+  TRIPLE_KILL = "Triple Kill",
+  RAMPAGE = "RAMPAGE",
+  PERFECTIONIST = "Perfectionist",
+}
+
+// Type for Goals: Array of objects with exactly one GoalType key
+export type Goals = {
+  goalName: GoalType;
+  isCompleted: boolean;
+};
+
+export interface PAYLOAD_GET_UPDATED_GAME {
+  type: MessageType.GET_UPDATED_GAME;
+  payload: {
+    checks: PAYLOAD_GET_CHECKBOXES["payload"];
+    goals: Goals[];
+    matchHistory: MatchHistory;
+  };
+}
 
 export interface PAYLOAD_GET_VICTORY {
   type: MessageType.GET_VICTORY;
   payload: {
-    method: GameEndMethod,
-    message: string,
-    data: any
-  }
+    method: GameEndMethod;
+    message: string;
+    goals: Goals[] | null;
+  };
 }
 export interface PAYLOAD_GET_LOST {
   type: MessageType.GET_LOST;
   payload: {
-    method: GameEndMethod,
-    message: string
-  }
+    method: GameEndMethod;
+    message: string;
+  };
 }
 
 export interface PAYLOAD_PUT_SEND_EMOTE {
- type: MessageType.PUT_SEND_EMOTE;
+  type: MessageType.PUT_SEND_EMOTE;
   payload: {
     gameId: string;
     emote: string;
-  } 
+  };
 }
 
 export interface PAYLOAD_GET_RECIEVE_EMOTE {
   type: MessageType.GET_RECIEVE_EMOTE;
   payload: {
     emote: string;
-  }
+  };
 }
+
 
 
 export interface PAYLOAD_PUT_GET_CHECK_MARK {
@@ -201,8 +227,8 @@ export interface PAYLOAD_PUT_RESIGN {
 export interface PAYLOAD_PUT_TOSS_DECISION {
   type: MessageType.PUT_TOSS_DECISION;
   payload: {
-    decision: TossDecision
-  }
+    decision: TossDecision;
+  };
 }
 
 export interface PAYLOAD_PUT_CANCEL_GAME_INIT {
@@ -233,17 +259,24 @@ export interface PlayerData {
     displayName: string;
     avatar: string;
     bingoProfile: PlayerProfile;
-  }
+  };
 }
 
+export type MatchHistory = {
+  move: number;
+  value: BoxesValue;
+  by: string;
+  timestamp: number;
+}[];
 
 export interface PlayerGameboardData {
   playerId: string;
   gameBoard: GameBoard;
 }
 
-
 export enum TossDecision {
-  TOSS_GO_FIRST = 'toss-go-first',
-  TOSS_GO_SECOND = 'toss-go-second'
+  TOSS_GO_FIRST = "toss-go-first",
+  TOSS_GO_SECOND = "toss-go-second",
 }
+
+

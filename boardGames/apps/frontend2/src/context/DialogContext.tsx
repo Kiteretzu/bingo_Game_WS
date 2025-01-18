@@ -1,11 +1,12 @@
 import React, { createContext, useContext, useState } from "react";
 import { useSocket } from "../hooks/useSocket"; // Custom hook for WebSocket handling.
+import { PlayerData } from "@repo/games/bingo/messages";
 
 type DialogContextType = {
     isMatchFound: boolean;
     setIsMatchFound: React.Dispatch<React.SetStateAction<boolean>>;
-    matchFoundData: any; // Replace `any` with the specific type if possible.
-    setMatchFoundData: React.Dispatch<React.SetStateAction<any>>;
+    matchFoundData: PlayerData[]; // Replace `any` with the specific type if possible.
+    setMatchFoundData: React.Dispatch<React.SetStateAction<PlayerData[]>>;
     isVictory: boolean;
     setIsVictory: React.Dispatch<React.SetStateAction<boolean>>;
     victoryData: any; // Replace `any` with the specific type.

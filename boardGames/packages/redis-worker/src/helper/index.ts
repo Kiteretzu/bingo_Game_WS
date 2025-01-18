@@ -76,6 +76,7 @@ export interface AddMove {
     gameId: string;
     moveCount: number;
     value: BoxesValue;
+    by: string;
     time: any; // Replace `any` with a more specific type if possible, such as `Date` or `string`.
   };
 }
@@ -84,7 +85,8 @@ export const redis_addMove = async (
   gameId: string,
   moveCount: number,
   value: BoxesValue,
-  time: any
+  by: string,
+  time: any,
 ) => {
   const redisClient = createClient();
 
@@ -97,6 +99,7 @@ export const redis_addMove = async (
         gameId,
         moveCount,
         value,
+        by,
         time,
       },
     };

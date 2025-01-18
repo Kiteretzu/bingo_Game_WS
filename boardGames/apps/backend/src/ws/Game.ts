@@ -40,6 +40,7 @@ export class Game {
   private playerBoards: Bingo[];
   private playerGameboardData: PlayerGameboardData[];
   private tossWinner: string;
+  private moveHistory: { move: number; value: BoxesValue; timestamp: number }[] = [];
 
   constructor(
     gameId: string,
@@ -175,6 +176,57 @@ export class Game {
     }
   }
 
+  private updatePlayerBoards(value: BoxesValue) {
+    this.playerBoards.forEach((board) => board.addCheckMark(value));
+  }
+
+  private notifyOpponent(opponentSocket: WebSocket, value: BoxesValue) {
+    const checkMarkData: PAYLOAD_PUT_GET_CHECK_MARK = {
+      type: GET_CHECK_MARK,
+      payload: {
+        gameId: this.gameId,
+        value,
+      },
+    };
+    sendPayload(opponentSocket, GET_CHECK_MARK, checkMarkData);
+  }
+
+  private saveMove(value: BoxesValue) {
+    redis_addMove(this.gameId, this.moveCount, value,this.playerData[0].user.bingoProfile.id, Date.now(),);
+  }
+
+  private broadcastUpdatedBoards() {
+    this.playerSockets.forEach((socket, index) => {
+      const checkBoxesData: PAYLOAD_GET_CHECKBOXES = {
+        type: GET_CHECKBOXES,
+        payload: {
+          checkedBoxes: this.playerBoards[index].getCheckBoxes(),
+          checkedLines: this.playerBoards[index].getLineCheckBoxes(),
+        },
+      };
+      sendPayload(socket, GET_CHECKBOXES, checkBoxesData);
+    });
+  }
+
+  private checkFirstBloodStatus(
+    currentPlayerBoard: Bingo,
+    opponentPlayerBoard: Bingo
+  ) {
+    if (
+      currentPlayerBoard.LineCount === 1 &&
+      opponentPlayerBoard.LineCount === 0
+    ) {
+      currentPlayerBoard.setFirstBlood(true);
+      opponentPlayerBoard.setFirstBlood(false);
+    } else if (
+      currentPlayerBoard.LineCount === 0 &&
+      opponentPlayerBoard.LineCount === 1
+    ) {
+      currentPlayerBoard.setFirstBlood(false);
+      opponentPlayerBoard.setFirstBlood(true);
+    }
+  }
+
   addCheck(currentPlayerSocket: WebSocket, value: BoxesValue) {
     if (Number(value) > 25) {
       sendPayload(
@@ -203,41 +255,26 @@ export class Game {
     }
 
     try {
-      this.playerBoards.forEach((board) => board.addCheckMark(value));
+      // Add the value to the player's board
+      this.updatePlayerBoards(value);
 
-      const checkMarkData: PAYLOAD_PUT_GET_CHECK_MARK = {
-        type: GET_CHECK_MARK,
-        payload: {
-          gameId: this.gameId,
-          value,
-        },
-      };
-      // send the given value to opponent player
-      sendPayload(opponentPlayerSocket, GET_CHECK_MARK, checkMarkData);
-      // save the move in db
-      redis_addMove(this.gameId, this.moveCount, value, Date.now());
+      // Notify the opponent about the move
+      this.notifyOpponent(opponentPlayerSocket, value);
+
+      // Save the move in the database
+      this.saveMove(value);
 
       // get the updated ChecksBoxes to all players
-      this.playerSockets.forEach((socket, index) => {
-        const checkBoxesData: PAYLOAD_GET_CHECKBOXES = {
-          type: GET_CHECKBOXES,
-          payload: {
-            checkedBoxes: this.playerBoards[index].getCheckBoxes(),
-            checkedLines: this.playerBoards[index].getLineCheckBoxes(),
-          },
-        };
-        sendPayload(socket, GET_CHECKBOXES, checkBoxesData);
-      });
+      this.broadcastUpdatedBoards();
 
+      // Increment the move count
       this.moveCount++;
+
+      //check for first blood
+      this.checkFirstBloodStatus(currentPlayerBoard, opponentPlayerBoard);
 
       // check if game is won by "Bingo" win method
       if (currentPlayerBoard.isGameOver() || opponentPlayerBoard.isGameOver()) {
-        console.log(
-          "in hereGameOVer",
-          currentPlayerBoard.LineCount,
-          opponentPlayerBoard.LineCount
-        );
         this.endGame(currentPlayerSocket, GameEndMethod.BINGO);
       }
     } catch (error: any) {
@@ -274,10 +311,10 @@ export class Game {
   sendEmote(currentPlayerSocket: WebSocket, emote: string) {
     const { opponentPlayerSocket } = this.getPlayerContext(currentPlayerSocket);
 
-    const data : PAYLOAD_GET_RECIEVE_EMOTE['payload'] = {
-      emote  
-    }
+    const data: PAYLOAD_GET_RECIEVE_EMOTE["payload"] = {
+      emote,
+    };
 
-    sendPayload(opponentPlayerSocket, MessageType.GET_RECIEVE_EMOTE, data)
+    sendPayload(opponentPlayerSocket, MessageType.GET_RECIEVE_EMOTE, data);
   }
 }

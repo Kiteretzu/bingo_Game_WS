@@ -30,6 +30,7 @@ export interface AddMovePayload {
   gameId: string;
   moveCount: number;
   value: BoxesValue;
+  by: string;
   time: any; // Replace `any` with `string` or `Date` based on your implementation
 }
 
@@ -135,6 +136,7 @@ class RedisQueueProcessor {
               moveCount: payload.moveCount,
               value: payload.value,
               time: payload.time,
+              bingoProfileId: payload.by, 
             },
           },
         },

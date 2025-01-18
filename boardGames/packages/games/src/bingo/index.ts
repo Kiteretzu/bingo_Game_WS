@@ -8,8 +8,9 @@ export class Bingo {
   public LineCount: number; // Tracks the number of lines completed
   private checkedBoxes: BoxesName[]; // An array to keep track of checked boxes
   private gameBoard: GameBoard; // Game board containing box names and values
-  private isDoubleKill: boolean;
-  private isTripleKill: boolean;
+  private firstBlood: boolean;
+  private doubleKill: boolean;
+  private tripleKill: boolean;
 
   constructor() {
     this.LineCount = 0;
@@ -18,13 +19,18 @@ export class Bingo {
     this.gameBoard = new Array(25).fill({ boxName: "a", boxValue: "1" });
     randomValuesForGameBoard(this.gameBoard);
     this.gameOver = false;
-    this.isDoubleKill = false;
-    this.isTripleKill = false;
+    this.doubleKill = false;
+    this.tripleKill = false;
+    this.firstBlood = false;
     console.log("this is the BOARD!!", this.gameBoard);
   }
 
   setGameOver(val: boolean) {
     this.gameOver = val;
+  }
+
+  setFirstBlood(val: boolean) {
+    this.firstBlood = val;
   }
 
   getGameBoard() {
@@ -118,13 +124,13 @@ private validations(): void {
     // Handle doubleKill and thirdKill
 
     console.log('newLines here in addCheckMark', newLines)
-    this.isDoubleKill = newLines === 2;
-    this.isTripleKill = newLines === 3;
+    this.doubleKill = newLines === 2;
+    this.tripleKill = newLines === 3;
 
-    if (this.isDoubleKill) {
+    if (this.doubleKill) {
       console.log("Double Kill unlocked!");
     }
-    if (this.isTripleKill) {
+    if (this.tripleKill) {
       console.log("Triple Kill unlocked!");
     }
 
@@ -153,13 +159,26 @@ private validations(): void {
     return this.checkedBoxes.length > 0 && this.checkedBoxes.length / this.LineCount >= 5;
   }
 
+  isDoubleKill(): boolean {
+    return this.doubleKill
+  }
+  isTripleKill(): boolean {
+    return this.tripleKill
+  }
+
+  isFirstBlood(): boolean {
+    return this.firstBlood
+  }
+
   isRampage(): boolean {
     return this.LineCount > 6;
   }
+
   getGoals(): any {
     return {
-        doubleKill : this.isDoubleKill,
-        tripleKill: this.isTripleKill,
+        firstBlood: this.firstBlood,
+        doubleKill : this.doubleKill,
+        tripleKill: this.tripleKill,
         perfectionist: this.isPerfectionist(),
         rampage: this.isRampage() 
     }

@@ -141,14 +141,14 @@ class RedisQueueProcessor {
       });
 
       // now updating the winner's MMR and his achievements
-
+      console.log(`check this out`, payload.winner.winnerMMR)
       const winner = await client.bingoProfile.update({
         where: {
           id: payload.winner.id,
         },
         data: {
           mmr: {
-            increment: payload.winner.winnerMMR,
+            increment: payload.winner.winnerMMR.totalWinningPoints,
           },
           firstBlood_count: {
             increment: payload.winner.winnerGoal.filter(
@@ -198,7 +198,7 @@ class RedisQueueProcessor {
         },
         data: {
           mmr: {
-            decrement: payload.loser.loserMMR,
+            decrement: payload.loser.loserMMR.totalLosingPoints,
           },
           firstBlood_count: {
             increment: payload.loser.loserGoal.filter(

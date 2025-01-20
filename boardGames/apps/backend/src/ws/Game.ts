@@ -32,6 +32,7 @@ import { client } from "@repo/db/client";
 import {
   redis_addMove,
   redis_newGame,
+  redis_saveEndGame,
   redis_tossGameUpdate,
 } from "@repo/redis-worker/test";
 import { kStringMaxLength } from "buffer";
@@ -196,7 +197,7 @@ export class Game {
     };
   }
 
-  private bingoEndGame(socket: WebSocket): EndGame {
+  private bingoEndGame(socket: WebSocket): EndGame  |null {
     const {
       currentPlayerBoard,
       opponentPlayerBoard,
@@ -233,19 +234,17 @@ export class Game {
         winner: {
           id: currentPlayer.user.bingoProfile.id,
           winnerMMR,
-          winnerGoal: {
-            ...currentPlayerBoard.getGoals(),
-          },
+          winnerGoal: currentPlayerBoard.getGoals(),
+          
           lineCount: currentPlayerBoard.LineCount,
         },
         loser: {
           id: opponentPlayer.user.bingoProfile.id,
           loserMMR,
-          loserGoal: {
-            ...opponentPlayerBoard.getGoals(),
-          },
+          loserGoal: opponentPlayerBoard.getGoals(),
           lineCount: opponentPlayerBoard.LineCount,
         },
+        winMethod: GameEndMethod.BINGO,
       };
     } else if (opponentPlayerBoard.isVictory()) {
       const { winnerMMR, loserMMR } = this.mmrAllocation(opponentPlayerSocket);
@@ -278,36 +277,39 @@ export class Game {
           },
           lineCount: currentPlayerBoard.LineCount,
         },
+        winMethod: GameEndMethod.BINGO,
       };
     }
+
+    return null
   }
 
-  private resignationEndGame(socket: WebSocket) {
-    const {
-      currentPlayerBoard,
-      opponentPlayerBoard,
-      currentPlayerSocket,
-      opponentPlayerSocket,
-    } = this.getPlayerContext(socket);
+  // private resignationEndGame(socket: WebSocket) {
+  //   const {
+  //     currentPlayerBoard,
+  //     opponentPlayerBoard,
+  //     currentPlayerSocket,
+  //     opponentPlayerSocket,
+  //   } = this.getPlayerContext(socket);
 
-    const { winner, loser } = this.mmrAllocation(opponentPlayerSocket);
+  //   // const { winner, loser } = this.mmrAllocation(opponentPlayerSocket);
 
-    const VictoryPayload: PAYLOAD_GET_VICTORY["payload"] = {
-      method: GameEndMethod.RESIGNATION,
-      message: "Your opponent resigned. You won!",
-      data: winner, // as currentSocket resigned
-    };
-    const LostPayload: PAYLOAD_GET_LOST["payload"] = {
-      method: GameEndMethod.RESIGNATION,
-      message: "You resigned and lost the game.",
-      data: loser,
-    };
+  //   const VictoryPayload: PAYLOAD_GET_VICTORY["payload"] = {
+  //     method: GameEndMethod.RESIGNATION,
+  //     message: "Your opponent resigned. You won!",
+  //     data: winner, // as currentSocket resigned
+  //   };
+  //   const LostPayload: PAYLOAD_GET_LOST["payload"] = {
+  //     method: GameEndMethod.RESIGNATION,
+  //     message: "You resigned and lost the game.",
+  //     data: loser,
+  //   };
 
-    // Simplified logic
-    sendPayload(currentPlayerSocket, GET_LOST, LostPayload);
-    sendPayload(opponentPlayerSocket, GET_VICTORY, VictoryPayload);
-    console.log("Game ended due to resignation.");
-  }
+  //   // Simplified logic
+  //   sendPayload(currentPlayerSocket, GET_LOST, LostPayload);
+  //   sendPayload(opponentPlayerSocket, GET_VICTORY, VictoryPayload);
+  //   console.log("Game ended due to resignation.");
+  // }
 
   private endGame(
     currentPlayerSocket: WebSocket,
@@ -316,11 +318,13 @@ export class Game {
 
     switch (gameEndMethod) {
       case GameEndMethod.BINGO: {
-        const {winner, loser} = this.bingoEndGame(currentPlayerSocket);
+        const {winner, loser, winMethod} = this.bingoEndGame(currentPlayerSocket) !;
+        // save this to end result
+        redis_saveEndGame({gameId: this.gameId, winner, loser, winMethod}) // sent as obj
         break;
       }
       case GameEndMethod.RESIGNATION: {
-        this.resignationEndGame(currentPlayerSocket);
+        // this.resignationEndGame(currentPlayerSocket);
         break;
       }
       // TODO abondon logic and when it get invoked

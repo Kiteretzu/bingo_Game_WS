@@ -33,6 +33,14 @@ export class Bingo {
     this.firstBlood = val;
   }
 
+  setDoubleKill(val: boolean) {
+    this.doubleKill = val;
+  }
+
+  setTripleKill(val: boolean) {
+    this.tripleKill = val;
+  }
+
   getGameBoard() {
     return this.gameBoard;
   }
@@ -126,15 +134,16 @@ export class Bingo {
 
     // Handle doubleKill and thirdKill
 
-    // console.log('newLines here in addCheckMark', newLines)
-    this.doubleKill = newLines === 2;
-    this.tripleKill = newLines === 3;
-
-    if (this.doubleKill) {
+    console.log("newLines here in addCheckMark", newLines);
+    
+    if (newLines === 2) {
       console.log("Double Kill unlocked!");
+      this.setDoubleKill(true);
     }
-    if (this.tripleKill) {
+
+    if (newLines === 3) {
       console.log("Triple Kill unlocked!");
+      this.setTripleKill(true);
     }
 
     this.validations();
@@ -179,12 +188,11 @@ export class Bingo {
 
   getGoals(): Goals[] {
     return [
-      {goalName: GoalType.FIRST_BLOOD, isCompleted: this.isFirstBlood()},
-      {goalName: GoalType.DOUBLE_KILL, isCompleted: this.isDoubleKill()},
-      {goalName: GoalType.TRIPLE_KILL, isCompleted: this.isTripleKill()},
-      {goalName: GoalType.PERFECTIONIST, isCompleted: this.isPerfectionist()},
-      {goalName: GoalType.RAMPAGE, isCompleted: this.isRampage()},
-
+      { goalName: GoalType.FIRST_BLOOD, isCompleted: this.isFirstBlood() },
+      { goalName: GoalType.DOUBLE_KILL, isCompleted: this.isDoubleKill() },
+      { goalName: GoalType.TRIPLE_KILL, isCompleted: this.isTripleKill() },
+      { goalName: GoalType.PERFECTIONIST, isCompleted: this.isPerfectionist() },
+      { goalName: GoalType.RAMPAGE, isCompleted: this.isRampage() },
     ];
   }
 }

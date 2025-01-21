@@ -382,7 +382,7 @@ export class Game {
         },
       };
 
-      console.log("this is index", index, this.playerBoards[index].getGoals());
+      // console.log("this is index", index, this.playerBoards[index].getGoals());
 
       sendPayload(socket, GET_UPDATED_GAME, updatedGameData);
     });
@@ -394,19 +394,16 @@ export class Game {
   ) {
     console.log("in here checking bloodStatus");
     if (
-      currentPlayerBoard.LineCount <= 1 &&
+      currentPlayerBoard.LineCount >= 1 &&
       opponentPlayerBoard.LineCount === 0
     ) {
-      console.log("Player one got firstBlood");
       currentPlayerBoard.setFirstBlood(true);
-      console.log("this is player one goals", currentPlayerBoard.getGoals());
       opponentPlayerBoard.setFirstBlood(false);
       this.gotFirstBlood = true;
     } else if (
       currentPlayerBoard.LineCount === 0 &&
-      opponentPlayerBoard.LineCount <= 1
+      opponentPlayerBoard.LineCount >= 1
     ) {
-      console.log("Player two got firstBlood");
       currentPlayerBoard.setFirstBlood(false);
       opponentPlayerBoard.setFirstBlood(true);
       this.gotFirstBlood = true;

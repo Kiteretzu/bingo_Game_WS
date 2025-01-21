@@ -28,14 +28,12 @@ import {
 } from "@repo/games/client/bingo/messages";
 import { Bingo } from "@repo/games/bingo";
 import { sendPayload } from "../helper/wsSend";
-import { client } from "@repo/db/client";
 import {
   redis_addMove,
   redis_newGame,
   redis_saveEndGame,
   redis_tossGameUpdate,
 } from "@repo/redis-worker/test";
-import { kStringMaxLength } from "buffer";
 
 export class Game {
   public gameId: string;
@@ -147,27 +145,32 @@ export class Game {
       switch (goal.goalName) {
         case GoalType.FIRST_BLOOD: {
           // on random give 2-6 points
-          firstBloodPoints += Math.floor(Math.random() * 5) + 2;
+          if (goal.isCompleted)
+            firstBloodPoints += Math.floor(Math.random() * 5) + 2;
           break;
         }
         case GoalType.DOUBLE_KILL: {
           // on random give 6-12 points
-          doubleKillPoints += Math.floor(Math.random() * 6) + 6;
+          if (goal.isCompleted)
+            doubleKillPoints += Math.floor(Math.random() * 6) + 6;
           break;
         }
         case GoalType.TRIPLE_KILL: {
           // on random give 12-18 points
-          tripleKillPoints += Math.floor(Math.random() * 6) + 12;
+          if (goal.isCompleted)
+            tripleKillPoints += Math.floor(Math.random() * 6) + 12;
           break;
         }
         case GoalType.PERFECTIONIST: {
           // on random give 25-35 points
-          perfectionistPoints += Math.floor(Math.random() * 10) + 25;
+          if (goal.isCompleted)
+            perfectionistPoints += Math.floor(Math.random() * 10) + 25;
           break;
         }
         case GoalType.RAMPAGE: {
           // on random give 18-25 points
-          rampagePoints += Math.floor(Math.random() * 7) + 18;
+          if (goal.isCompleted)
+            rampagePoints += Math.floor(Math.random() * 7) + 18;
           break;
         }
       }
@@ -197,7 +200,7 @@ export class Game {
     };
   }
 
-  private bingoEndGame(socket: WebSocket): EndGame  |null {
+  private bingoEndGame(socket: WebSocket): EndGame | null {
     const {
       currentPlayerBoard,
       opponentPlayerBoard,
@@ -235,7 +238,7 @@ export class Game {
           id: currentPlayer.user.bingoProfile.id,
           winnerMMR,
           winnerGoal: currentPlayerBoard.getGoals(),
-          
+
           lineCount: currentPlayerBoard.LineCount,
         },
         loser: {
@@ -281,7 +284,7 @@ export class Game {
       };
     }
 
-    return null
+    return null;
   }
 
   // private resignationEndGame(socket: WebSocket) {
@@ -315,12 +318,12 @@ export class Game {
     currentPlayerSocket: WebSocket,
     gameEndMethod: GameEndMethod
   ) {
-
     switch (gameEndMethod) {
       case GameEndMethod.BINGO: {
-        const {winner, loser, winMethod} = this.bingoEndGame(currentPlayerSocket) !;
+        const { winner, loser, winMethod } =
+          this.bingoEndGame(currentPlayerSocket)!;
         // save this to end result
-        redis_saveEndGame({gameId: this.gameId, winner, loser, winMethod}) // sent as obj
+        redis_saveEndGame({ gameId: this.gameId, winner, loser, winMethod }); // sent as obj
         break;
       }
       case GameEndMethod.RESIGNATION: {

@@ -52,7 +52,7 @@ const {setIsVictory, isLost, isMatchFound, isVictory, lostData, matchFoundData, 
   const goals = bingoState.goals;
   const matchHistory = bingoState.matchHistory;
   const tossWinner = bingoState.tossWinner;
-  let lastValue = "";
+  let lastValue = ""; // i think bug state here
   const [response, setResponse] = useState<string>("");
   const [gameLoading, setGameLoading] = useState<boolean>(true);
   const [isFinding, setIsFinding] = useState<boolean>(false);
@@ -92,18 +92,20 @@ const {setIsVictory, isLost, isMatchFound, isVictory, lostData, matchFoundData, 
 
         case GET_CHECK_MARK: {
           const data = parsedMessage as PAYLOAD_PUT_GET_CHECK_MARK;
-          lastValue = data.payload.value
+          lastValue = data.payload.value // i think bug state here
           break;
         }
 
         case GET_VICTORY: {
           const data = parsedMessage as PAYLOAD_GET_VICTORY;
-          console.log('this is DAta', data)
+          setVictoryData(data.payload);
           setIsVictory(true);
           break;
         }
 
         case GET_LOST: {
+          const data = parsedMessage as PAYLOAD_GET_LOST;
+          setLostData(data.payload)
           setIsLost(true);
           break;
         }
@@ -162,6 +164,8 @@ const {setIsVictory, isLost, isMatchFound, isVictory, lostData, matchFoundData, 
     playersData, // same as matchFound data
     goals,
     matchHistory,
+    victoryData,
+    lostData,
     setIsVictory, // for dialog
     setIsLost, // for dialog
     findMatch,

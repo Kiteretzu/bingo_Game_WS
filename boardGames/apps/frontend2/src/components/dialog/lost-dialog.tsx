@@ -1,42 +1,55 @@
-'use client'
+"use client"
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react"
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { Badge } from "@/components/ui/badge"
-import { Skull, MinusCircle, X, Minus } from 'lucide-react'
-import { AnimatePresence, motion } from 'framer-motion'
-import { Button } from '../ui/button'
-import useBingo from '@/hooks/useBingo'
+import { Skull, MinusCircle, X, Minus } from "lucide-react"
+import { AnimatePresence, motion } from "framer-motion"
+import { Button } from "../ui/button"
+import useBingo from "@/hooks/useBingo"
 
-interface LostDialogProps {
-    isOpen: boolean
-    onClose?: () => void
-    lostMethod?: string
-    mmrLost: number
-}
 
-export default function LostDialog({
-    isOpen,
-    onClose,
-    lostMethod,
-    mmrLost
-}: LostDialogProps) {
+export default function LostDialog({ isOpen }: { isOpen: boolean }) {
     const [animatedMMR, setAnimatedMMR] = useState(0)
-    const { setIsLost } = useBingo()
+    const { setIsLost, lostData } = useBingo()
 
     useEffect(() => {
-        if (isOpen) {
+        if (isOpen && lostData.data?.totalLosingPoints) {
             const timer = setTimeout(() => {
-                setAnimatedMMR(mmrLost)
+                setAnimatedMMR(lostData.data?.totalLosingPoints ?? 0)
             }, 500)
             return () => clearTimeout(timer)
         } else {
             setAnimatedMMR(0)
         }
-    }, [isOpen, mmrLost])
+    }, [isOpen])
+
+    const containerVariants = {
+        hidden: { opacity: 0 },
+        visible: {
+            opacity: 1,
+            transition: {
+                staggerChildren: 0.1,
+                delayChildren: 0.3,
+            },
+        },
+    }
+
+    const itemVariants = {
+        hidden: { y: 20, opacity: 0 },
+        visible: {
+            y: 0,
+            opacity: 1,
+            transition: {
+                type: "spring",
+                stiffness: 300,
+                damping: 24,
+            },
+        },
+    }
 
     return (
-        <Dialog open={isOpen} onOpenChange={onClose}>
+        <Dialog open={isOpen}>
             <DialogContent className="sm:max-w-[500px] border-none bg-gradient-to-br from-[#2a2a37] to-[#14141a] p-0">
                 <AnimatePresence>
                     {isOpen && (
@@ -63,22 +76,48 @@ export default function LostDialog({
                                 </DialogClose>
                             </DialogHeader>
 
-                            <div className="p-6">
-                                <div className="text-center mb-6">
-                                    <h3 className="text-lg font-semibold text-gray-300">Lost Method</h3>
-                                    <div className="text-md px-4 py-2 bg-gray-700 text-white rounded-md inline-block">
-                                        {lostMethod}
-                                    </div>
-                                </div>
+                            <motion.div variants={containerVariants} initial="hidden" animate="visible" className="p-6 space-y-6">
+                                <motion.div variants={itemVariants} className="text-center">
+                                    <h3 className="text-lg font-semibold text-gray-300 mb-2">Lost Method</h3>
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{
+                                            type: "spring",
+                                            stiffness: 300,
+                                            damping: 20,
+                                            delay: 0.2,
+                                        }}
+                                        className="text-md px-4 py-2 bg-gray-700 text-white rounded-md inline-block"
+                                    >
+                                        {lostData.method}
+                                    </motion.div>
+                                </motion.div>
 
-                                <div className="text-center mb-6">
-                                    <h3 className="text-lg font-semibold text-gray-300">MMR Lost</h3>
-                                    <p className="text-3xl text-center relative -left-2 font-bold text-red-400 animate-pulse flex items-center justify-center">
+                                <motion.div variants={itemVariants} className="text-center">
+                                    <h3 className="text-lg font-semibold text-gray-300 mb-2">MMR Lost</h3>
+                                    <motion.div
+                                        initial={{ opacity: 0, scale: 0.8 }}
+                                        animate={{ opacity: 1, scale: 1 }}
+                                        transition={{
+                                            type: "spring",
+                                            stiffness: 300,
+                                            damping: 20,
+                                            delay: 0.4,
+                                        }}
+                                        className="text-3xl font-bold text-red-400 flex items-center justify-center"
+                                    >
                                         <Minus className="h-8 w-4 relative" />
-                                        {animatedMMR}
-                                    </p>
-                                </div>
-                            </div>
+                                        <motion.span
+                                            initial={{ opacity: 0 }}
+                                            animate={{ opacity: 1 }}
+                                            transition={{ duration: 0.5, delay: 0.6 }}
+                                        >
+                                            {animatedMMR}
+                                        </motion.span>
+                                    </motion.div>
+                                </motion.div>
+                            </motion.div>
                         </motion.div>
                     )}
                 </AnimatePresence>

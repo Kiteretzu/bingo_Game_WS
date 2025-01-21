@@ -6,7 +6,7 @@ import {
   PlayerData,
   PlayerGameboardData,
 } from "@repo/games/bingo/messages";
-import { createClient } from "redis";
+import { createClient } from "redis";  
 import { REDIS_PAYLOAD_END_GAME } from "types";
 
 // Create and connect the Redis client

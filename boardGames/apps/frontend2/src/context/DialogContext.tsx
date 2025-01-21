@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useState } from "react";
 import { useSocket } from "../hooks/useSocket"; // Custom hook for WebSocket handling.
-import { PlayerData } from "@repo/games/bingo/messages";
+import { PAYLOAD_GET_LOST, PAYLOAD_GET_VICTORY, PlayerData } from "@repo/games/bingo/messages";
 
 type DialogContextType = {
     isMatchFound: boolean;
@@ -9,12 +9,12 @@ type DialogContextType = {
     setMatchFoundData: React.Dispatch<React.SetStateAction<PlayerData[]>>;
     isVictory: boolean;
     setIsVictory: React.Dispatch<React.SetStateAction<boolean>>;
-    victoryData: any; // Replace `any` with the specific type.
-    setVictoryData: React.Dispatch<React.SetStateAction<any>>;
+    victoryData: PAYLOAD_GET_VICTORY['payload']; // Replace `any` with the specific type.
+    setVictoryData: React.Dispatch<React.SetStateAction<PAYLOAD_GET_VICTORY['payload']>>;
     isLost: boolean;
     setIsLost: React.Dispatch<React.SetStateAction<boolean>>;
-    lostData: any; // Replace `any` with the specific type.
-    setLostData: React.Dispatch<React.SetStateAction<any>>;
+    lostData: PAYLOAD_GET_LOST['payload']; // Replace `any` with the specific type.
+    setLostData: React.Dispatch<React.SetStateAction<PAYLOAD_GET_LOST['payload']>>;
     emote: string;
     setEmote: React.Dispatch<React.SetStateAction<string>>;
 };

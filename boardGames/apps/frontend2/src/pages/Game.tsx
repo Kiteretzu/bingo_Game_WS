@@ -43,7 +43,7 @@ export default function Game() {
                     <PlayerDashBoard tossWinner='Dammy' player1="Sammy" player2='Dammy' />
                 </CardContent>
             </div>
-            <VictoryDialog totalMMR={502} winMethod='Domination' isOpen={isVictory} baseMMR={404} />
+            <VictoryDialog  isOpen={isVictory}  />
             <LostDialog isOpen={isLost} mmrLost={24} lostMethod='DOMINATION' />
         </div>
     )

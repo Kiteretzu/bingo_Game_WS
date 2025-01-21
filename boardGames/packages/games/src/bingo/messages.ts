@@ -166,7 +166,7 @@ export interface PAYLOAD_GET_VICTORY {
   payload: {
     method: GameEndMethod;
     message: string;
-    data: any | null;
+    data: WinnerMMR | null;
   };
 }
 export interface PAYLOAD_GET_LOST {
@@ -174,7 +174,7 @@ export interface PAYLOAD_GET_LOST {
   payload: {
     method: GameEndMethod;
     message: string;
-    data: any | null;
+    data: LoserMMR | null;
   };
 }
 
@@ -192,8 +192,6 @@ export interface PAYLOAD_GET_RECIEVE_EMOTE {
     emote: string;
   };
 }
-
-
 
 export interface PAYLOAD_PUT_GET_CHECK_MARK {
   type: MessageType.PUT_CHECK_MARK | MessageType.GET_CHECK_MARK;
@@ -281,20 +279,34 @@ export enum TossDecision {
 }
 
 // very important
+
+export type WinnerMMR = {
+  totalWinningPoints: number;
+  baseWinningPoints: number;
+  firstBloodPoints: number;
+  doubleKillPoints: number;
+  tripleKillPoints: number;
+  perfectionistPoints: number;
+  rampagePoints: number;
+};
+
+export type LoserMMR = {
+  totalLosingPoints: number;
+  baseLosingPoints: number;
+}
+
 export interface EndGame {
   winner: {
     id: string;
-    winnerMMR: number;
-    winnerGoal: Goals[]
+    winnerMMR: WinnerMMR;
+    winnerGoal: Goals[];
     lineCount: number;
-  }
+  };
   loser: {
     id: string;
-    loserMMR: number;
+    loserMMR: LoserMMR;
     loserGoal: Goals[];
     lineCount: number;
-  }
+  };
   winMethod: GameEndMethod;
 }
-
-

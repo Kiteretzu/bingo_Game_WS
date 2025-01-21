@@ -3,10 +3,12 @@ import Cross from './CssComponents/Cross'
 import useBingo from '@/hooks/useBingo'
 import { Box, BoxesName, BoxesValue } from '@repo/games/client/bingo/messages'
 import { Card, CardContent } from '@/components/ui/card'
-import {obj} from '@/hooks/test'
+import { obj } from '@/dummyTests/gameBoard'
 
 function GameBoard() {
   const { addCheck, checkedBoxes, gameBoard, checkedLines } = useBingo()
+
+  
 
   const handleAddCheck = (e: React.MouseEvent<HTMLDivElement>) => {
     const boxValue = e.currentTarget.dataset.boxValue

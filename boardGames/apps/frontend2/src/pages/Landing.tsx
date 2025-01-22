@@ -11,7 +11,7 @@ import FriendList from '@/components/FriendList';
 import FindMatch from '@/components/FindMatch';
 
 export default function Dashboard() {
-    const { findMatch, cancelFindMatch, isFinding, isMatchFound, matchFoundData } = useBingo()
+    const { findMatch, cancelFindMatch, isFinding, isMatchFound } = useBingo()
     const dummyPLayerData = [
         {
             "user": {
@@ -66,7 +66,7 @@ export default function Dashboard() {
                 </div>
 
                 {/* Third row */}
-                {isMatchFound && <MatchFoundScreen data={matchFoundData} />}
+                {isMatchFound && <MatchFoundScreen />}
                 <FindMatch />
                 
             </div>

@@ -250,6 +250,9 @@ interface PlayerProfile {
   id: string;
   mmr: number;
   league: string | null;
+  wins: number
+  losses: number
+  totalMatches: number
 }
 
 export interface PlayerData {

@@ -102,10 +102,13 @@ import { createClient, RedisClientType } from "redis";
     }>
   > {
     try {
+      console.log('check 1 in services')
       if (await this.shouldRefreshCache()) {
+        console.log('check 2 in services')
         await this.refreshLeaderboardCache();
       }
 
+      console.log(`final check in sercieces`)
       const topPlayers = await this.redis.zRangeWithScores(
         this.leaderboardKey,
         0, // Start from the first element

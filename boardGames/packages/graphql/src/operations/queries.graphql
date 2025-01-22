@@ -21,6 +21,9 @@ query getServerPlayerProfile($googleId: String!) {
       id
       mmr
       league
+      losses
+      wins
+      totalMatches
     }
     
   }

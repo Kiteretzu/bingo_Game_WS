@@ -41,14 +41,13 @@ export const resolvers: Resolvers<CustomContext> = {
       return user;
     },
     
+    
     // leaderboard
     leaderboard: async (parent, args, context) => {
       const {limit} = args
 
-      console.log('this is ', limit)
       // Implement the logic to fetch leaderboard entries
       const leaderboardEntries = await leaderboardService.getLeaderboard(limit)
-      console.log('what the fuck is this', leaderboardEntries)
       return leaderboardEntries;
       
     }

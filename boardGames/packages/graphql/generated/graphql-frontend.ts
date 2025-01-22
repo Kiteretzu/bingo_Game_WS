@@ -131,7 +131,7 @@ export type GetServerPlayerProfileQueryVariables = Exact<{
 }>;
 
 
-export type GetServerPlayerProfileQuery = { __typename?: 'Query', user?: { __typename?: 'User', googleId: string, displayName?: string | null, avatar?: string | null, bingoProfile?: { __typename?: 'BingoProfile', id: string, mmr?: number | null, league?: Leagues | null } | null } | null };
+export type GetServerPlayerProfileQuery = { __typename?: 'Query', user?: { __typename?: 'User', googleId: string, displayName?: string | null, avatar?: string | null, bingoProfile?: { __typename?: 'BingoProfile', id: string, mmr?: number | null, league?: Leagues | null, losses?: number | null, wins?: number | null, totalMatches?: number | null } | null } | null };
 
 export type GetLeaderboardPlayersQueryVariables = Exact<{
   limit: Scalars['Int']['input'];
@@ -198,6 +198,9 @@ export const GetServerPlayerProfileDocument = gql`
       id
       mmr
       league
+      losses
+      wins
+      totalMatches
     }
   }
 }

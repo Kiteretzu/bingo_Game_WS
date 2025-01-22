@@ -1,3 +1,4 @@
+import { PlayerData } from '@repo/games/bingo/messages';
 import { GetServerPlayerProfileDocument } from '@repo/graphql/types/client';
 import jwt from 'jsonwebtoken';
 import { DECODED_TOKEN } from 'types';
@@ -5,7 +6,7 @@ const { request } = require('graphql-request');
 
 
 
-export async function getPlayerData(token: string): Promise<any> {
+export async function getPlayerData(token: string): Promise<PlayerData | null> {
   try {
     // Decode the JWT token to extract googleId
     const googleId = (jwt.verify(token, process.env.JWT_SECRET!) as DECODED_TOKEN).googleId;
@@ -20,5 +21,5 @@ export async function getPlayerData(token: string): Promise<any> {
   } catch (error) {
     console.error('Error fetching player data:', error);
     return null; // or handle error accordingly
-  }
+  }   
 }

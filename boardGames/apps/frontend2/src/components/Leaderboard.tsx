@@ -67,7 +67,7 @@ export default function Leaderboard() {
           variants={animate}
           className="divide-y divide-gray-700"
         >
-          {test_LeaderboardData.map((player, index) => (
+          {data?.leaderboard.map((player, index) => (
             <motion.div
               key={player.rank}
               className={`flex items-center p-4 ${getRowColor(player.rank)} transition-colors duration-200`}

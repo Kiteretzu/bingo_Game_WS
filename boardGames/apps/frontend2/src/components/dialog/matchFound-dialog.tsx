@@ -8,16 +8,17 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/comp
 import { PlayerData } from "@repo/games/bingo/messages";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "@/store/hooks";
+import useBingo from "@/hooks/useBingo";
 
-interface MatchFoundScreenProps {
-    data: PlayerData[];
-}
 
-export default function MatchFoundScreen({ data }: MatchFoundScreenProps) {
+export default function MatchFoundScreen() {
     const [countdown, setCountdown] = useState(5);
+    const { matchFoundData: data } = useBingo()
+
     const [player1, player2] = data;
     const navigate = useNavigate()
     const bingoId = useAppSelector(state => state.bingo.game.gameId)
+console.log({player1})
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -108,7 +109,7 @@ function PlayerCard({ player, initialX, delay }: { player: PlayerData; initialX:
                     delay={delay + 0.4}
                 />
                 <AnimatedText
-                    text={`Win Rate: ${(Math.random() * 100).toFixed(2)}%`}
+                    text={`Win Rate: ${(player.user.bingoProfile.wins / player.user.bingoProfile.totalMatches)*100}%`}
                     className="text-gray-400 text-sm"
                     delay={delay + 0.5}
                 />

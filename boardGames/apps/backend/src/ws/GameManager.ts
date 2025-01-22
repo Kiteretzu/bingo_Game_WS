@@ -55,8 +55,12 @@ export class GameManager {
 
             const token = data.payload.token;
 
-            const playerData: PlayerData = await getPlayerData(token);
-
+            const playerData: PlayerData | null = await getPlayerData(token);
+            if (!playerData) {
+              socket.send("Invalid player data");
+              return;
+            }
+            
             if (!this.pendingPlayer ) {
               this.pendingPlayer = socket;
               this.pendingPlayerData = playerData;

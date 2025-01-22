@@ -57,6 +57,14 @@ export type BingoProfile = {
   wins?: Maybe<Scalars['Int']['output']>;
 };
 
+export type LeaderboardEntry = {
+  __typename?: 'LeaderboardEntry';
+  displayName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  mmr: Scalars['Int']['output'];
+  rank: Scalars['Int']['output'];
+};
+
 export enum Leagues {
   Bronze = 'BRONZE',
   Diamond = 'DIAMOND',
@@ -73,6 +81,7 @@ export type Query = {
   bingoGame?: Maybe<BingoGame>;
   bingoPlayerRecord?: Maybe<BingoPlayerRecords>;
   bingoPlayerRecords?: Maybe<Array<Maybe<BingoPlayerRecords>>>;
+  leaderboard: Array<LeaderboardEntry>;
   user?: Maybe<User>;
 };
 
@@ -85,6 +94,11 @@ export type QueryBingoGameArgs = {
 export type QueryBingoPlayerRecordArgs = {
   player1Id: Scalars['String']['input'];
   player2Id: Scalars['String']['input'];
+};
+
+
+export type QueryLeaderboardArgs = {
+  limit: Scalars['Int']['input'];
 };
 
 
@@ -118,6 +132,13 @@ export type GetServerPlayerProfileQueryVariables = Exact<{
 
 
 export type GetServerPlayerProfileQuery = { __typename?: 'Query', user?: { __typename?: 'User', googleId: string, displayName?: string | null, avatar?: string | null, bingoProfile?: { __typename?: 'BingoProfile', id: string, mmr?: number | null, league?: Leagues | null } | null } | null };
+
+export type GetLeaderboardPlayersQueryVariables = Exact<{
+  limit: Scalars['Int']['input'];
+}>;
+
+
+export type GetLeaderboardPlayersQuery = { __typename?: 'Query', leaderboard: Array<{ __typename?: 'LeaderboardEntry', id: string, mmr: number, rank: number, displayName: string }> };
 
 
 export const GetAuthProfileDocument = gql`
@@ -214,3 +235,46 @@ export type GetServerPlayerProfileQueryHookResult = ReturnType<typeof useGetServ
 export type GetServerPlayerProfileLazyQueryHookResult = ReturnType<typeof useGetServerPlayerProfileLazyQuery>;
 export type GetServerPlayerProfileSuspenseQueryHookResult = ReturnType<typeof useGetServerPlayerProfileSuspenseQuery>;
 export type GetServerPlayerProfileQueryResult = Apollo.QueryResult<GetServerPlayerProfileQuery, GetServerPlayerProfileQueryVariables>;
+export const GetLeaderboardPlayersDocument = gql`
+    query getLeaderboardPlayers($limit: Int!) {
+  leaderboard(limit: $limit) {
+    id
+    mmr
+    rank
+    displayName
+  }
+}
+    `;
+
+/**
+ * __useGetLeaderboardPlayersQuery__
+ *
+ * To run a query within a React component, call `useGetLeaderboardPlayersQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetLeaderboardPlayersQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetLeaderboardPlayersQuery({
+ *   variables: {
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetLeaderboardPlayersQuery(baseOptions: Apollo.QueryHookOptions<GetLeaderboardPlayersQuery, GetLeaderboardPlayersQueryVariables> & ({ variables: GetLeaderboardPlayersQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetLeaderboardPlayersQuery, GetLeaderboardPlayersQueryVariables>(GetLeaderboardPlayersDocument, options);
+      }
+export function useGetLeaderboardPlayersLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetLeaderboardPlayersQuery, GetLeaderboardPlayersQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetLeaderboardPlayersQuery, GetLeaderboardPlayersQueryVariables>(GetLeaderboardPlayersDocument, options);
+        }
+export function useGetLeaderboardPlayersSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetLeaderboardPlayersQuery, GetLeaderboardPlayersQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetLeaderboardPlayersQuery, GetLeaderboardPlayersQueryVariables>(GetLeaderboardPlayersDocument, options);
+        }
+export type GetLeaderboardPlayersQueryHookResult = ReturnType<typeof useGetLeaderboardPlayersQuery>;
+export type GetLeaderboardPlayersLazyQueryHookResult = ReturnType<typeof useGetLeaderboardPlayersLazyQuery>;
+export type GetLeaderboardPlayersSuspenseQueryHookResult = ReturnType<typeof useGetLeaderboardPlayersSuspenseQuery>;
+export type GetLeaderboardPlayersQueryResult = Apollo.QueryResult<GetLeaderboardPlayersQuery, GetLeaderboardPlayersQueryVariables>;

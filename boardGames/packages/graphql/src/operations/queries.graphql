@@ -25,3 +25,12 @@ query getServerPlayerProfile($googleId: String!) {
     
   }
 }
+
+query getLeaderboardPlayers($limit: Int!) {
+  leaderboard(limit: $limit) {
+    id
+    mmr
+    rank
+    displayName  
+  }
+}

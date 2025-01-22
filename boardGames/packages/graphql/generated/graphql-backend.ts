@@ -56,6 +56,14 @@ export type BingoProfile = {
   wins?: Maybe<Scalars['Int']['output']>;
 };
 
+export type LeaderboardEntry = {
+  __typename?: 'LeaderboardEntry';
+  displayName: Scalars['String']['output'];
+  id: Scalars['ID']['output'];
+  mmr: Scalars['Int']['output'];
+  rank: Scalars['Int']['output'];
+};
+
 export enum Leagues {
   Bronze = 'BRONZE',
   Diamond = 'DIAMOND',
@@ -72,6 +80,7 @@ export type Query = {
   bingoGame?: Maybe<BingoGame>;
   bingoPlayerRecord?: Maybe<BingoPlayerRecords>;
   bingoPlayerRecords?: Maybe<Array<Maybe<BingoPlayerRecords>>>;
+  leaderboard: Array<LeaderboardEntry>;
   user?: Maybe<User>;
 };
 
@@ -84,6 +93,11 @@ export type QueryBingoGameArgs = {
 export type QueryBingoPlayerRecordArgs = {
   player1Id: Scalars['String']['input'];
   player2Id: Scalars['String']['input'];
+};
+
+
+export type QueryLeaderboardArgs = {
+  limit: Scalars['Int']['input'];
 };
 
 
@@ -181,8 +195,10 @@ export type ResolversTypes = {
   BingoPlayerRecords: ResolverTypeWrapper<BingoPlayerRecords>;
   BingoProfile: ResolverTypeWrapper<BingoProfile>;
   Boolean: ResolverTypeWrapper<Scalars['Boolean']['output']>;
+  ID: ResolverTypeWrapper<Scalars['ID']['output']>;
   Int: ResolverTypeWrapper<Scalars['Int']['output']>;
   JSON: ResolverTypeWrapper<Scalars['JSON']['output']>;
+  LeaderboardEntry: ResolverTypeWrapper<LeaderboardEntry>;
   Leagues: Leagues;
   Query: ResolverTypeWrapper<{}>;
   String: ResolverTypeWrapper<Scalars['String']['output']>;
@@ -196,8 +212,10 @@ export type ResolversParentTypes = {
   BingoPlayerRecords: BingoPlayerRecords;
   BingoProfile: BingoProfile;
   Boolean: Scalars['Boolean']['output'];
+  ID: Scalars['ID']['output'];
   Int: Scalars['Int']['output'];
   JSON: Scalars['JSON']['output'];
+  LeaderboardEntry: LeaderboardEntry;
   Query: {};
   String: Scalars['String']['output'];
   User: User;
@@ -246,11 +264,20 @@ export interface JsonScalarConfig extends GraphQLScalarTypeConfig<ResolversTypes
   name: 'JSON';
 }
 
+export type LeaderboardEntryResolvers<ContextType = any, ParentType extends ResolversParentTypes['LeaderboardEntry'] = ResolversParentTypes['LeaderboardEntry']> = {
+  displayName?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  id?: Resolver<ResolversTypes['ID'], ParentType, ContextType>;
+  mmr?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  rank?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
+  __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
+};
+
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   authUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   bingoGame?: Resolver<Maybe<ResolversTypes['BingoGame']>, ParentType, ContextType, RequireFields<QueryBingoGameArgs, 'id'>>;
   bingoPlayerRecord?: Resolver<Maybe<ResolversTypes['BingoPlayerRecords']>, ParentType, ContextType, RequireFields<QueryBingoPlayerRecordArgs, 'player1Id' | 'player2Id'>>;
   bingoPlayerRecords?: Resolver<Maybe<Array<Maybe<ResolversTypes['BingoPlayerRecords']>>>, ParentType, ContextType>;
+  leaderboard?: Resolver<Array<ResolversTypes['LeaderboardEntry']>, ParentType, ContextType, RequireFields<QueryLeaderboardArgs, 'limit'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'googleId'>>;
 };
 
@@ -268,6 +295,7 @@ export type Resolvers<ContextType = any> = {
   BingoPlayerRecords?: BingoPlayerRecordsResolvers<ContextType>;
   BingoProfile?: BingoProfileResolvers<ContextType>;
   JSON?: GraphQLScalarType;
+  LeaderboardEntry?: LeaderboardEntryResolvers<ContextType>;
   Query?: QueryResolvers<ContextType>;
   User?: UserResolvers<ContextType>;
 };

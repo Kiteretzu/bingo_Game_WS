@@ -19,7 +19,7 @@ import {
   PAYLOAD_PUT_SEND_EMOTE,
 } from "@repo/games/client/bingo/messages";
 import { getPlayerData } from "./helper";
-import { redis_newGame } from "@repo/redis-worker/test";
+import { redis_newGame } from "@repo/redis-worker/helper";
 
 export class GameManager {
   private games: Map<string, Game>; // Number of games going on
@@ -79,7 +79,7 @@ export class GameManager {
 
               this.games.set(newGameId, newGame);
               socket.send(`Game started with ID: ${newGameId}`);
-              this.pendingPlayer = null; // Reset pendingUser once the game starts
+            this.pendingPlayer = null; // Reset pendingUser once the game starts
               this.pendingPlayerData = null; // Reset pendingUserData
             }
             break;

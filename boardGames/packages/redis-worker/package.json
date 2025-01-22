@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "exports": {
-    "./test" : "./src/helper/index.ts"
+    "./helper": "./src/helper/index.ts",
+    "./services": "./src/services/leaderBoardServices.ts"
   },
   "scripts": {
     "build": "npx esbuild src/index.ts --bundle --outfile=dist/index.js --platform=node --tsconfig=tsconfig.json",
@@ -15,8 +16,8 @@
   "license": "ISC",
   "description": "",
   "dependencies": {
-    "redis": "^4.7.0",
     "@repo/db": "workspace:*",
-    "@repo/games": "workspace:*"
+    "@repo/games": "workspace:*",
+    "redis": "^4.7.0"
   }
 }

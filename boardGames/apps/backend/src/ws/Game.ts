@@ -33,7 +33,7 @@ import {
   redis_newGame,
   redis_saveEndGame,
   redis_tossGameUpdate,
-} from "@repo/redis-worker/test";
+} from "@repo/redis-worker/helper";
 
 export class Game {
   public gameId: string;

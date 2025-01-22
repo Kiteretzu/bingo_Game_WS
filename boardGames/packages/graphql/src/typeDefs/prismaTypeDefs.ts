@@ -1,11 +1,7 @@
-import { gql } from 'apollo-server-express';
+import { gql } from "apollo-server-express";
 
-export const typeDefs = gql`
-  
+export const prismaTypeDefs = gql`
   scalar JSON
-
-
-   scalar JSON
 
   enum Leagues {
     BRONZE
@@ -67,7 +63,7 @@ export const typeDefs = gql`
     player2Id: String!
     ratio: JSON
   }
-  
+
   # Queries
   type Query {
     authUser: User
@@ -78,8 +74,9 @@ export const typeDefs = gql`
     # bingoGames: [BingoGame]
     bingoGame(id: String!): BingoGame
     bingoPlayerRecords: [BingoPlayerRecords]
-    bingoPlayerRecord(player1Id: String!, player2Id: String!): BingoPlayerRecords
+    bingoPlayerRecord(
+      player1Id: String!
+      player2Id: String!
+    ): BingoPlayerRecords
   }
 `;
-
-export default typeDefs;

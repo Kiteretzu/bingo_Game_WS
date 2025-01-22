@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "exports": {
-    "./typdefs": "./src/typeDefs/index.ts",
+    "./typdefs": "./src/index.ts",
     "./types/server": "./generated/graphql-backend.ts",
     "./types/client": "./generated/graphql-frontend.ts"
   },
@@ -17,6 +17,7 @@
   "description": "",
   "dependencies": {
     "@apollo/client": "^3.12.4",
+    "@graphql-tools/merge": "^9.0.15",
     "apollo-server-express": "^3.13.0",
     "graphql": "^16.10.0"
   },

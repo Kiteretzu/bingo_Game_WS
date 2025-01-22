@@ -1,99 +1,108 @@
-'use client'
+import React from 'react';
+import { Trophy, Medal, Award, WavesLadderIcon, Shield } from 'lucide-react';
+import { motion } from 'framer-motion';
+import { useGetLeaderboardPlayersQuery } from '@repo/graphql/types/client';
+import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
+import { Skeleton } from '@/components/ui/skeleton';
+import { test_LeaderboardData } from '@/dummyTests/testLeaderBoard';
 
-import { Trophy, Medal, Award, StarIcon, WavesLadder, WavesLadderIcon } from 'lucide-react'
-import { motion } from 'framer-motion'
-
-type Player = {
-  rank: number
-  name: string
-  score: number
-}
-
-const players: Player[] = [
-  { rank: 1, name: "Alex", score: 2500 },
-  { rank: 2, name: "Sam", score: 2400 },
-  { rank: 3, name: "Jordan", score: 2350 },
-  { rank: 4, name: "Taylor", score: 2300 },
-  { rank: 5, name: "Casey", score: 2250 },
-  { rank: 6, name: "Riley", score: 2200 },
-  { rank: 7, name: "Jamie", score: 2150 },
-  { rank: 8, name: "Avery", score: 2100 },
-  { rank: 9, name: "Morgan", score: 2050 },
-  { rank: 10, name: "Drew", score: 2000 },
-]
-
-const containerVariants = {
-  hidden: { opacity: 0 },
-  visible: {
-    opacity: 1,
-    transition: {
-      when: "beforeChildren",
-      staggerChildren: 0.1
-    }
-  }
-}
-
-const itemVariants = {
-  hidden: { y: 20, opacity: 0 },
-  visible: {
-    y: 0,
-    opacity: 1
-  }
-}
+const animate = {
+  hidden: { opacity: 0, y: 20 },
+  visible: { opacity: 1, y: 0 }
+};
 
 export default function Leaderboard() {
+  const { data, loading } = useGetLeaderboardPlayersQuery({
+    variables: { limit: 10 }
+  });
+  
+  const getRankIcon = (rank: number) => {
+    switch (rank) {
+      case 1: return <Trophy className="text-yellow-500" size={24} />;
+      case 2: return <Medal className="text-gray-300" size={24} />;
+      case 3: return <Award className="text-amber-700" size={24} />;
+      default: return <Shield className="text-blue-400 opacity-50" size={20} />;
+    }
+  };
+
+  const getRowColor = (rank: number) => {
+    switch (rank) {
+      case 1: return 'bg-yellow-500/10';
+      case 2: return 'bg-gray-300/10';
+      case 3: return 'bg-amber-700/10';
+      default: return 'hover:bg-gray-700/30';
+    }
+  };
+
+  if (loading) return (
+    <Card className="bg-gray-800 border-gray-700">
+      <CardHeader>
+        <CardTitle className="text-gray-100">
+          <WavesLadderIcon className="inline mr-2 text-yellow-500" />
+          Leaderboard
+        </CardTitle>
+      </CardHeader>
+      <CardContent>
+        {[...Array(5)].map((_, i) => (
+          <div key={i} className="flex gap-4 mb-4">
+            <Skeleton className="h-12 w-full bg-gray-700" />
+          </div>
+        ))}
+      </CardContent>
+    </Card>
+  );
+
   return (
-    <motion.div
-      className="bg-gray-800 border border-gray-500/25 p-6 rounded-lg shadow-lg h-full flex flex-col"
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-    >
-      <motion.h2
-        className="text-2xl font-bold mb-6 text-gray-100 flex items-center"
-        variants={itemVariants}
-      >
-        <WavesLadderIcon className="mr-2 text-yellow-500" />
-        Leaderboard
-      </motion.h2>
+    <Card className="bg-gray-800/95 border-gray-700">
+      <CardHeader>
+        <CardTitle className="text-gray-100 flex items-center gap-2">
+          <WavesLadderIcon className="text-yellow-500" />
+          Leaderboard
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="p-0">
+        <motion.div
+          initial="hidden"
+          animate="visible"
+          variants={animate}
+          className="divide-y divide-gray-700"
+        >
+          {test_LeaderboardData.map((player, index) => (
+            <motion.div
+              key={player.rank}
+              className={`flex items-center p-4 ${getRowColor(player.rank)} transition-colors duration-200`}
+              variants={animate}
+              whileHover={{ scale: 1.01 }}
+              transition={{ duration: 0.2 }}
+            >
+              <div className="w-12 flex justify-center">
+                <motion.div
+                  whileHover={{ scale: 1.2, rotate: 360 }}
+                  transition={{ duration: 0.3 }}
+                >
+                  {getRankIcon(player.rank)}
+                </motion.div>
+              </div>
 
-      <motion.div className="flex-grow overflow-auto" variants={containerVariants}>
-        <table className="w-full">
-          <thead>
-            <motion.tr className="text-gray-400 text-left" variants={itemVariants}>
-              <th className="pb-4 font-semibold">Name</th>
-              <th className="pb-4 font-semibold">Rank</th>
-              <th className="pb-4 font-semibold text-right">MMR</th>
-            </motion.tr>
-          </thead>
-          <tbody>
-            {players.map((player) => (
-              <motion.tr
-                key={player.rank}
-                className="border-t border-gray-700"
-                variants={itemVariants}
-                whileHover={{ scale: 1.02, transition: { duration: 0.2 } }}
-              >
-                <td className="py-2 flex items-center">
-                  <motion.div
-                    whileHover={{ scale: 1.2, rotate: 360 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {player.rank === 1 && <Trophy className="mr-2 text-yellow-500" size={20} />}
-                    {player.rank === 2 && <Medal className="mr-2 text-gray-400" size={20} />}
-                    {player.rank === 3 && <Award className="mr-2 text-yellow-700" size={20} />}
-                    {player.rank > 3 && <span className="w-5 mr-2 text-gray-500">{player.rank}</span>}
-                  </motion.div>
-                  <span className="text-gray-300">{player.name}</span>
-                </td>
-                <td className="py-2 text-gray-300">{player.name}</td>
-                <td className="py-2 text-right text-gray-300">{player.score}</td>
-              </motion.tr>
-            ))}
-          </tbody>
-        </table>
-      </motion.div>
-    </motion.div>
-  )
+              <div className="flex-1 ml-4">
+                <div className="font-semibold text-gray-200">
+                  {player.displayName}
+                </div>
+                <div className="text-sm text-gray-400">
+                  Rank #{player.rank}
+                </div>
+              </div>
+
+              <div className="text-right">
+                <div className="font-mono text-lg font-bold text-gray-200">
+                  {player.mmr.toLocaleString()}
+                </div>
+                <div className="text-xs text-gray-400">MMR</div>
+              </div>
+            </motion.div>
+          ))}
+        </motion.div>
+      </CardContent>
+    </Card>
+  );
 }
-

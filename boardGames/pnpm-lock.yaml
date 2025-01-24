@@ -184,6 +184,9 @@ importers:
       '@repo/graphql':
         specifier: workspace:*
         version: link:../../packages/graphql
+      '@repo/ui':
+        specifier: workspace:*
+        version: link:../../packages/ui
       axios:
         specifier: ^1.7.9
         version: 1.7.9
@@ -408,6 +411,9 @@ importers:
       react-dom:
         specifier: ^19.0.0
         version: 19.0.0(react@19.0.0)
+      three:
+        specifier: ^0.172.0
+        version: 0.172.0
     devDependencies:
       '@repo/eslint-config':
         specifier: workspace:*
@@ -427,6 +433,9 @@ importers:
       '@types/react-dom':
         specifier: 18.3.1
         version: 18.3.1
+      '@types/three':
+        specifier: ^0.172.0
+        version: 0.172.0
       typescript:
         specifier: 5.5.4
         version: 5.5.4

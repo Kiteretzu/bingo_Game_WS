@@ -40,7 +40,7 @@ interface NewGamePayload {
 }
 
 class BingoStateManager {
-  private client = redisClient;
+  private client = redisClient;ha
   private queueName = "game-requests";
 
   async processRequests() {

@@ -7,7 +7,7 @@ import protect from "overload-protection";
 
 // Ensure `typeDefs` and `resolvers` are correctly imported
 import { schema } from "./routes/graphql/schema";
-buildContext
+
 import { setupWebSocket } from "./ws/websocket";
 import { expressMiddleware } from "@apollo/server/express4";
 import { ERROR_CODES, STATUS_CODES } from "./errors";

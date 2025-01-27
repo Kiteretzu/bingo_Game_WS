@@ -2,6 +2,9 @@
   "name": "backend",
   "version": "1.0.0",
   "main": "index.js",
+  "exports": {
+    "./game": "./src/ws/Game.ts"
+  },
   "scripts": {
     "build": "npx esbuild src/index.ts --bundle --outfile=dist/index.js --platform=node --tsconfig=tsconfig.json",
     "start": "node dist/index.js",
@@ -34,7 +37,7 @@
     "@repo/db": "workspace:*",
     "@repo/games": "workspace:*",
     "@repo/graphql": "workspace:*",
-    "@repo/redis-worker": "workspace:*",
+    "@repo/redis": "workspace:*",
     "cors": "^2.8.5",
     "dotenv": "^16.4.7",
     "express": "^4.21.1",

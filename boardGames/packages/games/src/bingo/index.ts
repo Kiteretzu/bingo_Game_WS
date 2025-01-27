@@ -12,12 +12,13 @@ export class Bingo {
   private doubleKill: boolean;
   private tripleKill: boolean;
 
-  constructor() {
+  constructor(gameBoard?: GameBoard) {
     this.LineCount = 0;
     this.lineCheckBoxes = [];
     this.checkedBoxes = [];
     this.gameBoard = new Array(25).fill({ boxName: "a", boxValue: "1" });
-    randomValuesForGameBoard(this.gameBoard);
+    if (gameBoard) this.gameBoard = gameBoard;
+    else randomValuesForGameBoard(this.gameBoard);
     this.gameOver = false;
     this.doubleKill = false;
     this.tripleKill = false;
@@ -134,7 +135,7 @@ export class Bingo {
 
     // Handle doubleKill and thirdKill
 
-    console.log("newLines here in addCheckMark", newLines);
+    console.log("New line formed", newLines);
     
     if (newLines === 2) {
       console.log("Double Kill unlocked!");

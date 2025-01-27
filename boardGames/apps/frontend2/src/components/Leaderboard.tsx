@@ -35,7 +35,7 @@ export default function Leaderboard() {
   };
 
   if (loading) return (
-    <Card className="bg-gray-800 border-gray-700">
+    <Card className="bg-gray-800 w-full h-full border-gray-700">
       <CardHeader>
         <CardTitle className="text-gray-100">
           <WavesLadderIcon className="inline mr-2 text-yellow-500" />

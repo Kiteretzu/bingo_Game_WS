@@ -4,7 +4,7 @@ import GameBoard from '@/components/BingoBoard'
 import PlayerDashBoard from '@/components/PlayerDashBoard'
 import ResignButton from '@/components/buttons/ResignButton'
 import Messages from '@/components/Messages'
-import { Card, CardContent } from '@/components/ui/card'
+import { CardContent } from '@/components/ui/card'
 import { EmoteSelector } from '@/components/EmoteSelector'
 import { PlayerGoals } from '@/components/player-goals'
 import { VictoryDialog } from '@/components/dialog/victory-dialog'
@@ -14,7 +14,7 @@ import "@/components/test.css"
 import backgroundImg from "@/assets/darkBackground.png";
 
 export default function Game() {
-    const { isVictory, isLost, setIsVictory } = useBingo()
+    const { isVictory, isLost } = useBingo()
 
     console.log({ isVictory, isLost })
 
@@ -40,11 +40,11 @@ export default function Game() {
                         <GameBoard />
                         <ResignButton />
                     </div>
-                    <PlayerDashBoard tossWinner='Dammy' player1="Sammy" player2='Dammy' />
+                    <PlayerDashBoard />
                 </CardContent>
             </div>
             <VictoryDialog  isOpen={isVictory}  />
-            <LostDialog isOpen={isLost} mmrLost={24} lostMethod='DOMINATION' />
+            <LostDialog isOpen={isLost}  />
         </div>
     )
 }

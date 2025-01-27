@@ -9,7 +9,7 @@ export const SocketContext = createContext<SocketContextType>(null);
 const SocketContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   // Initialize WebSocket connection using your custom hook
   const socket = useSocket();
-  if (!socket) return
+
   return (
     <SocketContext.Provider value={socket}>
       {children}
@@ -20,10 +20,10 @@ const SocketContextProvider: React.FC<{ children: React.ReactNode }> = ({ childr
 export default SocketContextProvider;
 
 // Custom Hook for consuming the context
-export const useSocketContext = () => {
+export const useSocketContext = (): SocketContextType => {
   const context = useContext(SocketContext);
   if (context === null) {
-    throw new Error("useSocketContext must be used within a SocketContextProvider OR GETTING SOCKET TO BE NULL");
+    console.error("useSocketContext must be used within a SocketContextProvider OR GETTING SOCKET TO BE NULL");
   }
   return context;
 };

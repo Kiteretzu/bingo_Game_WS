@@ -47,7 +47,7 @@ export default function FriendList() {
         setIsExpanded: (value: boolean) => void
         isOnline: boolean
     }) => (
-        <div className="mb-6">
+        <div className=" mb-6">
             <div
                 className="flex items-center justify-between cursor-pointer mb-2"
                 onClick={() => setIsExpanded(!isExpanded)}
@@ -95,7 +95,7 @@ export default function FriendList() {
     )
 
     return (
-        <Card className="bg-gray-800 min-h-full border-gray-700">
+        <Card className="w-full h-full bg-gray-800 min-h-full border-gray-700">
             <CardHeader>
                 <CardTitle className="text-2xl font-bold text-gray-100">Friend List</CardTitle>
             </CardHeader>

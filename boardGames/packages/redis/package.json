@@ -1,10 +1,10 @@
 {
-  "name": "@repo/redis-worker",
+  "name": "@repo/redis",
   "version": "1.0.0",
   "main": "index.js",
   "exports": {
     "./helper": "./src/helper/index.ts",
-    "./services": "./src/services/leaderBoardServices.ts"
+    "./services": "./src/services/index.ts"
   },
   "scripts": {
     "build": "npx esbuild src/index.ts --bundle --outfile=dist/index.js --platform=node --tsconfig=tsconfig.json",

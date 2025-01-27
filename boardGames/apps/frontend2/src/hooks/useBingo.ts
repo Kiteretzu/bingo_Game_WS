@@ -2,14 +2,12 @@ import { useEffect, useState } from "react";
 import { useSocketContext } from "@/context/SocketContext";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { initialGameboard, setUpdatedGame } from "@/store/slices/bingoSlice";
-import { useNavigate } from "react-router-dom";
 import {
   PUT_GAME_INIT,
   PUT_CANCEL_GAME_INIT,
   PUT_CHECK_MARK,
   GET_GAME,
   GET_RESPONSE,
-  GET_CHECKBOXES,
   GET_CHECK_MARK,
   GET_VICTORY,
   GET_LOST,
@@ -18,10 +16,13 @@ import {
   PAYLOAD_GET_RECIEVE_EMOTE,
   GET_UPDATED_GAME,
   PAYLOAD_GET_UPDATED_GAME,
+  PUT_RESIGN,
+  PAYLOAD_PUT_RESIGN,
+  GET_RECONNECT,
+  PAYLOAD_GET_RECONNECT,
 } from "@repo/games/client/bingo/messages";
-import { MessageType, PAYLOAD_GET_GAME, PAYLOAD_GET_RESPONSE, PAYLOAD_GET_CHECKBOXES, PAYLOAD_PUT_GET_CHECK_MARK, PAYLOAD_GET_VICTORY, PAYLOAD_GET_LOST } from "@repo/games/client/bingo/messages";
+import { MessageType, PAYLOAD_GET_GAME, PAYLOAD_GET_RESPONSE, PAYLOAD_PUT_GET_CHECK_MARK, PAYLOAD_GET_VICTORY, PAYLOAD_GET_LOST } from "@repo/games/client/bingo/messages";
 import { useDialogContext } from "@/context/DialogContext";
-import { m } from "framer-motion";
 
 function useBingo() {
   const bingoState = useAppSelector((state) => ({
@@ -37,12 +38,11 @@ function useBingo() {
   }));
 
   const dispatch = useAppDispatch();
-  const socket = useSocketContext();
-  const navigate = useNavigate();
+  const socket = useSocketContext()!; // no null should be come, it HAS to be webSocket
 
   // Dialog-related states
 
-const {setIsVictory, isLost, isMatchFound, isVictory, lostData, matchFoundData, setIsLost, setIsMatchFound, setLostData, setMatchFoundData, setVictoryData, victoryData, emote, setEmote} = useDialogContext()
+const {setIsVictory, isLost, isMatchFound, isReconnectGame, setIsReconnectGame, isVictory, lostData, matchFoundData, setIsLost, setIsMatchFound, setLostData, setMatchFoundData, setVictoryData, victoryData, emote, setEmote} = useDialogContext()
   // Sync Redux state for game-related logic
   const gameId = bingoState.gameId;
   const gameBoard = bingoState.gameBoard;
@@ -121,6 +121,14 @@ const {setIsVictory, isLost, isMatchFound, isVictory, lostData, matchFoundData, 
 
           break;
         }
+        case GET_RECONNECT: {
+          const data = parsedMessage as PAYLOAD_GET_GAME;
+          console.log('THIS IS BINGO!! RECONNCET')
+          setIsReconnectGame(true);
+          dispatch(initialGameboard(data));
+          
+          break;
+        }
       }
     };
   }, [socket, dispatch]);
@@ -142,6 +150,11 @@ const {setIsVictory, isLost, isMatchFound, isVictory, lostData, matchFoundData, 
 
   const sendEmote = (emote: string) => {
     sendData(PUT_SEND_EMOTE, { gameId, emote });
+  }
+
+  const sendResign = () => {
+    const data : PAYLOAD_PUT_RESIGN['payload'] = {gameId} 
+    sendData(PUT_RESIGN, data)
   }
 
   return {
@@ -166,9 +179,14 @@ const {setIsVictory, isLost, isMatchFound, isVictory, lostData, matchFoundData, 
     matchHistory,
     victoryData,
     lostData,
+    socket,
+    isReconnectGame,
+    setIsReconnectGame,
     setIsVictory, // for dialog
     setIsLost, // for dialog
+    setIsMatchFound, // to turn off dialog after you go back to homePage
     findMatch,
+    sendResign,
     addCheck,
     sendEmote,
     cancelFindMatch,

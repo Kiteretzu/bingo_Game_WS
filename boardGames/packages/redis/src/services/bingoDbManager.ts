@@ -1,19 +1,8 @@
 import { client } from "@repo/db/client";
 import { BoxesValue, GoalType, PlayerData, PlayerGameboardData } from "@repo/games/bingo/messages";
-import { createClient } from "redis";
+import { redisClient } from "../index";
+import { RedisClientType } from "redis";
 import { REDIS_PAYLOAD_END_GAME } from "types";
-
-const redisClient = createClient();
-
-(async () => {
-  try {
-    await redisClient.connect();
-    console.log("Connected to Redis.");
-  } catch (err) {
-    console.error("Failed to connect to Redis:", err);
-    process.exit(1);
-  }
-})();
 
 interface GameRequest {
   type: "new-game" | "add-move" | "toss-update-game" | "end-game";
@@ -39,27 +28,37 @@ interface NewGamePayload {
   playerGameboardData: PlayerGameboardData[];
 }
 
-class BingoStateManager {
-  private client = redisClient;ha
+
+export class BingoDbManager {
+  private client: RedisClientType =redisClient;
   private queueName = "game-requests";
 
-  async processRequests() {
-    console.log(`Starting to process requests from queue: ${this.queueName}`);
-    while (true) {
-      try {
-        const response = await this.client.brPop(this.queueName, 0);
-        if (response?.key === this.queueName) {
-          const requestData = this.safeParseJSON<GameRequest>(response.element);
-          if (!requestData) continue;
+async processRequests() {
+  console.log(`Starting to process requests from queue: ${this.queueName}`);
+  const MAX_RETRIES = 5;
+  let retryCount = 0;
 
-          await this.handleRequest(requestData);
-        }
-      } catch (error: any) {
-        console.error("Error processing request:", error.message);
-        await this.delay(1000);
+  while (retryCount < MAX_RETRIES) {
+    try {
+      const response = await this.client.brPop(this.queueName, 0);
+      if (response?.key === this.queueName) {
+        const requestData = this.safeParseJSON<GameRequest>(response.element);
+        if (!requestData) continue;
+
+        await this.handleRequest(requestData);
+        
+        // Reset retry count on successful processing
+        retryCount = 0;
       }
+    } catch (error: any) {
+      console.error("Error processing request:", error.message);
+      retryCount++;
+      await this.delay(1000 * retryCount); // Exponential backoff
     }
   }
+
+  console.error("Max retries reached. Stopping request processing.");
+}
 
   private async handleRequest(requestData: GameRequest) {
     switch (requestData.type) {
@@ -90,12 +89,14 @@ class BingoStateManager {
         where: { gameId: payload.gameId },
         data: {
           gameWinnerId: { set: payload.winner.id },
-          winMethod: payload.winMethod,
+          winMethod: payload.gameEndMethod,
         },
       });
 
       await this.updatePlayerStats(payload.winner.id, payload.winner, true, payload.gameId);
       await this.updatePlayerStats(payload.loser.id, payload.loser, false, payload.gameId);
+
+      console.log(`Ended game with ID: ${payload.gameId}`);
     } catch (error) {
       console.error("Error handling end game:", error);
     }
@@ -112,21 +113,27 @@ class BingoStateManager {
       playerData.winnerMMR.totalWinningPoints : 
       playerData.loserMMR.totalLosingPoints;
 
-    await client.bingoProfile.update({
-      where: { id: playerId },
-      data: {
-        mmr: { [isWinner ? 'increment' : 'decrement']: mmrChange },
-        firstBlood_count: { increment: this.countGoals(goals, GoalType.FIRST_BLOOD) },
-        doubleKill_count: { increment: this.countGoals(goals, GoalType.DOUBLE_KILL) },
-        tripleKill_count: { increment: this.countGoals(goals, GoalType.TRIPLE_KILL) },
-        rampage_count: { increment: this.countGoals(goals, GoalType.RAMPAGE) },
-        perfectionist_count: { increment: this.countGoals(goals, GoalType.PERFECTIONIST) },
-        lines_count: { increment: playerData.lineCount },
-        totalMatches: { increment: 1 },
-        [isWinner ? 'wins' : 'losses']: { increment: 1 },
-        gameHistory: { connect: { gameId } }
-      },
-    });
+ try {
+     await client.bingoProfile.update({
+       where: { id: playerId },
+       data: {
+         mmr: { [isWinner ? 'increment' : 'decrement']: mmrChange },
+         firstBlood_count: { increment: this.countGoals(goals, GoalType.FIRST_BLOOD) },
+         doubleKill_count: { increment: this.countGoals(goals, GoalType.DOUBLE_KILL) },
+         tripleKill_count: { increment: this.countGoals(goals, GoalType.TRIPLE_KILL) },
+         rampage_count: { increment: this.countGoals(goals, GoalType.RAMPAGE) },
+         perfectionist_count: { increment: this.countGoals(goals, GoalType.PERFECTIONIST) },
+         lines_count: { increment: playerData.lineCount },
+         totalMatches: { increment: 1 },
+         [isWinner ? 'wins' : 'losses']: { increment: 1 },
+         gameHistory: { connect: { gameId } }
+       },
+     });
+ 
+     console.log(`Updated stats for player with ID: ${playerId}`);
+ } catch (error) {
+      console.error("Error updating player stats:", error);
+ }
   }
 
   private countGoals(goals: any[], goalType: GoalType) {
@@ -145,6 +152,8 @@ class BingoStateManager {
           },
         },
       });
+
+      console.log(`Updated toss for game with ID: ${payload.gameId}`);
     } catch (error) {
       console.error("Error updating toss:", error);
     }
@@ -165,6 +174,8 @@ class BingoStateManager {
           },
         },
       });
+
+      console.log(`Added move to game with ID: ${payload.gameId}`);
     } catch (error) {
       console.error("Error adding move:", error);
     }
@@ -181,12 +192,20 @@ class BingoStateManager {
             })),
           },
           matchHistory: [],
-          gameboards: payload.playerGameboardData.map(data => ({
-            playerId: data.playerId,
-            gameBoard: data.gameBoard,
-          })),
+          gameboards: [
+            {
+              playerId: payload.players[0].user.bingoProfile.id,
+              gameBoard: payload.playerGameboardData[0].gameBoard,
+            },
+            {
+              playerId: payload.players[1].user.bingoProfile.id,
+              gameBoard: payload.playerGameboardData[1].gameBoard,
+            },
+          ]
         },
       });
+
+      console.log(`Created new game with ID: ${payload.gameId}`);
     } catch (error) {
       console.error("Error creating new game:", error);
     }
@@ -205,16 +224,3 @@ class BingoStateManager {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 }
-
-process.on("SIGINT", async () => {
-  await redisClient.disconnect();
-  process.exit(0);
-});
-
-const processor = new BingoStateManager();
-processor.processRequests().catch(err => {
-  console.error("Unexpected error:", err);
-  process.exit(1);
-});
-
-export { redisClient };

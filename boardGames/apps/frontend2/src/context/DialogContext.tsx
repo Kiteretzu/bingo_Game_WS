@@ -1,5 +1,4 @@
 import React, { createContext, useContext, useState } from "react";
-import { useSocket } from "../hooks/useSocket"; // Custom hook for WebSocket handling.
 import { PAYLOAD_GET_LOST, PAYLOAD_GET_VICTORY, PlayerData } from "@repo/games/bingo/messages";
 
 type DialogContextType = {
@@ -17,6 +16,9 @@ type DialogContextType = {
     setLostData: React.Dispatch<React.SetStateAction<PAYLOAD_GET_LOST['payload']>>;
     emote: string;
     setEmote: React.Dispatch<React.SetStateAction<string>>;
+    isReconnectGame: boolean;
+    setIsReconnectGame: React.Dispatch<React.SetStateAction<boolean>>;
+    
 };
 
 // Create a context with a default value of `null`
@@ -24,6 +26,7 @@ export const DialogContext = createContext<DialogContextType | null>(null);
 
 const DialogContextProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     // States for dialog logic
+    const [isReconnectGame, setIsReconnectGame] = useState(false)
     const [isMatchFound, setIsMatchFound] = useState(false);
     const [matchFoundData, setMatchFoundData] = useState<any>(null); // Replace `any` with a specific type.
     const [isVictory, setIsVictory] = useState(false);
@@ -49,6 +52,8 @@ const DialogContextProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 setLostData,
                 emote,
                 setEmote,
+                isReconnectGame,
+                setIsReconnectGame
             }}
         >
             {children}

@@ -1,6 +1,10 @@
 {
   "$schema": "https://json.schemastore.org/tsconfig",
   "extends": "./base.json",
+      "baseUrl": ".",
+    "paths": {
+      "@backend/ws/Game": ["App/backend/ws/Game.ts"]
+    },
   "compilerOptions": {
     "jsx": "react-jsx"
   }

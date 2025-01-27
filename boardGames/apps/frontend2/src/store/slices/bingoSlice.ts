@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Box, BoxesName, Goals, GoalType, MatchHistory, PAYLOAD_GET_CHECKBOXES, PAYLOAD_GET_GAME, PAYLOAD_GET_UPDATED_GAME, PlayerData } from '@repo/games/client/bingo/messages';
+import { Box, BoxesName, Goals, GoalType, MatchHistory, PAYLOAD_GET_CHECKBOXES, PAYLOAD_GET_GAME, PAYLOAD_GET_RECONNECT, PAYLOAD_GET_UPDATED_GAME, PlayerData } from '@repo/games/client/bingo/messages';
 import { Goal } from 'lucide-react';
 
 // Define the initial state type
@@ -60,7 +60,7 @@ const bingoSlice = createSlice({
   name: 'bingo',
   initialState,
   reducers: {
-    initialGameboard: (state, action: PayloadAction<PAYLOAD_GET_GAME>) => {
+    initialGameboard: (state, action: PayloadAction<PAYLOAD_GET_GAME | PAYLOAD_GET_RECONNECT>) => {
       state.game.gameBoard = action.payload.payload.gameBoard;
       state.game.gameId = action.payload.payload.gameId;
       state.game.players = action.payload.payload.players;

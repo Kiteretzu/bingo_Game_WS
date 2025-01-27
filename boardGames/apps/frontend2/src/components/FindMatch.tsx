@@ -2,6 +2,7 @@ import React, { useState, useRef, useEffect } from 'react';
 import FindMatchButton from './buttons/FindMatchButton';
 import useBingo from '@/hooks/useBingo';
 import { ChevronDown } from 'lucide-react';
+import ReconnectMatchButton from './buttons/ReconnectButton';
 
 const GameModeCard = ({ mode, description, selected, onClick }) => (
     <div
@@ -22,10 +23,12 @@ const GameModeCard = ({ mode, description, selected, onClick }) => (
 );
 
 const FindMatch = () => {
-    const { findMatch, cancelFindMatch, isFinding } = useBingo();
+    const { findMatch, cancelFindMatch, isFinding, isReconnectGame } = useBingo();
     const [showModes, setShowModes] = useState(false);
     const [selectedMode, setSelectedMode] = useState('Classic');
     const dropdownRef = useRef(null);
+
+
 
     const gameModes = [
         {
@@ -63,7 +66,7 @@ const FindMatch = () => {
     };
 
     return (
-        <div className="  border border-gray-500/25 bg-gray-800 rounded-xl flex flex-col items-center justify-center gap-3 relative" ref={dropdownRef}>
+        <div className=" w-full h-full  border border-gray-500/25 bg-gray-800 rounded-xl flex flex-col items-center justify-center gap-3 relative" ref={dropdownRef}>
             {/* Game modes dropdown appearing upwards */}
             <div className="w-full max-w-md relative">
                 {showModes && (
@@ -99,11 +102,12 @@ const FindMatch = () => {
 
             {/* Find Match Button */}
             <div className="w-full flex justify-center">
-                <FindMatchButton
+                {isReconnectGame ? (<ReconnectMatchButton />) : (<FindMatchButton
                     findMatch={handleFindMatch}
                     cancelFindMatch={cancelFindMatch}
                     isFinding={isFinding}
-                />
+                />)}
+
             </div>
         </div>
     );

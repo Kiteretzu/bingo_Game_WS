@@ -55,7 +55,7 @@ export const redis_newGame = async (
 
     const newGameObj: NewGame = {
       type: "new-game",
-      payload: {
+      payload: {       
         gameId,
         players,
         tossWinner,
@@ -151,7 +151,7 @@ export const redis_tossGameUpdate = async (
 
 
 
-export const redis_saveEndGame = async ({gameId, winner, loser, winMethod}: REDIS_PAYLOAD_END_GAME['payload']) => {
+export const redis_saveEndGame = async ({gameId, winner, loser, gameEndMethod}: REDIS_PAYLOAD_END_GAME['payload']) => {
   const redisClient = createClient();
 
   try {
@@ -163,7 +163,7 @@ export const redis_saveEndGame = async ({gameId, winner, loser, winMethod}: REDI
         gameId,
         winner,
         loser,
-        winMethod
+        gameEndMethod
       },
     };
 

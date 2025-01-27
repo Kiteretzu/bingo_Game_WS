@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles } from "lucide-react";
@@ -13,12 +13,12 @@ import useBingo from "@/hooks/useBingo";
 
 export default function MatchFoundScreen() {
     const [countdown, setCountdown] = useState(5);
-    const { matchFoundData: data } = useBingo()
+    const { matchFoundData: data, setIsMatchFound } = useBingo()
 
     const [player1, player2] = data;
     const navigate = useNavigate()
     const bingoId = useAppSelector(state => state.bingo.game.gameId)
-console.log({player1})
+    console.log({ player1 })
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -26,6 +26,8 @@ console.log({player1})
                 if (prevCount === 1) {
                     clearInterval(timer); // Stop the timer
                     navigate(`game/${bingoId}`); // Navigate when the countdown reaches 1
+                    setIsMatchFound(false)
+
                 }
                 return prevCount > 1 ? prevCount - 1 : prevCount;
             });
@@ -109,8 +111,7 @@ function PlayerCard({ player, initialX, delay }: { player: PlayerData; initialX:
                     delay={delay + 0.4}
                 />
                 <AnimatedText
-                    text={`Win Rate: ${(player.user.bingoProfile.wins / player.user.bingoProfile.totalMatches)*100}%`}
-                    className="text-gray-400 text-sm"
+                    text={`Win Rate: ${(player.user.bingoProfile.wins / player.user.bingoProfile.totalMatches * 100).toFixed(2)}%`}                    className="text-gray-400 text-sm"
                     delay={delay + 0.5}
                 />
             </div>

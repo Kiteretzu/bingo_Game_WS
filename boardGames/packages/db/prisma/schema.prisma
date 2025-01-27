@@ -38,7 +38,7 @@ model BingoProfile {
 model BingoGame {
   gameId       String         @id @default(cuid())
   players      BingoProfile[] @relation("GamePlayers")
-  gameboards   Json // Game boards in JSON format
+  gameboards   Json[] // Game boards in JSON format
   matchHistory Json[] // Match history in JSON format
   winMethod    Win_method?
   gameWinnerId String?

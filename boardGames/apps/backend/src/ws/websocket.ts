@@ -4,48 +4,70 @@ import { v4 as uuidv4 } from "uuid";
 import { Server } from "http";
 import { CustomError } from "../helper/customError"; // Assuming CustomError class is defined
 import { STATUS_CODES } from "../errors";
+import jwt from "jsonwebtoken";
+import { verifyToken } from "helper";
 
-interface ClientsMap {
-  [key: string]: WebSocket; // Map of client IDs to WebSocket instances
-}
+
 
 let wss: WebSocketServer;
+let clients = new Map<string, WebSocket>(); // Use Map for better performance
 
 // Create WebSocket Server Logic
 export function setupWebSocket(server: Server): void {
   wss = new WebSocketServer({ server });
   const gameManager = new GameManager();
-  const clients: ClientsMap = {}; // Object to store WebSocket connections
-  console.log("in here ws");
-  wss.on("connection", (ws: WebSocket) => {
-    const id = uuidv4(); // Generate a unique ID for each connection
-    clients[id] = ws;
 
-    console.log("New client connected. Assigned ID:", id);
-    ws.send(`Your session ID: ${id}`);
-    gameManager.addUser(ws);
+  wss.on("connection", (ws: WebSocket, req) => {
+    const token = new URLSearchParams(req.url?.split("?")[1]).get("token");
 
-    ws.on("error", (error: Error) => {
-      console.error(`Error from client ${id}:`, error.message);
-      // Using CustomError to handle the error (but not throw it here directly)
-      const customError = new CustomError(
-        "Unable to initialize Express app",
-        STATUS_CODES.WEBSOCKET_SERVER_ERROR,
-        "WEBSOCKET_SERVER_ERROR"
-      );
-      // Log the error or take further actions here
-      console.error(customError);
-    });
+    if (!token) {
+      ws.close(1008, "Unauthorized: No Token");
+      return;
+    }
 
-    // Handle WebSocket disconnection
-    ws.on("close", () => {
-      delete clients[id];
-      gameManager.removeUser(ws);
-      console.log("Client disconnected. ID:", id);
-    });
+    try {
+      const decoded = verifyToken(token);
+
+      if (!decoded) {
+        ws.close(1008, "Unauthorized: Invalid token or token expired");
+        return;
+      }
+      const { googleId } = decoded;
+      if(gameManager.isUserReconnecting(googleId)) gameManager.reconnectToGame(googleId, ws);
+      
+      // Add the client to the map and game manager
+      gameManager.addUser(ws);
+
+      ws.send(`You have been successfully connected`);
+
+      ws.on("error", (error: Error) => {
+        handleWebSocketError(error, googleId);
+      });
+
+      ws.on("close", () => {
+        clients.delete(googleId);
+        gameManager.removeUser(ws);
+        console.log(`Client disconnected. ID: ${googleId}`);
+      });
+    } catch (error) {
+      ws.close(1008, "Unauthorized: Invalid token or token expired");
+    }
   });
 
   console.log("WebSocket server is running!");
+}
+
+function handleWebSocketError(error: Error, googleId: string): void {
+  console.error(`Error from client ${googleId}:`, error.message);
+
+  const customError = new CustomError(
+    "Unable to initialize WebSocket connection",
+    STATUS_CODES.WEBSOCKET_SERVER_ERROR,
+    "WEBSOCKET_SERVER_ERROR"
+  );
+
+  // Log the error or take further actions here
+  console.error(customError);
 }
 
 export function getWebSocketServer(): WebSocketServer {

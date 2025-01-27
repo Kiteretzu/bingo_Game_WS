@@ -1,5 +1,7 @@
+import { useAppSelector } from "@/store/hooks";
 import { ActionButton } from "./ActionButton";
 import { cn } from "@/lib/utils";
+import useBingo from "@/hooks/useBingo";
 
 function FindMatchButton({
   findMatch,
@@ -10,6 +12,8 @@ function FindMatchButton({
   cancelFindMatch: () => void;
   isFinding: boolean;
 }) {
+  const isAuth = useAppSelector(state => state.profile.isAuth)
+  console.log('this is ', isAuth)
   return (
     <div className="flex items-center justify-center">
       {isFinding ? (
@@ -22,7 +26,7 @@ function FindMatchButton({
           </span>
           <ActionButton
             className={cn(
-              " p-0 font-jaro text-2xl text-white bg-transparent rounded hover:bg-white p-3 transition-colors"
+              "  font-jaro text-2xl text-white bg-transparent rounded hover:bg-white p-3 transition-colors"
             )}
             onClick={cancelFindMatch}
           >
@@ -32,9 +36,10 @@ function FindMatchButton({
       ) : (
         <ActionButton
           className={cn(
-            "px-24 py-4 font-jaro text-2xl text-white rounded transition-colors "
+            "px-24 py-4 font-jaro text-2xl text-white rounded transition-colors disabled:bg-slate-600/50 disabled:hover:scale-100 "
           )}
           onClick={findMatch}
+          disabled={!isAuth}
         >
           FIND MATCH
         </ActionButton>

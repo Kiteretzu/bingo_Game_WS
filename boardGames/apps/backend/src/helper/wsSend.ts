@@ -11,6 +11,8 @@ import {
   PAYLOAD_GET_RECIEVE_EMOTE,
   PAYLOAD_GET_UPDATED_GAME,
   GET_UPDATED_GAME,
+  GET_RECONNECT,
+  GET_RECIEVE_EMOTE,
 } from "@repo/games/client/bingo/messages";
 import { WebSocket } from "ws";
 
@@ -73,7 +75,17 @@ export function sendPayload(
       break;
     }
 
-    case MessageType.GET_RECIEVE_EMOTE: {
+    case GET_RECIEVE_EMOTE: {
+      to.send(
+        JSON.stringify({
+          type,
+          payload: data as PAYLOAD_GET_RECIEVE_EMOTE["payload"],
+        })
+      );
+      break;
+    }
+
+    case GET_RECONNECT : {
       to.send(
         JSON.stringify({
           type,

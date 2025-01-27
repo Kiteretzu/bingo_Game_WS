@@ -39,6 +39,7 @@ export default tseslint.config(
           ignoreRestArgs: false, // Optionally ignore 'rest' arguments
         },
       ],
+      'react-hooks/exhaustive-deps': 'off', // Disable exhaustive-deps rule globally
     }
   },
 );

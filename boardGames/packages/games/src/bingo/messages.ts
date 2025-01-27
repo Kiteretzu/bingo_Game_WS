@@ -81,6 +81,7 @@ export enum MessageType {
   PUT_VALUE_TO_BOX = "put_value_to_box",
   PUT_RESIGN = "put_resign",
   PUT_TOSS_DECISION = "put_toss_decision",
+  PUT_SEND_EMOTE = "put_send_emote",
   // all get
   GET_RESPONSE = "get_server_response",
   GET_GAME = "get_game",
@@ -89,11 +90,11 @@ export enum MessageType {
   GET_VICTORY = "get_victory",
   GET_LOST = "get_lost",
   GET_UPDATED_GAME = "get_updated_game",
+  GET_RECIEVE_EMOTE = "get_recieve_emote",
+  GET_RECONNECT = "get_reconnect",
   // consideration
   // GET_GAME_ID = "get_game_id",
   // GET_GAMEBOARD = "send_game_board",
-  PUT_SEND_EMOTE = "put_send_emote",
-  GET_RECIEVE_EMOTE = "get_recieve_emote",
 }
 
 // server response mesages
@@ -115,6 +116,8 @@ export const PUT_SEND_EMOTE = MessageType.PUT_SEND_EMOTE;
 export const GET_RECIEVE_EMOTE = MessageType.GET_RECIEVE_EMOTE;
 export const PUT_TOSS_DECISION = MessageType.PUT_TOSS_DECISION;
 export const GET_UPDATED_GAME = MessageType.GET_UPDATED_GAME;
+export const GET_RECONNECT = MessageType.GET_RECONNECT;
+
 
 // Data interface for the message data
 export interface DATA {
@@ -131,6 +134,14 @@ export interface PAYLOAD_GET_GAME {
     gameBoard: Box[];
   };
 }
+
+export interface PAYLOAD_GET_RECONNECT {
+  type: MessageType.GET_RECONNECT;
+  payload: PAYLOAD_GET_GAME["payload"];
+}
+
+
+
 
 export interface PAYLOAD_GET_RESPONSE {
   type: MessageType.GET_RESPONSE;
@@ -177,6 +188,8 @@ export interface PAYLOAD_GET_LOST {
     data: LoserMMR | null;
   };
 }
+
+
 
 export interface PAYLOAD_PUT_SEND_EMOTE {
   type: MessageType.PUT_SEND_EMOTE;
@@ -311,5 +324,5 @@ export interface EndGame {
     loserGoal: Goals[];
     lineCount: number;
   };
-  winMethod: GameEndMethod;
+  gameEndMethod: GameEndMethod;
 }

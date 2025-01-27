@@ -1,4 +1,3 @@
-import { useQuery } from "@apollo/client";
 import { AppRoutes } from "./AppRoutes"
 import SocketContextProvider from "./context/SocketContext";
 import { useGetAuthProfileQuery } from "@repo/graphql/types/client";

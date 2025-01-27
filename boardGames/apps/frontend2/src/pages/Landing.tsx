@@ -3,7 +3,6 @@ import GameHistory from '../components/GameHistory';
 import Leaderboard from '../components/Leaderboard';
 import HowToPlay from '../components/HowToPlay';
 import DeveloperMessage from '../components/DeveloperMessage';
-import FindMatchButton from '../components/buttons/FindMatchButton';
 import "@/components/test.css";
 import useBingo from '@/hooks/useBingo';
 import MatchFoundScreen from '@/components/dialog/matchFound-dialog';
@@ -11,66 +10,39 @@ import FriendList from '@/components/FriendList';
 import FindMatch from '@/components/FindMatch';
 
 export default function Dashboard() {
-    const { findMatch, cancelFindMatch, isFinding, isMatchFound } = useBingo()
-    const dummyPLayerData = [
-        {
-            "user": {
-                "googleId": "104289912510462898930",
-                "displayName": "SMARTH VERMA 231030118",
-                "avatar": "https://lh3.googleusercontent.com/a/ACg8ocKp1etKaqOvzxwLqMrtjjjDup6OxPfl6h3oCPEr3P3_6A_DZQpE=s96-c",
-                "bingoProfile": {
-                    "id": "b9cc8d04-db50-4cca-97ed-e93d2f663b37",
-                    "mmr": 0,
-                    "league": "BRONZE"
-                }
-            }
-        },
-        {
-            "user": {
-                "googleId": "104799612309977347789",
-                "displayName": "Smarth Verma (Skiii)",
-                "avatar": "https://lh3.googleusercontent.com/a/ACg8ocL5JozG39wiY6N8icBnzdfD29csr9xFsl8KsJbyKSb-_CLgnAdX=s96-c",
-                "bingoProfile": {
-                    "id": "a6a9b042-5899-43eb-87be-38a4f3444852",
-                    "mmr": 0,
-                    "league": "BRONZE"
-                }
-            }
-        }
-    ]
+    const { isMatchFound } = useBingo()
+
     return (
-        <div className="min-h-screen  animate-gradient-flow text-white ">
-            <div className="grid p-6 grid-cols-3 grid-rows-6 gap-4 h-screen max-h-screen">
+        <div className="min-h-screen min-w-full flex text-white">
+            <div className="grid p-4 md:p-6 grow-0 min-w-[1280px] overflow-auto animate-gradient-flow grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 grid-rows-6 gap-4 h-screen">
                 {/* First row */}
                 <div className="col-span-1 row-span-1 flex">
-                    <div className='grow'>
+                    <div className="flex-1 min-w-0 h-full">
                         <ProfileDashboard />
                     </div>
                 </div>
-                <div className="col-span-1 row-span-3">
+                <div className="col-span-1 row-span-3 h-full">
                     <GameHistory />
                 </div>
-                <div className="col-span-1 row-span-6">
+                <div className="col-span-1 row-span-6 h-full">
                     <Leaderboard />
                 </div>
 
                 {/* Second row */}
-                <div className="col-span-1 row-span-2">
+                <div className="col-span-1 row-span-2 h-full">
                     <HowToPlay />
                 </div>
-                <div className="col-span-1 row-span-3">
+                <div className="col-span-1 row-span-3 h-full">
                     <FriendList />
                 </div>
-                <div className="col-span-1 row-span-2">
+                <div className="col-span-1 row-span-2 h-full">
                     <DeveloperMessage />
                 </div>
 
                 {/* Third row */}
                 {isMatchFound && <MatchFoundScreen />}
                 <FindMatch />
-                
             </div>
         </div>
     );
 }
-

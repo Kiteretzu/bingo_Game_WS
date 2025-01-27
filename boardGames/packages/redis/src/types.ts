@@ -12,7 +12,7 @@ export interface REDIS_PAYLOAD_END_GAME {
     gameId: string;
     winner: EndGame['winner']
     loser: EndGame['loser']
-    winMethod: EndGame['winMethod'];
+    gameEndMethod: EndGame['gameEndMethod'];
   };
 }
 

@@ -3,6 +3,7 @@ import { GraphQLError } from "graphql";
 import { DECODED_TOKEN } from "types";
 import { BingoProfile, client, User } from "@repo/db/client";
 import { ContextParams } from "graphql-passport/lib/buildContext";
+import { verifyToken } from "helper";
 
 export interface CustomContext {
   req: Request;
@@ -51,10 +52,8 @@ export const customContext = ({ req, res }: ContextParams) => {
       const token = header.split(" ")[1];
 
       // Verify the JWT token
-      const decodedToken = jwt.verify(
-        token,
-        process.env.JWT_SECRET!
-      ) as DECODED_TOKEN;
+      console.log('thisis token', token)
+     const decodedToken = verifyToken(token) // always in tryCatch
 
       // Fetch the user from the database using the decoded token
       const user = await client.user.findUnique({
@@ -65,6 +64,7 @@ export const customContext = ({ req, res }: ContextParams) => {
           bingoProfile: true,
         },
       });
+
       console.log("Auth User profile", {user})
 
       if (!user) {

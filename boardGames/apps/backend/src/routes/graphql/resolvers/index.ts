@@ -4,7 +4,7 @@ import GraphQLJSON from "graphql-type-json";
 import { CustomContext } from "helper/customContext";
 import { Resolvers } from "@repo/graphql/types/server";
 import { client, User } from "@repo/db/client";
-import { leaderboardService } from "@repo/redis-worker/services";
+import { leaderboardService } from "@repo/redis/services";
 
 export const resolvers: Resolvers<CustomContext> = {
   JSON: GraphQLJSON,

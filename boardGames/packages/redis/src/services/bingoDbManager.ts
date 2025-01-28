@@ -1,5 +1,5 @@
 import { client } from "@repo/db/client";
-import { BoxesValue, GoalType, PlayerData, PlayerGameboardData } from "@repo/games/bingo/messages";
+import { BoxesValue, GoalType, PlayerData, PlayerGameboardData } from "../../../games/src/mechanics/bingo/messages";
 import { redisClient } from "../index";
 import { RedisClientType } from "redis";
 import { REDIS_PAYLOAD_END_GAME } from "types";

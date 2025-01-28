@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState } from "react";
-import { PAYLOAD_GET_LOST, PAYLOAD_GET_VICTORY, PlayerData } from "@repo/games/bingo/messages";
+import { PAYLOAD_GET_LOST, PAYLOAD_GET_VICTORY, PlayerData } from "@repo/games/mechanics";
 
 type DialogContextType = {
     isMatchFound: boolean;

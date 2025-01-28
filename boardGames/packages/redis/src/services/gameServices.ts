@@ -1,7 +1,8 @@
-import { PlayerData } from "@repo/games/bingo/messages";
+import { PlayerData } from "../../../games/src/mechanics/bingo/messages";
 import { client } from "@repo/db/client";
 import { redisClient } from "../index";
 import { createClient, RedisClientType } from "redis";
+import { Game } from "../../../games/src/games/bingo";
 
 class GameServices {
   private static instance: GameServices;
@@ -34,9 +35,41 @@ class GameServices {
   /**
    * Add a gameId to the active games set.
    */
+
+
+async test(obj: Game) {
+    // Serialize the Game object
+    const gameData = {
+        gameId: obj.gameId,
+        tossWinner: obj.tossWinner,
+        playerData: obj.playerData,
+        playerGameboardData: obj.playerGameboardData,
+        moveCount: obj.moveCount,
+        matchHistory: obj.matchHistory,
+        playerBoards: obj.playerBoards.map(board => board.getGameBoard()), // Serialize boards
+    };
+
+    console.log('Storing game data in Redis...');
+
+    // Store the serialized game data in Redis
+    await this.redis.set(`game:${obj.gameId}`, JSON.stringify(gameData));
+
+    console.log('Game data stored successfully.');
+
+    // Deserialize example (retrieve and parse data from Redis)
+    const storedData = await this.redis.get(`game:${obj.gameId}`);
+    if (storedData) {
+        const deserializedGameData = JSON.parse(storedData);
+        console.log('Deserialized game data:', deserializedGameData);
+    } else {
+        console.log('No data found in Redis for the given game ID.');
+    }
+}
+
   async addGame(gameId: string) {
     try {
       const response = await this.redis.sAdd(this.GAME_SET, gameId);
+
       console.log("Game added to set:", response);
     } catch (error) {
       console.error("Error in addGame:", error);
@@ -102,6 +135,7 @@ class GameServices {
    */
   async getAllGames() {
     try {
+      console.log('IN HERER!!!',)
       // Ensure Redis is connected
       if (!this.redis.isOpen) {
         await this.redis.connect();

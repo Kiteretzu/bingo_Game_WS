@@ -1,5 +1,5 @@
 import { WebSocket } from "ws";
-import { Game } from "./Game";
+import { Game } from "@repo/games/bingo";
 import { v4 as uuidv4 } from "uuid";
 import { sendPayload } from "../helper/wsSend";
 import {
@@ -18,13 +18,13 @@ import {
   PUT_SEND_EMOTE,
   PAYLOAD_PUT_SEND_EMOTE,
   GameBoard,
-} from "@repo/games/client/bingo/messages";
-import { amazing, formatToPlayersData, getPlayerData } from "../helper/";
+} from "@repo/games/mechanics";
+import { amazing, getPlayerData } from "../helper/";
 import { redis_newGame } from "@repo/redis/helper";
 import { gameServices } from "@repo/redis/services";
 
 type GameId = string;
-type UserId = string; 
+type UserId = string;
 
 export class GameManager {
   // just redis it
@@ -45,11 +45,19 @@ export class GameManager {
 
   async setUpDataFromRedis() {
     // get all games from redis
-    console.log("HELLOWW!!!!",)
-    const results = amazing()
-    
-    ;(await results).forEach((game) => {
-      const [gameId ,player1_Data, player2_Data, p1_gameBoard, p2_gameBoard, moveCount] = game
+    console.log("HELLOWW!!!!");
+    const results = amazing();
+
+    // creating new games
+    (await results).forEach((game) => {
+      const [
+        gameId,
+        player1_Data,
+        player2_Data,
+        p1_gameBoard,
+        p2_gameBoard,
+        moveCount,
+      ] = game;
       const newGame = new Game(
         gameId as string,
         null,
@@ -58,15 +66,11 @@ export class GameManager {
         player2_Data as PlayerData,
         moveCount as number,
         [p1_gameBoard as GameBoard, p2_gameBoard as GameBoard]
-
       );
       this.games.set(gameId as GameId, newGame);
+    });
 
-    }
-  )
-
-        console.log('THIS IS THE GAME MAP!', this.games)
-
+    console.log("THIS IS THE GAME MAP!", this.games);
 
     // const games = await gameServices.getAllGames();
     // games.forEach((game) => {
@@ -96,8 +100,7 @@ export class GameManager {
     // check if userId exists in active games
     if (this.usersToGames.has(userId)) {
       return true;
-    }
-    else{
+    } else {
       return false;
     }
   }
@@ -162,7 +165,10 @@ export class GameManager {
               this.games.set(newGameId, newGame);
               // store in redis
               gameServices.addGame(newGameId);
-              gameServices.addUserToGame(this.pendingPlayerData!.user.googleId, this.pendingPlayerData!);
+              gameServices.addUserToGame(
+                this.pendingPlayerData!.user.googleId,
+                this.pendingPlayerData!
+              );
               gameServices.addUserToGame(playerData.user.googleId, playerData);
 
               this.pendingPlayer.send(`Game started with ID: ${newGameId}`);

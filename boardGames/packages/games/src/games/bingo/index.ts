@@ -28,15 +28,16 @@ import {
   PAYLOAD_GET_RECONNECT,
   GET_RECONNECT,
   GameBoard,
-} from "@repo/games/client/bingo/messages";
-import { Bingo } from "@repo/games/bingo";
-import { sendPayload } from "../helper/wsSend";
+} from "../../mechanics/bingo/messages";
+import { Bingo } from "../../mechanics/bingo/bingo";
+import { sendPayload } from "../../../../../apps/backend/src/helper/wsSend";
 import {
   redis_addMove,
   redis_newGame,
   redis_saveEndGame,
   redis_tossGameUpdate,
 } from "@repo/redis/helper";
+import { gameServices } from "@repo/redis/services";
 
 // assuming all the sockets are alive
 
@@ -44,14 +45,14 @@ export class Game {
   public gameId: string;
   public p1_socket: WebSocket | null;
   public p2_socket: WebSocket | null;
-  private moveCount: number;
   public playerData: PlayerData[];
-  private playerSockets: (WebSocket | null)[];
-  private playerBoards: Bingo[];
-  private playerGameboardData: PlayerGameboardData[];
-  private tossWinner: string;
-  private gotFirstBlood: boolean = false;
-  private matchHistory: MatchHistory = [];
+  public moveCount: number;
+  public playerSockets: (WebSocket | null)[];
+  public playerBoards: Bingo[];
+  public playerGameboardData: PlayerGameboardData[];
+  public tossWinner: string;
+  public gotFirstBlood: boolean = false;
+  public matchHistory: MatchHistory = [];
 
   constructor(
     gameId: string,
@@ -69,13 +70,13 @@ export class Game {
       this.p2_socket = p2_socket!;
       this.playerSockets = [p1_socket!, p2_socket!];
       this.playerData = [p1_data, p2_data];
-      
+
       this.moveCount = moveCount!;
       this.playerBoards = [
         new Bingo(playerBoards![0] as unknown as GameBoard),
         new Bingo(playerBoards![1] as unknown as GameBoard),
       ];
-           this.playerGameboardData = [
+      this.playerGameboardData = [
         {
           playerId: this.playerData[0].user.bingoProfile.id,
           gameBoard: this.playerBoards[0].getGameBoard(),
@@ -133,6 +134,10 @@ export class Game {
     }
   }
 
+  saveInRedis() {
+
+    gameServices.test(this)
+  }
   private getPlayerContext(currentPlayerSocket: WebSocket) {
     const isFirstPlayer = currentPlayerSocket === this.p1_socket;
     return {
@@ -490,6 +495,9 @@ export class Game {
 
       sendPayload(socket!, GET_UPDATED_GAME, updatedGameData);
     });
+
+    // savng to redis
+    this.saveInRedis();
   }
 
   private checkFirstBloodStatus(

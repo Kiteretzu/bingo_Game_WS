@@ -17,7 +17,6 @@
   "description": "",
   "dependencies": {
     "@repo/db": "workspace:*",
-    "@repo/games": "workspace:*",
     "redis": "^4.7.0"
   }
 }

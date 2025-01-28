@@ -1,4 +1,4 @@
-import { boxes, possibleLines } from "../bingo/boxes_and_ways";
+import { boxes, possibleLines } from "./boxes_and_ways";
 import { BoxesName, BoxesValue, GameBoard } from "./messages";
 
 

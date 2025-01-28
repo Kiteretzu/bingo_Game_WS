@@ -1,4 +1,4 @@
-import { GameBoard } from "@repo/games/bingo/messages";
+import { GameBoard } from "@repo/games/mechanics";
 
 export const obj :GameBoard = [
   { boxName: 'a', boxValue: "13" },

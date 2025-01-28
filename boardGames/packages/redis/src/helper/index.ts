@@ -5,7 +5,7 @@ import {
   Goals,
   PlayerData,
   PlayerGameboardData,
-} from "@repo/games/bingo/messages";
+} from "../../../games/src/mechanics/bingo/messages";
 import { createClient } from "redis";
 
 import { REDIS_PAYLOAD_END_GAME, REQUESTS } from "types";

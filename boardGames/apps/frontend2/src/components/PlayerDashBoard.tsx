@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
 import { Swords, CoinsIcon } from 'lucide-react'
 import useBingo from '@/hooks/useBingo'
-import { MatchHistory } from '@repo/games/bingo/messages'
+import { MatchHistory } from  "@repo/games/mechanics";
 import { TooltipProvider, Tooltip, TooltipTrigger, TooltipContent } from '@radix-ui/react-tooltip'
 
 function PlayerDashBoard() {

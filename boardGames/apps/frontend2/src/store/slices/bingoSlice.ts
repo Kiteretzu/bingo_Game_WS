@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Box, BoxesName, Goals, GoalType, MatchHistory, PAYLOAD_GET_CHECKBOXES, PAYLOAD_GET_GAME, PAYLOAD_GET_RECONNECT, PAYLOAD_GET_UPDATED_GAME, PlayerData } from '@repo/games/client/bingo/messages';
+import { Box, BoxesName, Goals, GoalType, MatchHistory, PAYLOAD_GET_CHECKBOXES, PAYLOAD_GET_GAME, PAYLOAD_GET_RECONNECT, PAYLOAD_GET_UPDATED_GAME, PlayerData } from "@repo/games/mechanics";
 import { Goal } from 'lucide-react';
 
 // Define the initial state type

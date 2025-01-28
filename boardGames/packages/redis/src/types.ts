@@ -1,4 +1,4 @@
-import { EndGame, GameEndMethod, Goals } from "@repo/games/bingo/messages";
+import { EndGame, GameEndMethod, Goals } from "../../games/src/mechanics/bingo/messages";
 
 export enum REQUESTS {
   BINGO_NEW_GAME = "Food",

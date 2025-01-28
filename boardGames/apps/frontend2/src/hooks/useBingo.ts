@@ -20,8 +20,8 @@ import {
   PAYLOAD_PUT_RESIGN,
   GET_RECONNECT,
   PAYLOAD_GET_RECONNECT,
-} from "@repo/games/client/bingo/messages";
-import { MessageType, PAYLOAD_GET_GAME, PAYLOAD_GET_RESPONSE, PAYLOAD_PUT_GET_CHECK_MARK, PAYLOAD_GET_VICTORY, PAYLOAD_GET_LOST } from "@repo/games/client/bingo/messages";
+} from "@repo/games/mechanics";
+import { MessageType, PAYLOAD_GET_GAME, PAYLOAD_GET_RESPONSE, PAYLOAD_PUT_GET_CHECK_MARK, PAYLOAD_GET_VICTORY, PAYLOAD_GET_LOST } from "@repo/games/mechanics";
 import { useDialogContext } from "@/context/DialogContext";
 
 function useBingo() {

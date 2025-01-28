@@ -13,7 +13,7 @@ import {
   GET_UPDATED_GAME,
   GET_RECONNECT,
   GET_RECIEVE_EMOTE,
-} from "@repo/games/client/bingo/messages";
+} from "@repo/games/mechanics";
 import { WebSocket } from "ws";
 
 export function sendPayload(

@@ -122,8 +122,8 @@ const {setIsVictory, isLost, isMatchFound, isReconnectGame, setIsReconnectGame, 
           break;
         }
         case GET_RECONNECT: {
-          const data = parsedMessage as PAYLOAD_GET_GAME;
-          console.log('THIS IS BINGO!! RECONNCET')
+          const data = parsedMessage as PAYLOAD_GET_RECONNECT;
+          console.log('THIS IS BINGO!! RECONNCET and data is', data)
           setIsReconnectGame(true);
           dispatch(initialGameboard(data));
           

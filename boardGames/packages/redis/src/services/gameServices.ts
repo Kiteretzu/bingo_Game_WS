@@ -2,7 +2,7 @@ import { PlayerData } from "../../../games/src/mechanics/bingo/messages";
 import { client } from "@repo/db/client";
 import { redisClient } from "../index";
 import { createClient, RedisClientType } from "redis";
-import { Game } from "../../../games/src/games/bingo";
+import { Game } from "../../../games/src/games/bingo/game";
 
 class GameServices {
   private static instance: GameServices;

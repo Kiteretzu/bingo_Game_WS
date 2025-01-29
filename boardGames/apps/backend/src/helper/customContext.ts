@@ -52,7 +52,6 @@ export const customContext = ({ req, res }: ContextParams) => {
       const token = header.split(" ")[1];
 
       // Verify the JWT token
-      console.log('thisis token', token)
      const decodedToken = verifyToken(token) // always in tryCatch
 
       // Fetch the user from the database using the decoded token
@@ -65,7 +64,6 @@ export const customContext = ({ req, res }: ContextParams) => {
         },
       });
 
-      console.log("Auth User profile", {user})
 
       if (!user) {
         throw new GraphQLError("User not found", {

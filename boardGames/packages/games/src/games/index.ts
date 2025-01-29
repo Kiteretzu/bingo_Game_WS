@@ -1,1 +1,1 @@
-export * from "./bingo/index"
+export * from "./bingo/game"

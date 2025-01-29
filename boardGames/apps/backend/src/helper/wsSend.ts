@@ -13,6 +13,7 @@ import {
   GET_UPDATED_GAME,
   GET_RECONNECT,
   GET_RECIEVE_EMOTE,
+  PAYLOAD_GET_RECONNECT,
 } from "@repo/games/mechanics";
 import { WebSocket } from "ws";
 
@@ -85,13 +86,9 @@ export function sendPayload(
       break;
     }
 
-    case GET_RECONNECT : {
-      to.send(
-        JSON.stringify({
-          type,
-          payload: data as PAYLOAD_GET_RECIEVE_EMOTE["payload"],
-        })
-      );
+    case GET_RECONNECT: {
+      console.log("this is the data for reconncet", data);
+      to.send(JSON.stringify(data as PAYLOAD_GET_RECONNECT));
       break;
     }
   }

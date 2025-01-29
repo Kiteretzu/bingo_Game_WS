@@ -65,6 +65,7 @@ const bingoSlice = createSlice({
       state.game.gameId = action.payload.payload.gameId;
       state.game.players = action.payload.payload.players;
       state.game.tossWinner = action.payload.payload.tossWinner;
+
     },
     setUpdatedGame: (state, action: PayloadAction<PAYLOAD_GET_UPDATED_GAME>) => {
       state.checks.checkedBoxes = action.payload.payload.checks.checkedBoxes;

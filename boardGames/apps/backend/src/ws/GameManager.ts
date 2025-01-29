@@ -46,31 +46,31 @@ export class GameManager {
   async setUpDataFromRedis() {
     // get all games from redis
     console.log("HELLOWW!!!!");
-    const results = amazing();
+    // const results = amazing();
 
     // creating new games
-    (await results).forEach((game) => {
-      const [
-        gameId,
-        player1_Data,
-        player2_Data,
-        p1_gameBoard,
-        p2_gameBoard,
-        moveCount,
-      ] = game;
-      const newGame = new Game(
-        gameId as string,
-        null,
-        null,
-        player1_Data as PlayerData,
-        player2_Data as PlayerData,
-        moveCount as number,
-        [p1_gameBoard as GameBoard, p2_gameBoard as GameBoard]
-      );
-      this.games.set(gameId as GameId, newGame);
-    });
+    // (await results).forEach((game) => {
+    //   const [
+    //     gameId,
+    //     player1_Data,
+    //     player2_Data,
+    //     p1_gameBoard,
+    //     p2_gameBoard,
+    //     moveCount,
+    //   ] = game;
+    //   const newGame = new Game(
+    //     gameId as string,
+    //     null,
+    //     null,
+    //     player1_Data as PlayerData,
+    //     player2_Data as PlayerData,
+    //     moveCount as number,
+    //     [p1_gameBoard as GameBoard, p2_gameBoard as GameBoard]
+    //   );
+    //   this.games.set(gameId as GameId, newGame);
+    // });
 
-    console.log("THIS IS THE GAME MAP!", this.games);
+    // console.log("THIS IS THE GAME MAP!", this.games);
 
     // const games = await gameServices.getAllGames();
     // games.forEach((game) => {
@@ -163,13 +163,15 @@ export class GameManager {
 
               // store in games map
               this.games.set(newGameId, newGame);
+              this.usersToGames.set(this.pendingPlayerData!.user.googleId, newGameId);
+              this.usersToGames.set(playerData.user.googleId, newGameId); 
               // store in redis
-              gameServices.addGame(newGameId);
-              gameServices.addUserToGame(
-                this.pendingPlayerData!.user.googleId,
-                this.pendingPlayerData!
-              );
-              gameServices.addUserToGame(playerData.user.googleId, playerData);
+              // gameServices.addGame(newGameId);
+              // gameServices.addUserToGame(
+              //   this.pendingPlayerData!.user.googleId,
+              //   this.pendingPlayerData!
+              // );
+              // gameServices.addUserToGame(playerData.user.googleId, playerData);
 
               this.pendingPlayer.send(`Game started with ID: ${newGameId}`);
               socket.send(`Game started with ID: ${newGameId}`);
@@ -232,6 +234,7 @@ export class GameManager {
             // }
 
             if (game) {
+              console.log('markingCheck in manager',)
               game.addCheck(socket, value);
             } else {
               console.error("Error finding the game ID");

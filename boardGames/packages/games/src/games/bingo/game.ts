@@ -63,6 +63,7 @@ export class Game {
     moveCount?: number,
     playerBoards?: GameBoard[]
   ) {
+    
     this.gameId = gameId; // need
 
     if (arguments.length === 7) {
@@ -110,7 +111,6 @@ export class Game {
         Math.random() < 0.5
           ? this.playerData[0].user.bingoProfile.id
           : this.playerData[1].user.bingoProfile.id;
-      console.log("here is the bug");
 
       this.playerSockets.forEach((socket, index) => {
         const gameData: PAYLOAD_GET_GAME = {
@@ -134,10 +134,11 @@ export class Game {
     }
   }
 
+  // this is working fine
   saveInRedis() {
-
     gameServices.test(this)
   }
+
   private getPlayerContext(currentPlayerSocket: WebSocket) {
     const isFirstPlayer = currentPlayerSocket === this.p1_socket;
     return {
@@ -551,6 +552,9 @@ export class Game {
 
     try {
       // Add the value to the player's board
+
+      console.log('hello!?',)
+
       this.updatePlayerBoards(value);
 
       // Notify the opponent about the move
@@ -622,6 +626,8 @@ export class Game {
       this.p2_socket = newSocket;
     }
 
+    this.playerSockets = [this.p1_socket, this.p2_socket];
+
     const gameData: PAYLOAD_GET_RECONNECT = {
       type: MessageType.GET_RECONNECT,
       payload: {
@@ -632,7 +638,11 @@ export class Game {
       },
     };
 
+    console.log(`this is sending data `, gameData)
+
+
     console.log("ControlReached herere win reconncetPLayer game");
     sendPayload(newSocket, GET_RECONNECT, gameData);
+    this.broadcastUpdatedGame();
   }
 }

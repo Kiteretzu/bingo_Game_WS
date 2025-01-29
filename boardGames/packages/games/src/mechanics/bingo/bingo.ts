@@ -23,7 +23,6 @@ export class Bingo {
     this.doubleKill = false;
     this.tripleKill = false;
     this.firstBlood = false;
-    console.log("this is the BOARD!!", this.gameBoard);
   }
 
   setGameOver(val: boolean) {

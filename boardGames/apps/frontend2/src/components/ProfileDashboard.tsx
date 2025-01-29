@@ -8,7 +8,6 @@ export default function ProfileDashboard() {
   const isLoggedIn = useAppSelector(state => state.profile.isAuth);
   const profileData = useAppSelector(state => state.profile)
 
-  console.log('this is isLoggedIn', isLoggedIn, "this is profile,", profileData)
 
   const handleGoogleLogin = () => {
     window.location.href = "http://localhost:8080/auth/google"; // backend url

@@ -132,6 +132,8 @@ export class Game {
         this.playerGameboardData
       );
     }
+
+    this.pingPong()
   }
 
   // this is working fine
@@ -162,7 +164,7 @@ export class Game {
   }
 
   private getPlayerContextByUserId(userId: string) {
-    const isFirstPlayer = this.playerData[0].user.bingoProfile.id === userId;
+    const isFirstPlayer = this.playerData[0].user.googleId === userId;
     return {
       gameBoard: isFirstPlayer
         ? this.playerBoards[0].getGameBoard()
@@ -620,15 +622,21 @@ export class Game {
 
   reconnectPlayer(newSocket: WebSocket, userId: string) {
     const { gameBoard, oldSocket } = this.getPlayerContextByUserId(userId);
-    if (oldSocket === this.p1_socket) {
+    if (oldSocket == this.p1_socket) {
+      console.log('renewing socket of p1',)
+      
       this.p1_socket = newSocket;
-    } else {
+      sendPayload(this.p1_socket!, GET_RESPONSE, "player 1");
+    } else if (oldSocket == this.p2_socket) {
+      console.log('renewing socket of p2',)
+      
       this.p2_socket = newSocket;
+      sendPayload(this.p2_socket!, GET_RESPONSE, "player 2");
     }
 
     this.playerSockets = [this.p1_socket, this.p2_socket];
 
-    const gameData: PAYLOAD_GET_RECONNECT = {
+    const gameData: PAYLOAD_GET_RECONNECT = { 
       type: MessageType.GET_RECONNECT,
       payload: {
         gameId: this.gameId,
@@ -638,11 +646,17 @@ export class Game {
       },
     };
 
-    console.log(`this is sending data `, gameData)
 
 
-    console.log("ControlReached herere win reconncetPLayer game");
     sendPayload(newSocket, GET_RECONNECT, gameData);
     this.broadcastUpdatedGame();
+  }
+
+  pingPong() {
+    setInterval(() => {
+      this.playerSockets.forEach((socket) => {
+        sendPayload(socket!, GET_RESPONSE, "Ping");
+      });
+    }, 10000);
   }
 }

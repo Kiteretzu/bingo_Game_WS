@@ -33,6 +33,7 @@ export function setupWebSocket(server: Server): void {
         return;
       }
       const { googleId } = decoded;
+      
       if(gameManager.isUserReconnecting(googleId)) gameManager.reconnectToGame(googleId, ws);
       
       // Add the client to the map and game manager

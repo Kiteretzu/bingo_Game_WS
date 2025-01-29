@@ -43,7 +43,6 @@ const profileSlice = createSlice({
       if (!action.payload) {
         return initialState; // Reset state directly
       }
-      console.log("this is action", action);
       const authUser = action.payload?.authUser;
 
       // Mutate the state directly

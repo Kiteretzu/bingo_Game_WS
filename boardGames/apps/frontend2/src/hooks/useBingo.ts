@@ -57,6 +57,9 @@ const {setIsVictory, isLost, isMatchFound, isReconnectGame, setIsReconnectGame, 
   const [gameLoading, setGameLoading] = useState<boolean>(true);
   const [isFinding, setIsFinding] = useState<boolean>(false);
 
+  // delete this later on
+  const displayName = useAppSelector((state) => state.profile.displayName);
+
   // Function to send data over socket
   const sendData = (type: string, payload: any) => {
     socket.send(JSON.stringify({ type, payload }));
@@ -78,6 +81,11 @@ const {setIsVictory, isLost, isMatchFound, isReconnectGame, setIsReconnectGame, 
         case GET_RESPONSE: {
           const data = parsedMessage as PAYLOAD_GET_RESPONSE;
           setResponse(data.payload.message);
+          console.log('kuch toh aara ha', data.payload.message)
+          if(data.payload.message === 'Ping'){
+            
+            socket.send(JSON.stringify({type: GET_RESPONSE, payload: {message: `Pong ${displayName}`}}))
+          }
           break;
         }
 
@@ -87,6 +95,7 @@ const {setIsVictory, isLost, isMatchFound, isReconnectGame, setIsReconnectGame, 
           dispatch(initialGameboard(data));
           setIsMatchFound(true);
           setMatchFoundData(data.payload.players); // contextApi
+          setIsReconnectGame(true)
           break;
         }
 

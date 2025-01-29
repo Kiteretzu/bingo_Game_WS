@@ -87,7 +87,6 @@ export function sendPayload(
     }
 
     case GET_RECONNECT: {
-      console.log("this is the data for reconncet", data);
       to.send(JSON.stringify(data as PAYLOAD_GET_RECONNECT));
       break;
     }

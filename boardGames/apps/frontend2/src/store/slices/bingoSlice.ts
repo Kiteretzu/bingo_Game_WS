@@ -1,6 +1,7 @@
 import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Box, BoxesName, Goals, GoalType, MatchHistory, PAYLOAD_GET_CHECKBOXES, PAYLOAD_GET_GAME, PAYLOAD_GET_RECONNECT, PAYLOAD_GET_UPDATED_GAME, PlayerData } from "@repo/games/mechanics";
+import { Box, BoxesName, Goals, GoalType, MatchHistory, MessageType, PAYLOAD_GET_CHECKBOXES, PAYLOAD_GET_GAME, PAYLOAD_GET_RECONNECT, PAYLOAD_GET_UPDATED_GAME, PlayerData } from "@repo/games/mechanics";
 import { Goal } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 
 // Define the initial state type
 interface BingoState {
@@ -65,7 +66,7 @@ const bingoSlice = createSlice({
       state.game.gameId = action.payload.payload.gameId;
       state.game.players = action.payload.payload.players;
       state.game.tossWinner = action.payload.payload.tossWinner;
-
+     
     },
     setUpdatedGame: (state, action: PayloadAction<PAYLOAD_GET_UPDATED_GAME>) => {
       state.checks.checkedBoxes = action.payload.payload.checks.checkedBoxes;

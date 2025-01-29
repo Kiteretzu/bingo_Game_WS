@@ -54,13 +54,13 @@ async test(obj: Game) {
     // Store the serialized game data in Redis
     await this.redis.set(`game:${obj.gameId}`, JSON.stringify(gameData));
 
-    console.log('Game data stored successfully.');
+    // console.log('Game data stored successfully.');
 
     // Deserialize example (retrieve and parse data from Redis)
     const storedData = await this.redis.get(`game:${obj.gameId}`);
     if (storedData) {
         const deserializedGameData = JSON.parse(storedData);
-        console.log('Deserialized game data:', deserializedGameData);
+        // console.log('Deserialized game data:', deserializedGameData);
     } else {
         console.log('No data found in Redis for the given game ID.');
     }

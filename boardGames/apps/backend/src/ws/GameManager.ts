@@ -99,14 +99,17 @@ export class GameManager {
   isUserReconnecting(userId: string): boolean {
     // check if userId exists in active games
     if (this.usersToGames.has(userId)) {
+        console.log('isRecon true',)
       return true;
     } else {
+      console.log('isRecon false',)
       return false;
     }
   }
 
   reconnectToGame(userId: string, socket: WebSocket) {
     const gameId = this.usersToGames.get(userId);
+    console.log('inside reconnect to game',)
     if (gameId) {
       const game = this.games.get(gameId);
       if (game) {
@@ -261,6 +264,11 @@ export class GameManager {
               game.sendEmote(socket, data.payload.emote);
             }
             break;
+          }
+
+          case GET_RESPONSE: {
+            const data = message as PAYLOAD_GET_GAME;
+            console.log('Response: ', data.payload.message);
           }
 
           default:

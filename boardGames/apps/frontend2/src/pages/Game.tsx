@@ -14,9 +14,10 @@ import "@/components/test.css"
 import backgroundImg from "@/assets/darkBackground.png";
 
 export default function Game() {
-    const { isVictory, isLost } = useBingo()
+    const { isVictory, isLost, gameBoard } = useBingo()
 
     console.log({ isVictory, isLost })
+    
 
     return (
         <div

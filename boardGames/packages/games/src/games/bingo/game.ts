@@ -38,6 +38,7 @@ import {
   redis_tossGameUpdate,
 } from "@repo/redis/helper";
 import { gameServices } from "@repo/redis/services";
+import { GameManager } from "ws/GameManager";
 
 // assuming all the sockets are alive
 
@@ -444,6 +445,9 @@ export class Game {
         break;
       }
     }
+    GameManager.getInstance().removeGame(this.gameId);
+    GameManager.getInstance().removeUserToGame(this.gameId);
+    
   }
 
   private updatePlayerBoards(value: BoxesValue) {

@@ -162,7 +162,8 @@ async processRequests() {
   }
 
   private countGoals(goals: any[], goalType: GoalType) {
-    return goals.filter(e => e.goalName.includes(goalType) && e.isCompleted).length;
+     return goals.filter(e => e.goalName.includes(goalType) && e.isCompleted).length;
+
   }
 
   private async handleTossUpdate(payload: TossUpdatePayload) {

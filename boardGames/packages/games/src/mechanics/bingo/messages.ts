@@ -92,6 +92,7 @@ export enum MessageType {
   GET_UPDATED_GAME = "get_updated_game",
   GET_RECIEVE_EMOTE = "get_recieve_emote",
   GET_RECONNECT = "get_reconnect",
+  GET_REFRESH = "get_refresh",
   // consideration
   // GET_GAME_ID = "get_game_id",
   // GET_GAMEBOARD = "send_game_board",
@@ -117,6 +118,7 @@ export const GET_RECIEVE_EMOTE = MessageType.GET_RECIEVE_EMOTE;
 export const PUT_TOSS_DECISION = MessageType.PUT_TOSS_DECISION;
 export const GET_UPDATED_GAME = MessageType.GET_UPDATED_GAME;
 export const GET_RECONNECT = MessageType.GET_RECONNECT;
+export const GET_REFRESH = MessageType.GET_REFRESH;
 
 
 // Data interface for the message data

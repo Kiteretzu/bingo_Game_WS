@@ -27,12 +27,23 @@ type GameId = string;
 type UserId = string;
 
 export class GameManager {
+  getInstance() {
+    return this;
+  }
   // just redis it
   private games: Map<GameId, Game>; // Number of games going on
   private usersToGames: Map<UserId, GameId>; // Map of user to game
   private pendingPlayer: WebSocket | null; // Player 1
   private users: WebSocket[]; // All the existing users playing games
   private pendingPlayerData: PlayerData | null;
+  private static instance: GameManager;
+
+  public static getInstance() {
+    if (!GameManager.instance) {
+      GameManager.instance = new GameManager();
+    }
+    return GameManager.instance;
+  }
 
   constructor() {
     this.pendingPlayer = null;
@@ -43,6 +54,16 @@ export class GameManager {
     this.setUpDataFromRedis();
   }
 
+  removeGame(gameId: string) {
+    this.games.delete(gameId);
+  }
+removeUserToGame(gameId: string) {
+  for (const [userId, game_Id] of this.usersToGames.entries()) {
+    if (game_Id === gameId) {
+      this.usersToGames.delete(userId);
+    }
+  }
+}
   async setUpDataFromRedis() {
     // get all games from redis
     console.log("HELLOWW!!!!");
@@ -99,17 +120,17 @@ export class GameManager {
   isUserReconnecting(userId: string): boolean {
     // check if userId exists in active games
     if (this.usersToGames.has(userId)) {
-        console.log('isRecon true',)
+      console.log("isRecon true");
       return true;
     } else {
-      console.log('isRecon false',)
+      console.log("isRecon false");
       return false;
     }
   }
 
   reconnectToGame(userId: string, socket: WebSocket) {
     const gameId = this.usersToGames.get(userId);
-    console.log('inside reconnect to game',)
+    console.log("inside reconnect to game");
     if (gameId) {
       const game = this.games.get(gameId);
       if (game) {
@@ -141,7 +162,7 @@ export class GameManager {
 
             const playerData: PlayerData | null = await getPlayerData(token);
             if (!playerData) {
-              socket.send("Invalid player data");
+              sendPayload(socket, GET_RESPONSE);
               return;
             }
 
@@ -166,8 +187,11 @@ export class GameManager {
 
               // store in games map
               this.games.set(newGameId, newGame);
-              this.usersToGames.set(this.pendingPlayerData!.user.googleId, newGameId);
-              this.usersToGames.set(playerData.user.googleId, newGameId); 
+              this.usersToGames.set(
+                this.pendingPlayerData!.user.googleId,
+                newGameId
+              );
+              this.usersToGames.set(playerData.user.googleId, newGameId);
               // store in redis
               // gameServices.addGame(newGameId);
               // gameServices.addUserToGame(
@@ -237,7 +261,7 @@ export class GameManager {
             // }
 
             if (game) {
-              console.log('markingCheck in manager',)
+              console.log("markingCheck in manager");
               game.addCheck(socket, value);
             } else {
               console.error("Error finding the game ID");
@@ -264,11 +288,6 @@ export class GameManager {
               game.sendEmote(socket, data.payload.emote);
             }
             break;
-          }
-
-          case GET_RESPONSE: {
-            const data = message as PAYLOAD_GET_GAME;
-            console.log('Response: ', data.payload.message);
           }
 
           default:

@@ -20,6 +20,7 @@ import {
   PAYLOAD_PUT_RESIGN,
   GET_RECONNECT,
   PAYLOAD_GET_RECONNECT,
+  GET_REFRESH,
 } from "@repo/games/mechanics";
 import { MessageType, PAYLOAD_GET_GAME, PAYLOAD_GET_RESPONSE, PAYLOAD_PUT_GET_CHECK_MARK, PAYLOAD_GET_VICTORY, PAYLOAD_GET_LOST } from "@repo/games/mechanics";
 import { useDialogContext } from "@/context/DialogContext";
@@ -109,6 +110,7 @@ const {setIsVictory, isLost, isMatchFound, isReconnectGame, setIsReconnectGame, 
           const data = parsedMessage as PAYLOAD_GET_VICTORY;
           setVictoryData(data.payload);
           setIsVictory(true);
+            setIsReconnectGame(false)
           break;
         }
 
@@ -116,6 +118,7 @@ const {setIsVictory, isLost, isMatchFound, isReconnectGame, setIsReconnectGame, 
           const data = parsedMessage as PAYLOAD_GET_LOST;
           setLostData(data.payload)
           setIsLost(true);
+          setIsReconnectGame(false)
           break;
         }
 
@@ -135,6 +138,13 @@ const {setIsVictory, isLost, isMatchFound, isReconnectGame, setIsReconnectGame, 
           console.log('THIS IS BINGO!! RECONNCET and data is', data)
           setIsReconnectGame(true);
           dispatch(initialGameboard(data));
+          
+          break;
+        }
+        case GET_REFRESH: {
+          cancelFindMatch();
+          // refresh the page
+          window.location.reload();
           
           break;
         }

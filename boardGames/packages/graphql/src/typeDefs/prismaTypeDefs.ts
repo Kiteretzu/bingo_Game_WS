@@ -19,39 +19,57 @@ export const prismaTypeDefs = gql`
     BINGO
   }
 
-  # Types for GraphQL schema
+
+
+  enum BingoGameTier {
+    A
+    B
+    C
+    D
+    E
+  }
+
   type User {
     googleId: String!
+    isAdmin: Boolean!
     displayName: String
     email: String
     avatar: String
     bingoProfile: BingoProfile
+    sentRequests: [FriendRequest]
+    receivedRequests: [FriendRequest]
+    friendshipsAsUser1: [Friendship]
+    friendshipsAsUser2: [Friendship]
   }
+
 
   type BingoProfile {
     id: String!
-    totalMatches: Int
-    wins: Int
-    losses: Int
-    lines_count: Int
-    firstBlood_count: Int
-    doubleKill_count: Int
-    tripleKill_count: Int
-    perfectionist_count: Int
-    rampage_count: Int
-    mmr: Int
-    league: Leagues
-    preferredBoards: [JSON]
-    gameHistory: [BingoGame]
+    totalMatches: Int!
+    wins: Int!
+    losses: Int!
+    lines_count: Int!
+    firstBlood_count: Int!
+    doubleKill_count: Int!
+    tripleKill_count: Int!
+    perfectionist_count: Int!
+    rampage_count: Int!
+    mmr: Int!
+    league: Leagues!
+    preferredBoards: [JSON]!
+    gameHistory: [BingoGame]!
     userId: String!
-    user: User
+    user: User!
+    recordsAsPlayer1: [BingoPlayerRecords]!
+    recordsAsPlayer2: [BingoPlayerRecords]!
   }
 
   type BingoGame {
-    id: String!
-    Players: [BingoProfile]
-    gameboards: [JSON]
-    matchHistory: [JSON]
+    gameId: String!
+    players: [BingoProfile]!
+    tier: BingoGameTier!
+    gameboards: [JSON]!
+    matchHistory: [JSON]!
     winMethod: Win_method
     gameWinnerId: String
     tossWinnerId: String
@@ -61,22 +79,24 @@ export const prismaTypeDefs = gql`
     id: String!
     player1Id: String!
     player2Id: String!
-    ratio: JSON
+    player1Wins: Int!
+    player2Wins: Int!
+    totalMatches: Int!
+    lastPlayedAt: String!
+    player1: BingoProfile!
+    player2: BingoProfile!
   }
 
-  # Queries
   type Query {
     authUser: User
-    # users: [User]
     user(googleId: String!): User
-    # bingoProfiles: [BingoProfile]
-    # bingoProfile(userId: String!): BingoProfile
-    # bingoGames: [BingoGame]
-    bingoGame(id: String!): BingoGame
-    bingoPlayerRecords: [BingoPlayerRecords]
-    bingoPlayerRecord(
-      player1Id: String!
-      player2Id: String!
-    ): BingoPlayerRecords
+    # bingoGame(id: String!): BingoGame
+    # bingoPlayerRecords: [BingoPlayerRecords]
+    # bingoPlayerRecord(
+    #   player1Id: String!
+    #   player2Id: String!
+    # ): BingoPlayerRecords
   }
+
+  
 `;

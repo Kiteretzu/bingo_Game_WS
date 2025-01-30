@@ -1,4 +1,5 @@
 import { client, PrismaClient } from "@repo/db/client";
+import { LeaderboardEntry } from "@repo/graphql/types/server";
 import { createClient, RedisClientType } from "redis";
 
  class LeaderboardService {
@@ -94,12 +95,7 @@ import { createClient, RedisClientType } from "redis";
   //    * Get leaderboard data, refreshing cache if needed.
 
   async getLeaderboard(limit = 10): Promise<
-    Array<{
-      id: string;
-      username: string;
-      mmr: number;
-      rank: number;
-    }>
+    Array<LeaderboardEntry>
   > {
     try {
       if (await this.shouldRefreshCache()) {

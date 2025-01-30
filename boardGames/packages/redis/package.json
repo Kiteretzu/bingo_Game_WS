@@ -17,6 +17,7 @@
   "description": "",
   "dependencies": {
     "@repo/db": "workspace:*",
+    "@repo/graphql": "workspace:*",
     "redis": "^4.7.0"
   }
 }

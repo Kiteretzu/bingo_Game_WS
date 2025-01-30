@@ -1,5 +1,6 @@
 query getAuthProfile {
   authUser {
+    googleId
     displayName
     email
     avatar

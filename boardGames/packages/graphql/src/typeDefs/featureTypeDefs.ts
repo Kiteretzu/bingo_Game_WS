@@ -10,5 +10,8 @@ export const featureTypeDefs = gql`
 
   type Query {
     leaderboard(limit: Int!): [LeaderboardEntry!]!
+    
   }
+
+
 `;

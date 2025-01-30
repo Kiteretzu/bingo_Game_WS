@@ -11,6 +11,7 @@ interface BingoProfile {
 // Define the profile state type
 interface ProfileState {
   isAuth: boolean;
+  googleId: string
   displayName?: string;
   email?: string;
   avatar?: string;
@@ -21,6 +22,7 @@ interface ProfileState {
 const initialState: ProfileState = {
   isAuth: false,
   displayName: "",
+  googleId: "",
   email: "",
   avatar: "",
   bingoProfile: {
@@ -48,6 +50,7 @@ const profileSlice = createSlice({
       // Mutate the state directly
       if (authUser) {
         state.isAuth = true; // Mark user as authenticated
+        state.googleId = authUser.googleId;
         state.displayName = authUser.displayName ?? undefined;
         state.email = authUser.email ?? undefined;
         state.avatar = authUser.avatar ?? undefined;

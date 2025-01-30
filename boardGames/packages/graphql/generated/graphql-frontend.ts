@@ -20,41 +20,94 @@ export type Scalars = {
 
 export type BingoGame = {
   __typename?: 'BingoGame';
-  Players?: Maybe<Array<Maybe<BingoProfile>>>;
+  gameId: Scalars['String']['output'];
   gameWinnerId?: Maybe<Scalars['String']['output']>;
-  gameboards?: Maybe<Array<Maybe<Scalars['JSON']['output']>>>;
-  id: Scalars['String']['output'];
-  matchHistory?: Maybe<Array<Maybe<Scalars['JSON']['output']>>>;
+  gameboards: Array<Maybe<Scalars['JSON']['output']>>;
+  matchHistory: Array<Maybe<Scalars['JSON']['output']>>;
+  players: Array<Maybe<BingoProfile>>;
+  tier: BingoGameTier;
   tossWinnerId?: Maybe<Scalars['String']['output']>;
   winMethod?: Maybe<Win_Method>;
 };
 
+export enum BingoGameTier {
+  A = 'A',
+  B = 'B',
+  C = 'C',
+  D = 'D',
+  E = 'E'
+}
+
 export type BingoPlayerRecords = {
   __typename?: 'BingoPlayerRecords';
   id: Scalars['String']['output'];
+  lastPlayedAt: Scalars['String']['output'];
+  player1: BingoProfile;
   player1Id: Scalars['String']['output'];
+  player1Wins: Scalars['Int']['output'];
+  player2: BingoProfile;
   player2Id: Scalars['String']['output'];
-  ratio?: Maybe<Scalars['JSON']['output']>;
+  player2Wins: Scalars['Int']['output'];
+  totalMatches: Scalars['Int']['output'];
 };
 
 export type BingoProfile = {
   __typename?: 'BingoProfile';
-  doubleKill_count?: Maybe<Scalars['Int']['output']>;
-  firstBlood_count?: Maybe<Scalars['Int']['output']>;
-  gameHistory?: Maybe<Array<Maybe<BingoGame>>>;
+  doubleKill_count: Scalars['Int']['output'];
+  firstBlood_count: Scalars['Int']['output'];
+  gameHistory: Array<Maybe<BingoGame>>;
   id: Scalars['String']['output'];
-  league?: Maybe<Leagues>;
-  lines_count?: Maybe<Scalars['Int']['output']>;
-  losses?: Maybe<Scalars['Int']['output']>;
-  mmr?: Maybe<Scalars['Int']['output']>;
-  perfectionist_count?: Maybe<Scalars['Int']['output']>;
-  preferredBoards?: Maybe<Array<Maybe<Scalars['JSON']['output']>>>;
-  rampage_count?: Maybe<Scalars['Int']['output']>;
-  totalMatches?: Maybe<Scalars['Int']['output']>;
-  tripleKill_count?: Maybe<Scalars['Int']['output']>;
-  user?: Maybe<User>;
+  league: Leagues;
+  lines_count: Scalars['Int']['output'];
+  losses: Scalars['Int']['output'];
+  mmr: Scalars['Int']['output'];
+  perfectionist_count: Scalars['Int']['output'];
+  preferredBoards: Array<Maybe<Scalars['JSON']['output']>>;
+  rampage_count: Scalars['Int']['output'];
+  recordsAsPlayer1: Array<Maybe<BingoPlayerRecords>>;
+  recordsAsPlayer2: Array<Maybe<BingoPlayerRecords>>;
+  totalMatches: Scalars['Int']['output'];
+  tripleKill_count: Scalars['Int']['output'];
+  user: User;
   userId: Scalars['String']['output'];
-  wins?: Maybe<Scalars['Int']['output']>;
+  wins: Scalars['Int']['output'];
+};
+
+export type FUser = {
+  __typename?: 'FUser';
+  avatar?: Maybe<Scalars['String']['output']>;
+  displayName?: Maybe<Scalars['String']['output']>;
+  email?: Maybe<Scalars['String']['output']>;
+  googleId: Scalars['String']['output'];
+};
+
+export type FriendRequest = {
+  __typename?: 'FriendRequest';
+  createdAt: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  receiver: User;
+  receiverId: Scalars['String']['output'];
+  sender: User;
+  senderId: Scalars['String']['output'];
+  status: FriendRequestStatus;
+  updatedAt: Scalars['String']['output'];
+};
+
+export enum FriendRequestStatus {
+  Accepted = 'ACCEPTED',
+  Pending = 'PENDING',
+  Rejected = 'REJECTED'
+}
+
+export type Friendship = {
+  __typename?: 'Friendship';
+  createdAt: Scalars['String']['output'];
+  id: Scalars['String']['output'];
+  updatedAt: Scalars['String']['output'];
+  user1?: Maybe<User>;
+  user1Id: Scalars['String']['output'];
+  user2?: Maybe<User>;
+  user2Id: Scalars['String']['output'];
 };
 
 export type LeaderboardEntry = {
@@ -75,25 +128,41 @@ export enum Leagues {
   Silver = 'SILVER'
 }
 
+export type Mutation = {
+  __typename?: 'Mutation';
+  acceptFriendRequest?: Maybe<FriendRequest>;
+  declineFriendRequest?: Maybe<FriendRequest>;
+  removeFriend?: Maybe<Scalars['Boolean']['output']>;
+  sendFriendRequest?: Maybe<FriendRequest>;
+};
+
+
+export type MutationAcceptFriendRequestArgs = {
+  requestId: Scalars['String']['input'];
+};
+
+
+export type MutationDeclineFriendRequestArgs = {
+  requestId: Scalars['String']['input'];
+};
+
+
+export type MutationRemoveFriendArgs = {
+  googleId: Scalars['String']['input'];
+};
+
+
+export type MutationSendFriendRequestArgs = {
+  googleId: Scalars['String']['input'];
+};
+
 export type Query = {
   __typename?: 'Query';
   authUser?: Maybe<User>;
-  bingoGame?: Maybe<BingoGame>;
-  bingoPlayerRecord?: Maybe<BingoPlayerRecords>;
-  bingoPlayerRecords?: Maybe<Array<Maybe<BingoPlayerRecords>>>;
+  friendRequests: Array<Maybe<FriendRequest>>;
+  friends: Array<Maybe<FUser>>;
   leaderboard: Array<LeaderboardEntry>;
   user?: Maybe<User>;
-};
-
-
-export type QueryBingoGameArgs = {
-  id: Scalars['String']['input'];
-};
-
-
-export type QueryBingoPlayerRecordArgs = {
-  player1Id: Scalars['String']['input'];
-  player2Id: Scalars['String']['input'];
 };
 
 
@@ -112,7 +181,12 @@ export type User = {
   bingoProfile?: Maybe<BingoProfile>;
   displayName?: Maybe<Scalars['String']['output']>;
   email?: Maybe<Scalars['String']['output']>;
+  friendshipsAsUser1?: Maybe<Array<Maybe<Friendship>>>;
+  friendshipsAsUser2?: Maybe<Array<Maybe<Friendship>>>;
   googleId: Scalars['String']['output'];
+  isAdmin: Scalars['Boolean']['output'];
+  receivedRequests?: Maybe<Array<Maybe<FriendRequest>>>;
+  sentRequests?: Maybe<Array<Maybe<FriendRequest>>>;
 };
 
 export enum Win_Method {
@@ -124,14 +198,14 @@ export enum Win_Method {
 export type GetAuthProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAuthProfileQuery = { __typename?: 'Query', authUser?: { __typename?: 'User', displayName?: string | null, email?: string | null, avatar?: string | null, bingoProfile?: { __typename?: 'BingoProfile', totalMatches?: number | null, wins?: number | null, losses?: number | null, league?: Leagues | null } | null } | null };
+export type GetAuthProfileQuery = { __typename?: 'Query', authUser?: { __typename?: 'User', googleId: string, displayName?: string | null, email?: string | null, avatar?: string | null, bingoProfile?: { __typename?: 'BingoProfile', totalMatches: number, wins: number, losses: number, league: Leagues } | null } | null };
 
 export type GetServerPlayerProfileQueryVariables = Exact<{
   googleId: Scalars['String']['input'];
 }>;
 
 
-export type GetServerPlayerProfileQuery = { __typename?: 'Query', user?: { __typename?: 'User', googleId: string, displayName?: string | null, avatar?: string | null, bingoProfile?: { __typename?: 'BingoProfile', id: string, mmr?: number | null, league?: Leagues | null, losses?: number | null, wins?: number | null, totalMatches?: number | null } | null } | null };
+export type GetServerPlayerProfileQuery = { __typename?: 'Query', user?: { __typename?: 'User', googleId: string, displayName?: string | null, avatar?: string | null, bingoProfile?: { __typename?: 'BingoProfile', id: string, mmr: number, league: Leagues, losses: number, wins: number, totalMatches: number } | null } | null };
 
 export type GetLeaderboardPlayersQueryVariables = Exact<{
   limit: Scalars['Int']['input'];
@@ -144,6 +218,7 @@ export type GetLeaderboardPlayersQuery = { __typename?: 'Query', leaderboard: Ar
 export const GetAuthProfileDocument = gql`
     query getAuthProfile {
   authUser {
+    googleId
     displayName
     email
     avatar

@@ -96,6 +96,31 @@ async processRequests() {
       await this.updatePlayerStats(payload.winner.id, payload.winner, true, payload.gameId);
       await this.updatePlayerStats(payload.loser.id, payload.loser, false, payload.gameId);
 
+      // updating the record
+      const record = await client.bingoPlayerRecords.findUnique({
+        where: {
+          player1Id_player2Id: {
+            player1Id: payload.winner.id,
+            player2Id: payload.loser.id,
+          },
+        }
+      });
+
+      if(record) {
+        await client.bingoPlayerRecords.update({
+          where: {
+            player1Id_player2Id: {
+              player1Id: payload.winner.id,
+              player2Id: payload.loser.id,
+            },
+          },
+          data: {
+            player1Wins: record.player1Wins + 1,
+            totalMatches: record.totalMatches + 1,
+          }
+        })
+      }
+
       console.log(`Ended game with ID: ${payload.gameId}`);
     } catch (error) {
       console.error("Error handling end game:", error);
@@ -228,6 +253,8 @@ async processRequests() {
             player2Wins: 0,
           }
         })
+
+        console.log('new bingoPlayer record formed successfully', newRecord)
       }
 
       console.log(`Created new game with ID: ${payload.gameId}`);

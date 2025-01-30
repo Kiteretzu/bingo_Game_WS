@@ -205,6 +205,31 @@ async processRequests() {
         },
       });
 
+      // check if record exists
+
+     
+
+      const record = await client.bingoPlayerRecords.findUnique({
+        where: {
+          player1Id_player2Id: {
+            player1Id: payload.players[0].user.bingoProfile.id,
+            player2Id: payload.players[1].user.bingoProfile.id,
+          },
+        }
+      });
+
+
+      if(!record) {
+        const newRecord = await client.bingoPlayerRecords.create({
+          data: {
+            player1Id: payload.players[0].user.bingoProfile.id,
+            player2Id: payload.players[1].user.bingoProfile.id,
+            player1Wins: 0,
+            player2Wins: 0,
+          }
+        })
+      }
+
       console.log(`Created new game with ID: ${payload.gameId}`);
     } catch (error) {
       console.error("Error creating new game:", error);

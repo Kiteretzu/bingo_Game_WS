@@ -8,36 +8,82 @@ datasource db {
 }
 
 model User {
-  googleId     String        @id @unique @default(uuid())
-  isAdmin      Boolean       @default(false)
-  displayName  String?
-  email        String?
-  avatar       String?
-  bingoProfile BingoProfile?
+  googleId           String          @id @unique @default(uuid())
+  isAdmin            Boolean         @default(false)
+  displayName        String?
+  email              String?
+  avatar             String?
+  sentRequests       FriendRequest[] @relation("SentRequests")
+  receivedRequests   FriendRequest[] @relation("ReceivedRequests")
+  bingoProfile       BingoProfile?
+  friendshipsAsUser1 Friendship[]    @relation("FriendshipsUser1")
+  friendshipsAsUser2 Friendship[]    @relation("FriendshipsUser2")
+}
+
+enum FriendRequestStatus {
+  PENDING
+  ACCEPTED
+  REJECTED
+}
+
+model FriendRequest {
+  id         String              @id @default(cuid())
+  senderId   String
+  receiverId String
+  status     FriendRequestStatus @default(PENDING)
+  createdAt  DateTime            @default(now())
+  updatedAt  DateTime            @default(now())
+  sender     User                @relation("SentRequests", fields: [senderId], references: [googleId])
+  receiver   User                @relation("ReceivedRequests", fields: [receiverId], references: [googleId])
+
+  @@unique([senderId, receiverId])
+}
+
+model Friendship {
+  id        String   @id @default(cuid())
+  user1Id   String
+  user2Id   String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @default(now())
+  user1     User     @relation("FriendshipsUser1", fields: [user1Id], references: [googleId])
+  user2     User     @relation("FriendshipsUser2", fields: [user2Id], references: [googleId])
+
+  @@unique([user1Id, user2Id])
 }
 
 model BingoProfile {
-  id                  String      @id @default(uuid())
-  totalMatches        Int         @default(0)
-  wins                Int         @default(0)
-  losses              Int         @default(0)
-  lines_count         Int         @default(0)
-  firstBlood_count    Int         @default(0)
-  doubleKill_count    Int         @default(0)
-  tripleKill_count    Int         @default(0)
-  perfectionist_count Int         @default(0)
-  rampage_count       Int         @default(0)
-  mmr                 Int         @default(0)
-  league              Leagues     @default(BRONZE)
+  id                  String               @id @default(uuid())
+  totalMatches        Int                  @default(0)
+  wins                Int                  @default(0)
+  losses              Int                  @default(0)
+  lines_count         Int                  @default(0)
+  firstBlood_count    Int                  @default(0)
+  doubleKill_count    Int                  @default(0)
+  tripleKill_count    Int                  @default(0)
+  perfectionist_count Int                  @default(0)
+  rampage_count       Int                  @default(0)
+  mmr                 Int                  @default(0)
+  league              Leagues              @default(BRONZE)
   preferredBoards     Json[]
-  gameHistory         BingoGame[] @relation("GamePlayers")
-  userId              String      @unique
-  User                User        @relation(fields: [userId], references: [googleId])
+  gameHistory         BingoGame[]          @relation("GamePlayers")
+  userId              String               @unique
+  User                User                 @relation(fields: [userId], references: [googleId])
+  recordsAsPlayer1    BingoPlayerRecords[] @relation("PlayerOneRecords")
+  recordsAsPlayer2    BingoPlayerRecords[] @relation("PlayerTwoRecords")
+}
+
+enum BingoGameTier {
+  A // 1000rs
+  B // 500rs
+  C // 200rs
+  D // 100rs
+  E // 50rs
 }
 
 model BingoGame {
   gameId       String         @id @default(cuid())
   players      BingoProfile[] @relation("GamePlayers")
+  tier         BingoGameTier  @default(E)
   gameboards   Json[] // Game boards in JSON format
   matchHistory Json[] // Match history in JSON format
   winMethod    Win_method?
@@ -46,12 +92,17 @@ model BingoGame {
 }
 
 model BingoPlayerRecords {
-  id        String @id @default(cuid()) // Unique identifier for the record
-  player1Id String
-  player2Id String
-  ratio     Json? // Store ratio as a JSON object with player-specific ratios
+  id           String       @id @default(cuid())
+  player1Id    String
+  player2Id    String
+  player1Wins  Int          @default(0)
+  player2Wins  Int          @default(0)
+  totalMatches Int          @default(0)
+  lastPlayedAt DateTime     @default(now())
+  player1      BingoProfile @relation("PlayerOneRecords", fields: [player1Id], references: [id])
+  player2      BingoProfile @relation("PlayerTwoRecords", fields: [player2Id], references: [id])
 
-  @@unique([player1Id, player2Id]) // Composite unique constraint to ensure a unique record for the pair of users
+  @@unique([player1Id, player2Id])
 }
 
 enum Leagues {

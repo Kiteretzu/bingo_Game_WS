@@ -12,19 +12,24 @@ import { CoinsIcon } from "lucide-react";
 
 const CoinToss: React.FC = () => {
     const [isOpen, setIsOpen] = useState(false);
-    const canvasRef = useRef<HTMLCanvasElement>(null);
     const [isTossing, setIsTossing] = useState(false);
     const [result, setResult] = useState<"heads" | "tails" | null>(null);
+
+    const canvasRef = useRef<HTMLCanvasElement>(null);
     const meshRef = useRef<THREE.Mesh | null>(null);
     const sceneRef = useRef<THREE.Scene | null>(null);
     const cameraRef = useRef<THREE.PerspectiveCamera | null>(null);
     const rendererRef = useRef<THREE.WebGLRenderer | null>(null);
 
+    // Set up the Three.js scene
     const setupScene = () => {
-        if (!canvasRef.current) return null;
+        if (!canvasRef.current) return;
 
+        // Scene
         const scene = new THREE.Scene();
         scene.background = new THREE.Color(0x1a1a2e);
+
+        // Camera
         const camera = new THREE.PerspectiveCamera(
             75,
             canvasRef.current.width / canvasRef.current.height,
@@ -33,50 +38,53 @@ const CoinToss: React.FC = () => {
         );
         camera.position.set(0, 0, 5);
 
+        // Renderer
         const renderer = new THREE.WebGLRenderer({
             canvas: canvasRef.current,
             alpha: true,
         });
         renderer.setSize(400, 400);
 
+        // Lighting
         const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
         scene.add(ambientLight);
 
         const pointLight = new THREE.PointLight(0xffffff, 0.8);
-        pointLight.position.set(5, 5, 5);
+        pointLight.position.set(5, 5, 5);                           
         scene.add(pointLight);
 
+        // Coin geometry and materials
         const geometry = new THREE.CylinderGeometry(1, 1, 0.1, 100, 1, true);
 
+        // Only use colors for the sides of the coin
         const materials = [
-            new THREE.MeshStandardMaterial({ color: 0xc0c0c0 }), // edge material
-            new THREE.MeshStandardMaterial({ color: 0x4CAF50 }), // heads (green)
-            new THREE.MeshStandardMaterial({ color: 0xFF5722 })  // tails (orange)
+            new THREE.MeshStandardMaterial({ color: 0xc0c0c0 }), // Side material (edge)
+            new THREE.MeshStandardMaterial({ color: 0x4CAF50 }), // Top material (heads)
+            new THREE.MeshStandardMaterial({ color: 0xFF5722 }), // Bottom material (tails)
         ];
 
         const mesh = new THREE.Mesh(geometry, materials);
         scene.add(mesh);
 
+        // Store references
         sceneRef.current = scene;
         cameraRef.current = camera;
         rendererRef.current = renderer;
         meshRef.current = mesh;
 
+        // Animation loop
         const animate = () => {
             renderer.render(scene, camera);
             requestAnimationFrame(animate);
         };
         animate();
-
-        return { scene, camera, renderer, mesh };
     };
 
+    // Initialize the scene when the dialog opens
     useEffect(() => {
         if (isOpen) {
             const timer = setTimeout(() => {
-                if (canvasRef.current) {
-                    setupScene();
-                }
+                setupScene();
             }, 0);
 
             return () => {
@@ -86,17 +94,18 @@ const CoinToss: React.FC = () => {
         }
     }, [isOpen]);
 
+    // Handle coin toss animation
     const tossCoin = () => {
         if (!isTossing && meshRef.current) {
             setIsTossing(true);
             const tossStartTime = Date.now();
-            const coinResult: 'heads' | 'tails' = Math.random() < 0.5 ? "heads" : "tails";
+            const coinResult: "heads" | "tails" = Math.random() < 0.5 ? "heads" : "tails";
             const maxHeight = 3;
             const animationDuration = 2000;
 
             const randomRotations = Math.floor(Math.random() * 3) + 2;
-            const targetRotationX = randomRotations * 2 * Math.PI +
-                (coinResult === "heads" ? Math.PI / 2 : -Math.PI / 2);
+            const targetRotationX =
+                randomRotations * 2 * Math.PI + (coinResult === "heads" ? Math.PI / 2 : -Math.PI / 2);
 
             const animateLanding = () => {
                 const elapsedTime = Date.now() - tossStartTime;

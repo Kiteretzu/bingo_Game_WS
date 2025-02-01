@@ -19,14 +19,25 @@ export const prismaTypeDefs = gql`
     BINGO
   }
 
-
-
   enum BingoGameTier {
     A
     B
     C
     D
     E
+  }
+
+  enum FriendRequestStatus {
+    PENDING
+    ACCEPTED
+    REJECTED
+  }
+
+  type FUser {
+    googleId: String!
+    displayName: String
+    email: String
+    avatar: String
   }
 
   type User {
@@ -38,10 +49,8 @@ export const prismaTypeDefs = gql`
     bingoProfile: BingoProfile
     sentRequests: [FriendRequest]
     receivedRequests: [FriendRequest]
-    friendshipsAsUser1: [Friendship]
-    friendshipsAsUser2: [Friendship]
+    friends: [FUser]
   }
-
 
   type BingoProfile {
     id: String!
@@ -58,10 +67,6 @@ export const prismaTypeDefs = gql`
     league: Leagues!
     preferredBoards: [JSON]!
     gameHistory: [BingoGame]!
-    userId: String!
-    user: User!
-    recordsAsPlayer1: [BingoPlayerRecords]!
-    recordsAsPlayer2: [BingoPlayerRecords]!
   }
 
   type BingoGame {
@@ -87,6 +92,27 @@ export const prismaTypeDefs = gql`
     player2: BingoProfile!
   }
 
+  type FriendRequest {
+    id: String!
+    senderId: String!
+    receiverId: String!
+    status: FriendRequestStatus!
+    createdAt: String!
+    updatedAt: String!
+    sender: User!
+    receiver: User!
+  }
+
+  type Friendship {
+    id: String!
+    user1Id: String!
+    user2Id: String!
+    createdAt: String!
+    updatedAt: String!
+    user1: User
+    user2: User
+  }
+
   type Query {
     authUser: User
     user(googleId: String!): User
@@ -96,7 +122,15 @@ export const prismaTypeDefs = gql`
     #   player1Id: String!
     #   player2Id: String!
     # ): BingoPlayerRecords
+    friendRequests: [FriendRequest]!
+    friends(googleId: String!): [FUser]!
+    getGameHistory(googleId: String!, limit: Int): [BingoGame]!
   }
 
-  
+  type Mutation {
+    sendFriendRequest(googleId: String!): FriendRequest
+    acceptFriendRequest(requestId: String!): FriendRequest
+    declineFriendRequest(requestId: String!): FriendRequest
+    removeFriend(googleId: String!): Boolean
+  }
 `;

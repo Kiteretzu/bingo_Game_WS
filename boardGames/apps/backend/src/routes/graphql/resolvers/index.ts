@@ -3,9 +3,11 @@ import { Context } from "graphql-passport/lib/buildContext";
 import GraphQLJSON from "graphql-type-json";
 import { CustomContext } from "helper/customContext";
 import { FriendRequest, FUser, Resolvers } from "@repo/graphql/types/server";
-import { client, User } from "@repo/db/client";
+import { BingoGame, BingoProfile, client, User } from "@repo/db/client";
 import { leaderboardService } from "@repo/redis/services";
 import { Friendship } from "@repo/graphql/types/client";
+import { get } from "http";
+import { getBingoProfileByUserId, getFriendsByUserId } from "../dbServices";
 
 export const resolvers: Resolvers<CustomContext> = {
   JSON: GraphQLJSON,
@@ -32,14 +34,65 @@ export const resolvers: Resolvers<CustomContext> = {
           googleId,
         },
         include: {
-          bingoProfile: true,
+          bingoProfile: {
+            include: {
+              gameHistory: true,
+            },
+          },
         },
       })) as User;
+
+      console.log("this is user", user);
 
       if (!user) {
         return null;
       }
       return user;
+    },
+
+    getGameHistory: async (parent, args, context) => {
+      const { googleId, limit } = args; // Accept a limit argument
+      if (!googleId) return new GraphQLError("Missing Google ID");
+
+      // Set a default limit if none is provided, e.g., 10
+      const historyLimit = limit || 10;
+
+      const user = (await client.user.findUnique({
+        where: {
+          googleId,
+        },
+        include: {
+          bingoProfile: {
+            include: {
+              gameHistory: {
+                take: historyLimit, // Limit the number of gameHistory records
+                include: {
+                  players: true,
+                },
+                orderBy: {
+                  createdAt: "desc", // Order by createdAt in descending order
+                },
+              },
+            },
+          },
+        },
+      })) as
+        | (User & {
+            bingoProfile: BingoProfile & {
+              gameHistory: BingoGame[] & { players: BingoProfile };
+            };
+          })
+        | null;
+
+      console.log("This is user", user);
+
+      if (!user) {
+        return null;
+      }
+
+      const gameHistory = user?.bingoProfile?.gameHistory;
+
+      return gameHistory as unknown as BingoGame[];
     },
 
     // leaderboard
@@ -51,42 +104,7 @@ export const resolvers: Resolvers<CustomContext> = {
       return leaderboardEntries;
     },
 
-    friends: async (parent, args, context) => {
-      const user = await context.getUser();
-      if (!user) {
-        throw new GraphQLError("User not authenticated");
-      }
-      // Implement the logic to fetch friends
-      const friends = await client.user.findUnique({
-        where: {
-          googleId: user.googleId,
-        },
-        include: {
-          friendshipsAsUser1: {
-            include: {
-              user2: true,
-            },
-          },
-          friendshipsAsUser2: {
-            include: {
-              user1: true,
-            },
-          },
-        },
-      });
-
-      console.log("this is friends", friends);
-      const allFriends = [
-        ...(friends?.friendshipsAsUser1?.map((f) => f.user2) || []),
-        ...(friends?.friendshipsAsUser2?.map((f) => f.user1) || []),
-      ];
-      return allFriends.map((friend) => ({
-        googleId: friend.googleId,
-        displayName: friend.displayName,
-        email: friend.email,
-        avatar: friend.avatar,
-      }));
-    },
+    friends: async (parent, args, context) => getFriendsByUserId(args.googleId),
 
     friendRequests: async (parent, args, context) => {
       const user = await context.getUser();
@@ -251,6 +269,19 @@ export const resolvers: Resolvers<CustomContext> = {
       });
 
       return true;
+    },
+  },
+
+  User: {
+    bingoProfile: async (parent, args, context) =>
+      getBingoProfileByUserId(parent.googleId),
+    friends: async (parent, args, context) => {
+      return getFriendsByUserId(parent.googleId);
+    },
+  },
+  BingoProfile: {
+    friends: async (parent, args, context) => {
+      return getFriendsByUserId(parent.userId);
     },
   },
 };

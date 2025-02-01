@@ -64,12 +64,8 @@ export type BingoProfile = {
   perfectionist_count: Scalars['Int']['output'];
   preferredBoards: Array<Maybe<Scalars['JSON']['output']>>;
   rampage_count: Scalars['Int']['output'];
-  recordsAsPlayer1: Array<Maybe<BingoPlayerRecords>>;
-  recordsAsPlayer2: Array<Maybe<BingoPlayerRecords>>;
   totalMatches: Scalars['Int']['output'];
   tripleKill_count: Scalars['Int']['output'];
-  user: User;
-  userId: Scalars['String']['output'];
   wins: Scalars['Int']['output'];
 };
 
@@ -161,8 +157,20 @@ export type Query = {
   authUser?: Maybe<User>;
   friendRequests: Array<Maybe<FriendRequest>>;
   friends: Array<Maybe<FUser>>;
+  getGameHistory: Array<Maybe<BingoGame>>;
   leaderboard: Array<LeaderboardEntry>;
   user?: Maybe<User>;
+};
+
+
+export type QueryFriendsArgs = {
+  googleId: Scalars['String']['input'];
+};
+
+
+export type QueryGetGameHistoryArgs = {
+  googleId: Scalars['String']['input'];
+  limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
 
@@ -181,8 +189,7 @@ export type User = {
   bingoProfile?: Maybe<BingoProfile>;
   displayName?: Maybe<Scalars['String']['output']>;
   email?: Maybe<Scalars['String']['output']>;
-  friendshipsAsUser1?: Maybe<Array<Maybe<Friendship>>>;
-  friendshipsAsUser2?: Maybe<Array<Maybe<Friendship>>>;
+  friends?: Maybe<Array<Maybe<FUser>>>;
   googleId: Scalars['String']['output'];
   isAdmin: Scalars['Boolean']['output'];
   receivedRequests?: Maybe<Array<Maybe<FriendRequest>>>;

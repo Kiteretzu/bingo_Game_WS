@@ -89,6 +89,7 @@ model BingoGame {
   winMethod    Win_method?
   gameWinnerId String?
   tossWinnerId String?
+  createdAt    DateTime       @default(now())
 }
 
 model BingoPlayerRecords {

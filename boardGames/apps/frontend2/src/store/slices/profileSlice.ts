@@ -2,6 +2,7 @@ import { createSlice, PayloadAction } from "@reduxjs/toolkit";
 import { GetAuthProfileQuery } from "@repo/graphql/types/client";
 
 interface BingoProfile {
+  id: string;
   totalMatches?: number;
   wins?: number;
   losses?: number;
@@ -11,7 +12,7 @@ interface BingoProfile {
 // Define the profile state type
 interface ProfileState {
   isAuth: boolean;
-  googleId: string
+  googleId: string;
   displayName?: string;
   email?: string;
   avatar?: string;
@@ -26,6 +27,7 @@ const initialState: ProfileState = {
   email: "",
   avatar: "",
   bingoProfile: {
+    id: "",
     totalMatches: 0,
     wins: 0,
     losses: 0,
@@ -55,6 +57,7 @@ const profileSlice = createSlice({
         state.email = authUser.email ?? undefined;
         state.avatar = authUser.avatar ?? undefined;
         state.bingoProfile = {
+          id: authUser.bingoProfile?.id ?? "",
           totalMatches: authUser.bingoProfile?.totalMatches ?? undefined,
           wins: authUser.bingoProfile?.wins ?? undefined,
           losses: authUser.bingoProfile?.losses ?? undefined,
@@ -63,8 +66,8 @@ const profileSlice = createSlice({
       }
     },
     logout: () => {
-      localStorage.removeItem('auth-token')
-      return initialState
+      localStorage.removeItem("auth-token");
+      return initialState;
     }, // Reset state to initial values
   },
 });

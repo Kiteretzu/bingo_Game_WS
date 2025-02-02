@@ -12,18 +12,19 @@ import useBingo from '@/hooks/useBingo'
 import LostDialog from '@/components/dialog/lost-dialog'
 import "@/components/test.css"
 import backgroundImg from "@/assets/darkBackground.png";
+import { useNavigate } from 'react-router-dom'
 
 export default function Game() {
     const { isVictory, isLost, gameBoard } = useBingo()
-
+    const navigate = useNavigate()
     console.log({ isVictory, isLost })
-    
+
 
     return (
         <div
             className="min-h-screen overflow-hidden bg-gradient-to-b from-gray-900/10 to-gray-800/55 text-gray-100 flex flex-col"
             style={{ backgroundImage: `url(${backgroundImg})` }} >
-            <div className="flex justify-center items-center h-20 py-12 bg-gray-800/85 shadow-lg border-b border-gray-700">
+            <div onClick={() => navigate('/')} className="flex cursor-pointer justify-center items-center h-20 py-12 bg-gray-800/85 shadow-lg border-b border-gray-700">
                 <img
                     src="/Bingo.png"
                     className="h-40 object-contain pointer-events-none"
@@ -44,8 +45,8 @@ export default function Game() {
                     <PlayerDashBoard />
                 </CardContent>
             </div>
-            <VictoryDialog  isOpen={isVictory}  />
-            <LostDialog isOpen={isLost}  />
+            <VictoryDialog isOpen={isVictory} />
+            <LostDialog isOpen={isLost} />
         </div>
     )
 }

@@ -22,8 +22,17 @@ import {
   PAYLOAD_GET_RECONNECT,
   GET_REFRESH,
 } from "@repo/games/mechanics";
-import { MessageType, PAYLOAD_GET_GAME, PAYLOAD_GET_RESPONSE, PAYLOAD_PUT_GET_CHECK_MARK, PAYLOAD_GET_VICTORY, PAYLOAD_GET_LOST } from "@repo/games/mechanics";
+import {
+  MessageType,
+  PAYLOAD_GET_GAME,
+  PAYLOAD_GET_RESPONSE,
+  PAYLOAD_PUT_GET_CHECK_MARK,
+  PAYLOAD_GET_VICTORY,
+  PAYLOAD_GET_LOST,
+} from "@repo/games/mechanics";
 import { useDialogContext } from "@/context/DialogContext";
+import { useApolloClient } from "@apollo/client";
+import { GetGameHistoryDocument } from "@repo/graphql/types/client";
 
 function useBingo() {
   const bingoState = useAppSelector((state) => ({
@@ -32,10 +41,10 @@ function useBingo() {
     checkedLines: state.bingo.checks.checkedLines,
     gameId: state.bingo.game.gameId,
     playersData: state.bingo.game.players, // dont know where it will be used
-    goals : state.bingo.goals,
+    goals: state.bingo.goals,
     matchHistory: state.bingo.matchHistory,
     tossWinner: state.bingo.game.tossWinner,
-
+    bingoProfileId: state.profile.bingoProfile.id,
   }));
 
   const dispatch = useAppDispatch();
@@ -43,7 +52,24 @@ function useBingo() {
 
   // Dialog-related states
 
-const {setIsVictory, isLost, isMatchFound, isReconnectGame, setIsReconnectGame, isVictory, lostData, matchFoundData, setIsLost, setIsMatchFound, setLostData, setMatchFoundData, setVictoryData, victoryData, emote, setEmote} = useDialogContext()
+  const {
+    setIsVictory,
+    isLost,
+    isMatchFound,
+    isReconnectGame,
+    setIsReconnectGame,
+    isVictory,
+    lostData,
+    matchFoundData,
+    setIsLost,
+    setIsMatchFound,
+    setLostData,
+    setMatchFoundData,
+    setVictoryData,
+    victoryData,
+    emote,
+    setEmote,
+  } = useDialogContext();
   // Sync Redux state for game-related logic
   const gameId = bingoState.gameId;
   const gameBoard = bingoState.gameBoard;
@@ -53,10 +79,13 @@ const {setIsVictory, isLost, isMatchFound, isReconnectGame, setIsReconnectGame, 
   const goals = bingoState.goals;
   const matchHistory = bingoState.matchHistory;
   const tossWinner = bingoState.tossWinner;
+  const bingoProfileId = bingoState.bingoProfileId;
   let lastValue = ""; // i think bug state here
   const [response, setResponse] = useState<string>("");
   const [gameLoading, setGameLoading] = useState<boolean>(true);
   const [isFinding, setIsFinding] = useState<boolean>(false);
+
+  const client = useApolloClient();
 
   // delete this later on
   const displayName = useAppSelector((state) => state.profile.displayName);
@@ -82,10 +111,14 @@ const {setIsVictory, isLost, isMatchFound, isReconnectGame, setIsReconnectGame, 
         case GET_RESPONSE: {
           const data = parsedMessage as PAYLOAD_GET_RESPONSE;
           setResponse(data.payload.message);
-          console.log('kuch toh aara ha', data.payload.message)
-          if(data.payload.message === 'Ping'){
-            
-            socket.send(JSON.stringify({type: GET_RESPONSE, payload: {message: `Pong ${displayName}`}}))
+          console.log("kuch toh aara ha", data.payload.message);
+          if (data.payload.message === "Ping") {
+            socket.send(
+              JSON.stringify({
+                type: GET_RESPONSE,
+                payload: { message: `Pong ${displayName}` },
+              })
+            );
           }
           break;
         }
@@ -96,13 +129,13 @@ const {setIsVictory, isLost, isMatchFound, isReconnectGame, setIsReconnectGame, 
           dispatch(initialGameboard(data));
           setIsMatchFound(true);
           setMatchFoundData(data.payload.players); // contextApi
-          setIsReconnectGame(true)
+          setIsReconnectGame(true);
           break;
         }
 
         case GET_CHECK_MARK: {
           const data = parsedMessage as PAYLOAD_PUT_GET_CHECK_MARK;
-          lastValue = data.payload.value // i think bug state here
+          lastValue = data.payload.value; // i think bug state here
           break;
         }
 
@@ -110,15 +143,20 @@ const {setIsVictory, isLost, isMatchFound, isReconnectGame, setIsReconnectGame, 
           const data = parsedMessage as PAYLOAD_GET_VICTORY;
           setVictoryData(data.payload);
           setIsVictory(true);
-            setIsReconnectGame(false)
+          setIsReconnectGame(false);
+          client.refetchQueries({ include: [GetGameHistoryDocument] });
           break;
         }
 
         case GET_LOST: {
           const data = parsedMessage as PAYLOAD_GET_LOST;
-          setLostData(data.payload)
+          setLostData(data.payload);
           setIsLost(true);
-          setIsReconnectGame(false)
+          setIsReconnectGame(false);
+          client.refetchQueries({
+            include: [GetGameHistoryDocument],
+          });
+
           break;
         }
 
@@ -135,17 +173,17 @@ const {setIsVictory, isLost, isMatchFound, isReconnectGame, setIsReconnectGame, 
         }
         case GET_RECONNECT: {
           const data = parsedMessage as PAYLOAD_GET_RECONNECT;
-          console.log('THIS IS BINGO!! RECONNCET and data is', data)
+          console.log("THIS IS BINGO!! RECONNCET and data is", data);
           setIsReconnectGame(true);
           dispatch(initialGameboard(data));
-          
+
           break;
         }
         case GET_REFRESH: {
           cancelFindMatch();
           // refresh the page
           window.location.reload();
-          
+
           break;
         }
       }
@@ -169,15 +207,16 @@ const {setIsVictory, isLost, isMatchFound, isReconnectGame, setIsReconnectGame, 
 
   const sendEmote = (emote: string) => {
     sendData(PUT_SEND_EMOTE, { gameId, emote });
-  }
+  };
 
   const sendResign = () => {
-    const data : PAYLOAD_PUT_RESIGN['payload'] = {gameId} 
-    sendData(PUT_RESIGN, data)
-  }
+    const data: PAYLOAD_PUT_RESIGN["payload"] = { gameId };
+    sendData(PUT_RESIGN, data);
+  };
 
   return {
     gameBoard,
+    bingoProfileId,
     checkedBoxes,
     checkedLines,
     isFinding,
@@ -191,7 +230,7 @@ const {setIsVictory, isLost, isMatchFound, isReconnectGame, setIsReconnectGame, 
     isLost,
     isVictory,
     tossWinner,
-  // lostData,
+    // lostData,
     // victoryData,
     playersData, // same as matchFound data
     goals,

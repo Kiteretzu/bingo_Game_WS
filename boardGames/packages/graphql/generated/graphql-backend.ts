@@ -20,13 +20,17 @@ export type Scalars = {
 export type BingoGame = {
   __typename?: 'BingoGame';
   createdAt?: Maybe<Scalars['String']['output']>;
+  gameEndedAt?: Maybe<Scalars['String']['output']>;
   gameId: Scalars['String']['output'];
+  gameLoserId?: Maybe<Scalars['String']['output']>;
   gameWinnerId?: Maybe<Scalars['String']['output']>;
   gameboards: Array<Maybe<Scalars['JSON']['output']>>;
+  loserMMR?: Maybe<Scalars['Int']['output']>;
   matchHistory: Array<Maybe<Scalars['JSON']['output']>>;
   players: Array<Maybe<BingoProfile>>;
   tier: BingoGameTier;
   tossWinnerId?: Maybe<Scalars['String']['output']>;
+  winMMR?: Maybe<Scalars['Int']['output']>;
   winMethod?: Maybe<Win_Method>;
 };
 
@@ -315,13 +319,17 @@ export type ResolversParentTypes = {
 
 export type BingoGameResolvers<ContextType = any, ParentType extends ResolversParentTypes['BingoGame'] = ResolversParentTypes['BingoGame']> = {
   createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  gameEndedAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   gameId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
+  gameLoserId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   gameWinnerId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   gameboards?: Resolver<Array<Maybe<ResolversTypes['JSON']>>, ParentType, ContextType>;
+  loserMMR?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   matchHistory?: Resolver<Array<Maybe<ResolversTypes['JSON']>>, ParentType, ContextType>;
   players?: Resolver<Array<Maybe<ResolversTypes['BingoProfile']>>, ParentType, ContextType>;
   tier?: Resolver<ResolversTypes['BingoGameTier'], ParentType, ContextType>;
   tossWinnerId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
+  winMMR?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   winMethod?: Resolver<Maybe<ResolversTypes['Win_method']>, ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };

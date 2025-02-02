@@ -36,7 +36,7 @@ export default function ProfileDashboard() {
             <h3 className="text-lg w-[23ch] truncate xl:text-2xl font-bold text-gray-100">
               {profileData?.displayName ?? "Guest"}
             </h3>
-            <div className="mt-1 flex items-center space-x-3 xl:space-x-6">
+            <div className="mt-1 flex items-center space-x-3 xl:space-x-3">
               {/* Matches */}
               <div className="flex items-center space-x-2">
                 <span className="text-gray-400 text-base xl:text-lg  font-light xl:font-medium">Matches:</span>

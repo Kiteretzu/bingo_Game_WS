@@ -13,7 +13,6 @@ function FindMatchButton({
   isFinding: boolean;
 }) {
   const isAuth = useAppSelector(state => state.profile.isAuth)
-  console.log('this is ', isAuth)
   return (
     <div className="flex items-center justify-center">
       {isFinding ? (

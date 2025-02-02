@@ -5,11 +5,12 @@ query getAuthProfile {
     email
     avatar
     bingoProfile {
+      id
       totalMatches
       wins
       losses
       league
-    }
+    } 
   }
 }
 
@@ -43,5 +44,11 @@ query getGameHistory($bingoProfileId: String, $limit: Int) {
     gameId
     gameWinnerId
     createdAt
+    gameEndedAt
+    winMethod
+    tier
+    gameLoserId
+    winMMR
+    loserMMR
   }
 }

@@ -21,13 +21,17 @@ export type Scalars = {
 export type BingoGame = {
   __typename?: 'BingoGame';
   createdAt?: Maybe<Scalars['String']['output']>;
+  gameEndedAt?: Maybe<Scalars['String']['output']>;
   gameId: Scalars['String']['output'];
+  gameLoserId?: Maybe<Scalars['String']['output']>;
   gameWinnerId?: Maybe<Scalars['String']['output']>;
   gameboards: Array<Maybe<Scalars['JSON']['output']>>;
+  loserMMR?: Maybe<Scalars['Int']['output']>;
   matchHistory: Array<Maybe<Scalars['JSON']['output']>>;
   players: Array<Maybe<BingoProfile>>;
   tier: BingoGameTier;
   tossWinnerId?: Maybe<Scalars['String']['output']>;
+  winMMR?: Maybe<Scalars['Int']['output']>;
   winMethod?: Maybe<Win_Method>;
 };
 
@@ -206,7 +210,7 @@ export enum Win_Method {
 export type GetAuthProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAuthProfileQuery = { __typename?: 'Query', authUser?: { __typename?: 'User', googleId: string, displayName?: string | null, email?: string | null, avatar?: string | null, bingoProfile?: { __typename?: 'BingoProfile', totalMatches: number, wins: number, losses: number, league: Leagues } | null } | null };
+export type GetAuthProfileQuery = { __typename?: 'Query', authUser?: { __typename?: 'User', googleId: string, displayName?: string | null, email?: string | null, avatar?: string | null, bingoProfile?: { __typename?: 'BingoProfile', id: string, totalMatches: number, wins: number, losses: number, league: Leagues } | null } | null };
 
 export type GetServerPlayerProfileQueryVariables = Exact<{
   googleId: Scalars['String']['input'];
@@ -228,7 +232,7 @@ export type GetGameHistoryQueryVariables = Exact<{
 }>;
 
 
-export type GetGameHistoryQuery = { __typename?: 'Query', gameHistory: Array<{ __typename?: 'BingoGame', gameId: string, gameWinnerId?: string | null, createdAt?: string | null } | null> };
+export type GetGameHistoryQuery = { __typename?: 'Query', gameHistory: Array<{ __typename?: 'BingoGame', gameId: string, gameWinnerId?: string | null, createdAt?: string | null, gameEndedAt?: string | null, winMethod?: Win_Method | null, tier: BingoGameTier, gameLoserId?: string | null, winMMR?: number | null, loserMMR?: number | null } | null> };
 
 
 export const GetAuthProfileDocument = gql`
@@ -239,6 +243,7 @@ export const GetAuthProfileDocument = gql`
     email
     avatar
     bingoProfile {
+      id
       totalMatches
       wins
       losses
@@ -378,6 +383,12 @@ export const GetGameHistoryDocument = gql`
     gameId
     gameWinnerId
     createdAt
+    gameEndedAt
+    winMethod
+    tier
+    gameLoserId
+    winMMR
+    loserMMR
   }
 }
     `;

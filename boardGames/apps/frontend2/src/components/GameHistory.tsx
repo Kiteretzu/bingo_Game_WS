@@ -3,58 +3,17 @@
 import { Clock, Star, TrendingUp, TrendingDown } from "lucide-react";
 import { motion } from "framer-motion";
 import { useGetGameHistoryQuery } from "@repo/graphql/types/client";
+import useBingo from "@/hooks/useBingo";
 
 type GameResult = {
-  id: number;
+  id: string; // Changed to string to match gameId
   outcome: "Win" | "Loss";
   ranked: boolean;
   duration: string;
   mmrChange: number;
   date: string;
+  startTime: string; // Added start time
 };
-
-const gameResults: GameResult[] = [
-  {
-    id: 1,
-    outcome: "Win",
-    ranked: true,
-    duration: "25:13",
-    mmrChange: 25,
-    date: "2025-01-23",
-  },
-  {
-    id: 2,
-    outcome: "Loss",
-    ranked: true,
-    duration: "31:45",
-    mmrChange: -20,
-    date: "2025-01-22",
-  },
-  {
-    id: 3,
-    outcome: "Win",
-    ranked: false,
-    duration: "18:22",
-    mmrChange: 0,
-    date: "2025-01-21",
-  },
-  {
-    id: 4,
-    outcome: "Win",
-    ranked: true,
-    duration: "28:57",
-    mmrChange: 22,
-    date: "2025-01-20",
-  },
-  {
-    id: 5,
-    outcome: "Loss",
-    ranked: true,
-    duration: "35:10",
-    mmrChange: -18,
-    date: "2025-01-19",
-  },
-];
 
 const GameCard = ({ game }: { game: GameResult }) => (
   <motion.div
@@ -82,6 +41,10 @@ const GameCard = ({ game }: { game: GameResult }) => (
     <div className="text-gray-400 text-sm xl:font-semibold xl:text-lg">
       {new Date(game.date).toLocaleDateString()}
     </div>
+    {/* Start Time */}
+    <div className="text-gray-400 text-sm xl:font-semibold xl:text-lg">
+      {new Date(game.startTime).toLocaleTimeString()}
+    </div>
     {/* Duration */}
     <motion.div className="flex items-center">
       <Clock className="text-blue-400 mr-2" />
@@ -100,9 +63,30 @@ const GameCard = ({ game }: { game: GameResult }) => (
 );
 
 export default function GameHistory() {
-  const { data, loading } = useGetGameHistoryQuery();
+  const { data, loading, refetch } = useGetGameHistoryQuery({
+    fetchPolicy: "network-only", // Always fetch fresh data
+    notifyOnNetworkStatusChange: true, // Update UI when fetching
+  });
+  const { bingoProfileId } = useBingo()
 
-  console.log('thiis is gameHistory Loading', loading, data);
+  // Transform the incoming data into the GameResult format
+  const gameResults: GameResult[] = data?.gameHistory?.map((game: any) => {
+    const isWin = game.gameWinnerId === bingoProfileId // Replace with the actual user ID
+    const duration = Math.floor((parseInt(game.gameEndedAt) - parseInt(game.createdAt)) / 1000);
+    const minutes = Math.floor(duration / 60);
+    const seconds = duration % 60;
+    const durationString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+    return {
+      id: game.gameId,
+      outcome: isWin ? "Win" : "Loss",
+      ranked: true, // Assuming all games are ranked
+      duration: durationString,
+      mmrChange: isWin ? game.winMMR : -game.loserMMR,
+      date: new Date(parseInt(game.createdAt)).toISOString(),
+      startTime: new Date(parseInt(game.createdAt)).toISOString(), // Added start time
+    };
+  }) || [];
 
   return (
     <motion.div

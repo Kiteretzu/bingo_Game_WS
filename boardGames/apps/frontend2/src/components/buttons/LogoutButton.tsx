@@ -22,7 +22,7 @@ function LogoutButton() {
         <Button
             variant="destructive"
             size="lg"
-            className="bg-[#964242] hover:bg-[#b93b3b] px-1 xl:px-2  absolute right-0 top-0 bottom-0 h-full text-4xl xl:text-5xl flex items-center justify-center "
+            className="bg-[#964242] hover:bg-[#b93b3b] px-1 xl:px-2  absolute right-0 top-0 bottom-0 h-full text-xl xl:text-2xl flex items-center justify-center "
             onClick={() => handleLogout()}
         >
             ⇲

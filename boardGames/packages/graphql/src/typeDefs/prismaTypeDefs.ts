@@ -76,9 +76,13 @@ export const prismaTypeDefs = gql`
     gameboards: [JSON]!
     matchHistory: [JSON]!
     winMethod: Win_method
-    gameWinnerId: String
-    tossWinnerId: String
     createdAt: String
+    gameEndedAt: String
+    tossWinnerId: String
+    gameWinnerId: String
+    gameLoserId: String
+    winMMR: Int
+    loserMMR: Int
   }
 
   type BingoPlayerRecords {
@@ -121,7 +125,7 @@ export const prismaTypeDefs = gql`
     # bingoPlayerRecords: [BingoPlayerRecords]
     # bingoPlayerRecord(
     #   player1Id: String!
-  #   player2Id: String!
+    #   player2Id: String!
     # ): BingoPlayerRecords
     friendRequests: [FriendRequest]!
     friends(googleId: String!): [FUser]!

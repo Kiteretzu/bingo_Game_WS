@@ -15,14 +15,14 @@ export default function Dashboard() {
     console.log('this is height', rowHeight, "px");
 
     return (
-        <div className="border border-red-500 min-w-full text-white">
+        <div className=" min-w-full text-white">
             <div
-                className="grid border border-lime-500 p-4 md:p-6 grow-0 min-w-[1280px] overflow-hidden animate-gradient-flow grid-cols-3 gap-4"
-                style={{ gridTemplateRows: `repeat(6, ${rowHeight - 18}px)` }}
+                className="grid  p-4 md:p-6 grow-0 min-w-[1280px] overflow-hidden animate-gradient-flow grid-cols-3 gap-4"
+                style={{ gridTemplateRows: `repeat(6, ${rowHeight}px)` }}
             >
                 {/* First row */}
                 <div className="col-span-1 row-span-1 shrink-0 flex min-h-full">
-                    <div className="flex-1 shrink-0 border min-w-0 min-h-full">
+                    <div className="flex-1 shrink-0 min-w-0 min-h-full">
                         <ProfileDashboard />
                     </div>
                 </div>

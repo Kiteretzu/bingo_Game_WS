@@ -31,6 +31,7 @@ interface NewGamePayload {
   gameId: string;
   players: PlayerData[];
   playerGameboardData: PlayerGameboardData[];
+  tossWinner: string;
 }
 
 export class BingoDbManager {
@@ -92,8 +93,15 @@ export class BingoDbManager {
       await client.bingoGame.update({
         where: { gameId: payload.gameId },
         data: {
-          gameWinnerId: { set: payload.winner.id },
+          gameWinner: {
+            connect: { id: payload.winner.id },
+          },
+          gameLoser: {
+            connect: { id: payload.loser.id },
+          },
           winMethod: payload.gameEndMethod,
+          winMMR: payload.winner.winnerMMR.totalWinningPoints,
+          loserMMR: payload.loser.loserMMR.totalLosingPoints,
           gameEndedAt: new Date(),
         },
       });
@@ -241,6 +249,11 @@ export class BingoDbManager {
             connect: payload.players.map((player) => ({
               id: player.user.bingoProfile.id,
             })),
+          },
+          tossWinner: {
+            connect: {
+              id: payload.tossWinner,
+            },
           },
           matchHistory: [],
           gameboards: [

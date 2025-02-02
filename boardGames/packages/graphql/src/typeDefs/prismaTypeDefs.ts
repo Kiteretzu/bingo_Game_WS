@@ -78,6 +78,7 @@ export const prismaTypeDefs = gql`
     winMethod: Win_method
     gameWinnerId: String
     tossWinnerId: String
+    createdAt: String
   }
 
   type BingoPlayerRecords {
@@ -120,11 +121,11 @@ export const prismaTypeDefs = gql`
     # bingoPlayerRecords: [BingoPlayerRecords]
     # bingoPlayerRecord(
     #   player1Id: String!
-    #   player2Id: String!
+  #   player2Id: String!
     # ): BingoPlayerRecords
     friendRequests: [FriendRequest]!
     friends(googleId: String!): [FUser]!
-    getGameHistory(googleId: String!, limit: Int): [BingoGame]!
+    gameHistory(bingoProfileId: String, limit: Int): [BingoGame]!
   }
 
   type Mutation {

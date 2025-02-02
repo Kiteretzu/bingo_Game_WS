@@ -7,14 +7,18 @@ import { BingoGame, BingoProfile, client, User } from "@repo/db/client";
 import { leaderboardService } from "@repo/redis/services";
 import { Friendship } from "@repo/graphql/types/client";
 import { get } from "http";
-import { getBingoProfileByUserId, getFriendsByUserId } from "../dbServices";
+import {
+  getBingoProfileByUserId,
+  getFriendsByUserId,
+  getGameHistoryByBingoId,
+} from "../dbServices";
 
 export const resolvers: Resolvers<CustomContext> = {
   JSON: GraphQLJSON,
   Query: {
     // Fake implementation for fetching the authenticated user
 
-    authUser: async (parent, __, context) => {
+    authUser: async (parent, __, context): Promise<User | null> => {
       try {
         const user = await context.getUser();
         if (!user) {
@@ -28,21 +32,15 @@ export const resolvers: Resolvers<CustomContext> = {
     },
     user: async (parent, args, context) => {
       const { googleId } = args;
+
       if (!googleId) return null;
       const user = (await client.user.findUnique({
         where: {
           googleId,
         },
-        include: {
-          bingoProfile: {
-            include: {
-              gameHistory: true,
-            },
-          },
-        },
       })) as User;
 
-      console.log("this is user", user);
+      console.log("user check1");
 
       if (!user) {
         return null;
@@ -50,49 +48,22 @@ export const resolvers: Resolvers<CustomContext> = {
       return user;
     },
 
-    getGameHistory: async (parent, args, context) => {
-      const { googleId, limit } = args; // Accept a limit argument
-      if (!googleId) return new GraphQLError("Missing Google ID");
+    gameHistory: async (parent, args, context) => {
+      let { bingoProfileId, limit } = args;
+      if (!bingoProfileId) {
+        // not given
+        const user = await context.getUser();
 
-      // Set a default limit if none is provided, e.g., 10
-      const historyLimit = limit || 10;
-
-      const user = (await client.user.findUnique({
-        where: {
-          googleId,
-        },
-        include: {
-          bingoProfile: {
-            include: {
-              gameHistory: {
-                take: historyLimit, // Limit the number of gameHistory records
-                include: {
-                  players: true,
-                },
-                orderBy: {
-                  createdAt: "desc", // Order by createdAt in descending order
-                },
-              },
-            },
-          },
-        },
-      })) as
-        | (User & {
-            bingoProfile: BingoProfile & {
-              gameHistory: BingoGame[] & { players: BingoProfile };
-            };
-          })
-        | null;
-
-      console.log("This is user", user);
-
-      if (!user) {
-        return null;
+        bingoProfileId = user?.bingoProfile.id || "";
+        if (!bingoProfileId) {
+          throw new GraphQLError("Bingo profile ID not found");
+        }
       }
-
-      const gameHistory = user?.bingoProfile?.gameHistory;
-
-      return gameHistory as unknown as BingoGame[];
+      const history = await getGameHistoryByBingoId(
+        bingoProfileId,
+        Number(limit) || 10
+      );
+      return history || [];
     },
 
     // leaderboard
@@ -275,13 +246,13 @@ export const resolvers: Resolvers<CustomContext> = {
   User: {
     bingoProfile: async (parent, args, context) =>
       getBingoProfileByUserId(parent.googleId),
-    friends: async (parent, args, context) => {
-      return getFriendsByUserId(parent.googleId);
-    },
+    friends: async (parent, args, context) =>
+      getFriendsByUserId(parent.googleId),
   },
   BingoProfile: {
-    friends: async (parent, args, context) => {
-      return getFriendsByUserId(parent.userId);
+    gameHistory: async (parent, args, context) => {
+      const history = await getGameHistoryByBingoId(parent.id);
+      return history || [];
     },
   },
 };

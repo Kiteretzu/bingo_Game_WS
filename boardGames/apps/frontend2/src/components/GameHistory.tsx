@@ -2,6 +2,7 @@
 
 import { Clock, Star, TrendingUp, TrendingDown } from "lucide-react";
 import { motion } from "framer-motion";
+import { useGetGameHistoryQuery } from "@repo/graphql/types/client";
 
 type GameResult = {
   id: number;
@@ -99,6 +100,10 @@ const GameCard = ({ game }: { game: GameResult }) => (
 );
 
 export default function GameHistory() {
+  const { data, loading } = useGetGameHistoryQuery();
+
+  console.log('thiis is gameHistory Loading', loading, data);
+
   return (
     <motion.div
       initial={{ opacity: 0 }}

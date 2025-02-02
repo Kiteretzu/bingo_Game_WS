@@ -26,7 +26,6 @@ query getServerPlayerProfile($googleId: String!) {
       wins
       totalMatches
     }
-    
   }
 }
 
@@ -35,6 +34,14 @@ query getLeaderboardPlayers($limit: Int!) {
     id
     mmr
     rank
-    displayName  
+    displayName
+  }
+}
+
+query getGameHistory($bingoProfileId: String, $limit: Int) {
+  gameHistory(bingoProfileId: $bingoProfileId, limit: $limit) {
+    gameId
+    gameWinnerId
+    createdAt
   }
 }

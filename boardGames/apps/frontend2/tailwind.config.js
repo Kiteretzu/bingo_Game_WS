@@ -4,6 +4,9 @@ module.exports = {
 	content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx}"],
 	theme: {
 		extend: {
+			gridTemplateRows: {
+				'vh-6': 'calc(100vh / 6)',
+			},
 			fontFamily: {
 				arimo: [
 					'Arimo',

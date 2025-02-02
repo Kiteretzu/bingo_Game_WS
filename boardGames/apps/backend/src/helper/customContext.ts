@@ -8,7 +8,7 @@ import { verifyToken } from "helper";
 export interface CustomContext {
   req: Request;
   res: Response;
-  getUser: () => Promise<User & BingoProfile | null>;
+  getUser: () => Promise<User &{bingoProfile: BingoProfile} | null>;
   isAuthenticated: () => Promise<boolean>;
   isUnauthenticated: () => Promise<boolean>;
   // authenticate?: <UserObjectType extends {}>(
@@ -70,7 +70,7 @@ export const customContext = ({ req, res }: ContextParams) => {
           bingoProfile: true,
         },
       });
-
+     
 
       if (!user) {
         throw new GraphQLError("User not found", {

@@ -16,7 +16,7 @@ export default function ProfileDashboard() {
   return (
     <div
       className={clsx(
-        "bg-gray-800 w-full  border border-gray-500/25 p-1 px-3 rounded-lg overflow-hidden shadow-lg h-full flex items-start justify-center flex-col space-y-6 relative ",
+        "bg-gray-800 w-full min-h-full shrink-0  border border-gray-500/25 p-1 px-3 rounded-lg overflow-hidden shadow-lg flex items-start justify-center flex-col space-y-6 relative ",
         {
           "cursor-pointer hover:scale-105 duration-200": isLoggedIn, // Hover effect is applied only if logged in
           "cursor-default": !isLoggedIn, // Disable pointer cursor when not logged in

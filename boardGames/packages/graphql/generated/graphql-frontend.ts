@@ -20,6 +20,7 @@ export type Scalars = {
 
 export type BingoGame = {
   __typename?: 'BingoGame';
+  createdAt?: Maybe<Scalars['String']['output']>;
   gameId: Scalars['String']['output'];
   gameWinnerId?: Maybe<Scalars['String']['output']>;
   gameboards: Array<Maybe<Scalars['JSON']['output']>>;
@@ -157,7 +158,7 @@ export type Query = {
   authUser?: Maybe<User>;
   friendRequests: Array<Maybe<FriendRequest>>;
   friends: Array<Maybe<FUser>>;
-  getGameHistory: Array<Maybe<BingoGame>>;
+  gameHistory: Array<Maybe<BingoGame>>;
   leaderboard: Array<LeaderboardEntry>;
   user?: Maybe<User>;
 };
@@ -168,8 +169,8 @@ export type QueryFriendsArgs = {
 };
 
 
-export type QueryGetGameHistoryArgs = {
-  googleId: Scalars['String']['input'];
+export type QueryGameHistoryArgs = {
+  bingoProfileId?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -220,6 +221,14 @@ export type GetLeaderboardPlayersQueryVariables = Exact<{
 
 
 export type GetLeaderboardPlayersQuery = { __typename?: 'Query', leaderboard: Array<{ __typename?: 'LeaderboardEntry', id: string, mmr: number, rank: number, displayName: string }> };
+
+export type GetGameHistoryQueryVariables = Exact<{
+  bingoProfileId?: InputMaybe<Scalars['String']['input']>;
+  limit?: InputMaybe<Scalars['Int']['input']>;
+}>;
+
+
+export type GetGameHistoryQuery = { __typename?: 'Query', gameHistory: Array<{ __typename?: 'BingoGame', gameId: string, gameWinnerId?: string | null, createdAt?: string | null } | null> };
 
 
 export const GetAuthProfileDocument = gql`
@@ -363,3 +372,46 @@ export type GetLeaderboardPlayersQueryHookResult = ReturnType<typeof useGetLeade
 export type GetLeaderboardPlayersLazyQueryHookResult = ReturnType<typeof useGetLeaderboardPlayersLazyQuery>;
 export type GetLeaderboardPlayersSuspenseQueryHookResult = ReturnType<typeof useGetLeaderboardPlayersSuspenseQuery>;
 export type GetLeaderboardPlayersQueryResult = Apollo.QueryResult<GetLeaderboardPlayersQuery, GetLeaderboardPlayersQueryVariables>;
+export const GetGameHistoryDocument = gql`
+    query getGameHistory($bingoProfileId: String, $limit: Int) {
+  gameHistory(bingoProfileId: $bingoProfileId, limit: $limit) {
+    gameId
+    gameWinnerId
+    createdAt
+  }
+}
+    `;
+
+/**
+ * __useGetGameHistoryQuery__
+ *
+ * To run a query within a React component, call `useGetGameHistoryQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetGameHistoryQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetGameHistoryQuery({
+ *   variables: {
+ *      bingoProfileId: // value for 'bingoProfileId'
+ *      limit: // value for 'limit'
+ *   },
+ * });
+ */
+export function useGetGameHistoryQuery(baseOptions?: Apollo.QueryHookOptions<GetGameHistoryQuery, GetGameHistoryQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetGameHistoryQuery, GetGameHistoryQueryVariables>(GetGameHistoryDocument, options);
+      }
+export function useGetGameHistoryLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetGameHistoryQuery, GetGameHistoryQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetGameHistoryQuery, GetGameHistoryQueryVariables>(GetGameHistoryDocument, options);
+        }
+export function useGetGameHistorySuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetGameHistoryQuery, GetGameHistoryQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetGameHistoryQuery, GetGameHistoryQueryVariables>(GetGameHistoryDocument, options);
+        }
+export type GetGameHistoryQueryHookResult = ReturnType<typeof useGetGameHistoryQuery>;
+export type GetGameHistoryLazyQueryHookResult = ReturnType<typeof useGetGameHistoryLazyQuery>;
+export type GetGameHistorySuspenseQueryHookResult = ReturnType<typeof useGetGameHistorySuspenseQuery>;
+export type GetGameHistoryQueryResult = Apollo.QueryResult<GetGameHistoryQuery, GetGameHistoryQueryVariables>;

@@ -19,6 +19,7 @@ export type Scalars = {
 
 export type BingoGame = {
   __typename?: 'BingoGame';
+  createdAt?: Maybe<Scalars['String']['output']>;
   gameId: Scalars['String']['output'];
   gameWinnerId?: Maybe<Scalars['String']['output']>;
   gameboards: Array<Maybe<Scalars['JSON']['output']>>;
@@ -156,7 +157,7 @@ export type Query = {
   authUser?: Maybe<User>;
   friendRequests: Array<Maybe<FriendRequest>>;
   friends: Array<Maybe<FUser>>;
-  getGameHistory: Array<Maybe<BingoGame>>;
+  gameHistory: Array<Maybe<BingoGame>>;
   leaderboard: Array<LeaderboardEntry>;
   user?: Maybe<User>;
 };
@@ -167,8 +168,8 @@ export type QueryFriendsArgs = {
 };
 
 
-export type QueryGetGameHistoryArgs = {
-  googleId: Scalars['String']['input'];
+export type QueryGameHistoryArgs = {
+  bingoProfileId?: InputMaybe<Scalars['String']['input']>;
   limit?: InputMaybe<Scalars['Int']['input']>;
 };
 
@@ -313,6 +314,7 @@ export type ResolversParentTypes = {
 };
 
 export type BingoGameResolvers<ContextType = any, ParentType extends ResolversParentTypes['BingoGame'] = ResolversParentTypes['BingoGame']> = {
+  createdAt?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   gameId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   gameWinnerId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   gameboards?: Resolver<Array<Maybe<ResolversTypes['JSON']>>, ParentType, ContextType>;
@@ -409,7 +411,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   authUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   friendRequests?: Resolver<Array<Maybe<ResolversTypes['FriendRequest']>>, ParentType, ContextType>;
   friends?: Resolver<Array<Maybe<ResolversTypes['FUser']>>, ParentType, ContextType, RequireFields<QueryFriendsArgs, 'googleId'>>;
-  getGameHistory?: Resolver<Array<Maybe<ResolversTypes['BingoGame']>>, ParentType, ContextType, RequireFields<QueryGetGameHistoryArgs, 'googleId'>>;
+  gameHistory?: Resolver<Array<Maybe<ResolversTypes['BingoGame']>>, ParentType, ContextType, Partial<QueryGameHistoryArgs>>;
   leaderboard?: Resolver<Array<ResolversTypes['LeaderboardEntry']>, ParentType, ContextType, RequireFields<QueryLeaderboardArgs, 'limit'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'googleId'>>;
 };

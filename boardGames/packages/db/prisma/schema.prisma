@@ -65,11 +65,14 @@ model BingoProfile {
   mmr                 Int                  @default(0)
   league              Leagues              @default(BRONZE)
   preferredBoards     Json[]
-  gameHistory         BingoGame[]          @relation("GamePlayers")
   userId              String               @unique
+  gameHistory         BingoGame[]          @relation("GamePlayers")
   User                User                 @relation(fields: [userId], references: [googleId])
   recordsAsPlayer1    BingoPlayerRecords[] @relation("PlayerOneRecords")
   recordsAsPlayer2    BingoPlayerRecords[] @relation("PlayerTwoRecords")
+  gameWinner          BingoGame[]          @relation("GameWinner")
+  tossWinner          BingoGame[]          @relation("GameTossWinner")
+  gameLoser           BingoGame[]          @relation("GameLoser")
 }
 
 enum BingoGameTier {
@@ -89,6 +92,13 @@ model BingoGame {
   winMethod    Win_method?
   gameWinnerId String?
   tossWinnerId String?
+  gameLoserId  String?
+  winMMR     Int?
+  loserMMR Int?
+  gameWinner  BingoProfile? @relation("GameWinner", fields: [gameWinnerId], references: [id])
+  tossWinner  BingoProfile? @relation("GameTossWinner", fields: [tossWinnerId], references: [id])
+  gameLoser   BingoProfile? @relation("GameLoser", fields: [gameLoserId], references: [id])
+  gameEndedAt DateTime?       
   createdAt    DateTime       @default(now())
 }
 

@@ -21,6 +21,8 @@ import {
   GET_RECONNECT,
   PAYLOAD_GET_RECONNECT,
   GET_REFRESH,
+  PUT_CHALLENGE,
+  GET_CHALLENGE,
 } from "@repo/games/mechanics";
 import {
   MessageType,
@@ -44,7 +46,7 @@ function useBingo() {
     goals: state.bingo.goals,
     matchHistory: state.bingo.matchHistory,
     tossWinner: state.bingo.game.tossWinner,
-    bingoProfileId: state.profile.bingoProfile.id,
+    bingoProfileId: state.profile.bingoProfile?.id,
   }));
 
   const dispatch = useAppDispatch();
@@ -185,6 +187,9 @@ function useBingo() {
           window.location.reload();
 
           break;
+        }
+        case GET_CHALLENGE: {
+          console.log("get challenged");
         }
       }
     };

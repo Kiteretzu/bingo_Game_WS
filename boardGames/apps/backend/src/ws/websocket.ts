@@ -1,5 +1,5 @@
 import { WebSocketServer, WebSocket } from "ws";
-import { GameManager } from "./GameManager";
+import { gameManager  } from "./GameManager";
 import { v4 as uuidv4 } from "uuid";
 import { Server } from "http";
 import { CustomError } from "../helper/customError"; // Assuming CustomError class is defined
@@ -10,12 +10,10 @@ import { verifyToken } from "helper";
 
 
 let wss: WebSocketServer;
-let clients = new Map<string, WebSocket>(); // Use Map for better performance
 
 // Create WebSocket Server Logic
 export function setupWebSocket(server: Server): void {
   wss = new WebSocketServer({ server });
-  const gameManager = new GameManager();
 
   wss.on("connection", (ws: WebSocket, req) => {
     const token = new URLSearchParams(req.url?.split("?")[1]).get("token");
@@ -37,7 +35,7 @@ export function setupWebSocket(server: Server): void {
       if(gameManager.isUserReconnecting(googleId)) gameManager.reconnectToGame(googleId, ws);
       
       // Add the client to the map and game manager
-      gameManager.addUser(ws);
+      gameManager.addUser(googleId, ws);
 
       ws.send(`You have been successfully connected`);
 
@@ -46,8 +44,7 @@ export function setupWebSocket(server: Server): void {
       });
 
       ws.on("close", () => {
-        clients.delete(googleId);
-        gameManager.removeUser(ws);
+        gameManager.removeUser(googleId);
         console.log(`Client disconnected. ID: ${googleId}`);
       });
     } catch (error) {

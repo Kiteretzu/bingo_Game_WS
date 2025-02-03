@@ -82,6 +82,7 @@ export enum MessageType {
   PUT_RESIGN = "put_resign",
   PUT_TOSS_DECISION = "put_toss_decision",
   PUT_SEND_EMOTE = "put_send_emote",
+  PUT_CHALLENGE = "put_challange",
   // all get
   GET_RESPONSE = "get_server_response",
   GET_GAME = "get_game",
@@ -93,6 +94,7 @@ export enum MessageType {
   GET_RECIEVE_EMOTE = "get_recieve_emote",
   GET_RECONNECT = "get_reconnect",
   GET_REFRESH = "get_refresh",
+  GET_CHALLENGE = "get_challange",
   // consideration
   // GET_GAME_ID = "get_game_id",
   // GET_GAMEBOARD = "send_game_board",
@@ -119,7 +121,8 @@ export const PUT_TOSS_DECISION = MessageType.PUT_TOSS_DECISION;
 export const GET_UPDATED_GAME = MessageType.GET_UPDATED_GAME;
 export const GET_RECONNECT = MessageType.GET_RECONNECT;
 export const GET_REFRESH = MessageType.GET_REFRESH;
-
+export const PUT_CHALLENGE = MessageType.PUT_CHALLENGE;
+export const GET_CHALLENGE = MessageType.GET_CHALLENGE;
 
 // Data interface for the message data
 export interface DATA {
@@ -142,8 +145,25 @@ export interface PAYLOAD_GET_RECONNECT {
   payload: PAYLOAD_GET_GAME["payload"];
 }
 
+export type ChallangeSchema = {
+  challangeId: string;
+  senderId: string;
+  receiverId: string;
+  gameName: "BINGO";
+  status: "PENDING" | "ACCEPTED" | "REJECTED";
+  matchTier: "A" | "B" | "C" | "D" | "E";
+  createdAt: number;
+};
 
+export interface PAYLOAD_PUT_CHALLENGE {
+  type: MessageType.PUT_CHALLENGE;
+  payload: ChallangeSchema;
+}
 
+export interface PAYLOAD_GET_CHALLENGE {
+  type: MessageType.GET_CHALLENGE;
+  payload: ChallangeSchema;
+}
 
 export interface PAYLOAD_GET_RESPONSE {
   type: MessageType.GET_RESPONSE;
@@ -190,8 +210,6 @@ export interface PAYLOAD_GET_LOST {
     data: LoserMMR | null;
   };
 }
-
-
 
 export interface PAYLOAD_PUT_SEND_EMOTE {
   type: MessageType.PUT_SEND_EMOTE;
@@ -265,9 +283,9 @@ interface PlayerProfile {
   id: string;
   mmr: number;
   league: string | null;
-  wins: number
-  losses: number
-  totalMatches: number
+  wins: number;
+  losses: number;
+  totalMatches: number;
 }
 
 export interface PlayerData {
@@ -311,7 +329,7 @@ export type WinnerMMR = {
 export type LoserMMR = {
   totalLosingPoints: number;
   baseLosingPoints: number;
-}
+};
 
 export interface EndGame {
   winner: {

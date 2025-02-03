@@ -20,7 +20,7 @@ model User {
   friendshipsAsUser2 Friendship[]    @relation("FriendshipsUser2")
 }
 
-enum FriendRequestStatus {
+enum RequestStatus {
   PENDING
   ACCEPTED
   REJECTED
@@ -30,7 +30,7 @@ model FriendRequest {
   id         String              @id @default(cuid())
   senderId   String
   receiverId String
-  status     FriendRequestStatus @default(PENDING)
+  status     RequestStatus @default(PENDING)
   createdAt  DateTime            @default(now())
   updatedAt  DateTime            @default(now())
   sender     User                @relation("SentRequests", fields: [senderId], references: [googleId])
@@ -38,6 +38,7 @@ model FriendRequest {
 
   @@unique([senderId, receiverId])
 }
+
 
 model Friendship {
   id        String   @id @default(cuid())

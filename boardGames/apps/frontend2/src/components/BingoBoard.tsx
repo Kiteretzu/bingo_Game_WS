@@ -1,14 +1,14 @@
 import React from 'react'
 import Cross from './CssComponents/Cross'
 import useBingo from '@/hooks/useBingo'
-import { Box, BoxesName, BoxesValue } from '@repo/games/client/bingo/messages'
 import { Card, CardContent } from '@/components/ui/card'
 import { obj } from '@/dummyTests/gameBoard'
+import { Box, BoxesName, BoxesValue } from '@repo/games/mechanics'
 
 function GameBoard() {
   const { addCheck, checkedBoxes, gameBoard, checkedLines } = useBingo()
 
-  
+
 
   const handleAddCheck = (e: React.MouseEvent<HTMLDivElement>) => {
     const boxValue = e.currentTarget.dataset.boxValue
@@ -34,7 +34,7 @@ function GameBoard() {
                 onClick={isChecked ? undefined : handleAddCheck}
                 className={`
                   rounded-lg h-20 text-2xl font-bold flex items-center justify-center relative
-                  transition-all duration-300 ease-in-out transform hover:scale-105
+                  transition-all duration-300 select-none ease-in-out transform hover:scale-105
                   ${isChecked
                     ? isInLineData
                       ? "bg-green-500/80 cursor-not-allowed text-white"

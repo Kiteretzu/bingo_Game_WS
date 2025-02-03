@@ -18,52 +18,54 @@ import {
   PUT_SEND_EMOTE,
   PAYLOAD_PUT_SEND_EMOTE,
   GameBoard,
+  PAYLOAD_PUT_CHALLENGE,
+  ChallangeSchema,
+  PUT_CHALLENGE,
+  GET_CHALLENGE,
 } from "@repo/games/mechanics";
 import { amazing, getPlayerData } from "../helper/";
 import { redis_newGame } from "@repo/redis/helper";
 import { gameServices } from "@repo/redis/services";
+import { Socket } from "dgram";
 
 type GameId = string;
 type UserId = string;
 
 export class GameManager {
-  getInstance() {
-    return this;
-  }
   // just redis it
+  private static readonly instance: GameManager = new GameManager();
   private games: Map<GameId, Game>; // Number of games going on
   private usersToGames: Map<UserId, GameId>; // Map of user to game
   private pendingPlayer: WebSocket | null; // Player 1
-  private users: WebSocket[]; // All the existing users playing games
   private pendingPlayerData: PlayerData | null;
-  private static instance: GameManager;
+  private challangedGames: Map<string, ChallangeSchema>;
+  private users: Map<UserId, WebSocket>; // Use Map for better performance
 
-  public static getInstance() {
-    if (!GameManager.instance) {
-      GameManager.instance = new GameManager();
-    }
+  public static getInstance(): GameManager {
     return GameManager.instance;
   }
 
   constructor() {
     this.pendingPlayer = null;
-    this.users = [];
     this.pendingPlayerData = null;
     this.games = new Map();
     this.usersToGames = new Map();
+    this.challangedGames = new Map();
+    this.users = new Map();
     this.setUpDataFromRedis();
+    //
   }
 
   removeGame(gameId: string) {
     this.games.delete(gameId);
   }
-removeUserToGame(gameId: string) {
-  for (const [userId, game_Id] of this.usersToGames.entries()) {
-    if (game_Id === gameId) {
-      this.usersToGames.delete(userId);
+  removeUserToGame(gameId: string) {
+    for (const [userId, game_Id] of this.usersToGames.entries()) {
+      if (game_Id === gameId) {
+        this.usersToGames.delete(userId);
+      }
     }
   }
-}
   async setUpDataFromRedis() {
     // get all games from redis
     console.log("HELLOWW!!!!");
@@ -139,13 +141,13 @@ removeUserToGame(gameId: string) {
     }
   }
 
-  addUser(socket: WebSocket) {
-    this.users.push(socket);
+  addUser(googleId: string, socket: WebSocket) {
+    this.users.set(googleId, socket);
     this.addHandler(socket);
   }
 
-  removeUser(socket: WebSocket) {
-    this.users = this.users.filter((user) => user !== socket);
+  removeUser(googleId: string) {
+    this.users.delete(googleId);
   }
 
   private addHandler(socket: WebSocket) {
@@ -210,7 +212,7 @@ removeUserToGame(gameId: string) {
 
           case PUT_CANCEL_GAME_INIT: {
             console.log("working 🤨");
-            const user = this.users.find((user) => user !== socket);
+            const user = this.users.get(this.pendingPlayerData!.user.googleId);
             if (user) {
               this.pendingPlayer = null;
               this.pendingPlayerData = null;
@@ -290,6 +292,19 @@ removeUserToGame(gameId: string) {
             break;
           }
 
+          case PUT_CHALLENGE: {
+            const data = message as PAYLOAD_PUT_CHALLENGE;
+            data.payload.challangeId = uuidv4();
+            this.challangedGames.set(data.payload.challangeId, data.payload);
+
+            const receiverSocket = this.users.get(data.payload.receiverId);
+            if (!receiverSocket) {
+              socket.send("User not online");
+              return;
+            }
+            sendPayload(receiverSocket, GET_CHALLENGE, data.payload);
+          }
+
           default:
             socket.send("Unknown message type");
         }
@@ -300,3 +315,5 @@ removeUserToGame(gameId: string) {
     });
   }
 }
+
+export const gameManager = GameManager.getInstance();

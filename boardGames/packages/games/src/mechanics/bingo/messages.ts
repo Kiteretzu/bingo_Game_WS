@@ -145,7 +145,7 @@ export interface PAYLOAD_GET_RECONNECT {
   payload: PAYLOAD_GET_GAME["payload"];
 }
 
-export type ChallangeSchema = {
+export type ChallengeSchema = {
   challangeId: string;
   senderId: string;
   receiverId: string;
@@ -157,12 +157,12 @@ export type ChallangeSchema = {
 
 export interface PAYLOAD_PUT_CHALLENGE {
   type: MessageType.PUT_CHALLENGE;
-  payload: ChallangeSchema;
+  payload: ChallengeSchema;
 }
 
 export interface PAYLOAD_GET_CHALLENGE {
   type: MessageType.GET_CHALLENGE;
-  payload: ChallangeSchema;
+  payload: ChallengeSchema;
 }
 
 export interface PAYLOAD_GET_RESPONSE {
@@ -171,6 +171,7 @@ export interface PAYLOAD_GET_RESPONSE {
     message: string;
   };
 }
+
 export enum GoalType {
   FIRST_BLOOD = "First blood",
   DOUBLE_KILL = "Double Kill",

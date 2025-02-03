@@ -190,6 +190,7 @@ function useBingo() {
         }
         case GET_CHALLENGE: {
           console.log("get challenged");
+          
         }
       }
     };

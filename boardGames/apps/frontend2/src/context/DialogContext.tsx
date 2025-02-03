@@ -34,6 +34,7 @@ const DialogContextProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const [isLost, setIsLost] = useState(false);
     const [lostData, setLostData] = useState<any>(null); // Replace `any` with a specific type.
     const [emote, setEmote] = useState<string>("");
+    
 
     return (
         <DialogContext.Provider

@@ -63,7 +63,7 @@ const GameCard = ({ game }: { game: GameResult }) => (
 );
 
 export default function GameHistory() {
-  const { data, loading, refetch } = useGetGameHistoryQuery({
+  const { data, loading,  } = useGetGameHistoryQuery({
     fetchPolicy: "network-only", // Always fetch fresh data
     notifyOnNetworkStatusChange: true, // Update UI when fetching
   });

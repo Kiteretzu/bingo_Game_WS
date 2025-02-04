@@ -7,7 +7,7 @@ import {
   PlayerGameboardData,
 } from "../../games/src/mechanics/bingo/messages";
 
-export const QUEUE_NAME = "game-requests";
+export const QUEUE_NAME = "db-requests";
 
 export interface REDIS_PAYLOAD_END_GAME {
   type: "end-game";

@@ -24,9 +24,10 @@ import {
   GET_CHALLENGE,
   PUT_ADD_FRIEND,
   PAYLOAD_PUT_ADD_FRIEND,
+  GET_ADD_FRIEND,
 } from "@repo/games/mechanics";
 import { amazing, getPlayerData } from "../helper/";
-import { redis_newGame } from "@repo/redis/helper";
+import { redis_newGame, redis_sentFriendRequest } from "@repo/redis/helper";
 import { gameServices } from "@repo/redis/services";
 import { Socket } from "dgram";
 
@@ -37,11 +38,12 @@ export class GameManager {
   // just redis it
   private static readonly instance: GameManager = new GameManager();
   private games: Map<GameId, Game>; // Number of games going on
-  private usersToGames: Map<UserId, GameId>; // Map of user to game
   private pendingPlayer: WebSocket | null; // Player 1
   private pendingPlayerData: PlayerData | null;
   private challangedGames: Map<string, ChallengeSchema>;
+  private usersToGames: Map<UserId, GameId>; // Map of user to game
   private users: Map<UserId, WebSocket>; // Use Map for better performance
+  private socketToUserId: Map<WebSocket, UserId>;
 
   public static getInstance(): GameManager {
     return GameManager.instance;
@@ -54,6 +56,7 @@ export class GameManager {
     this.usersToGames = new Map();
     this.challangedGames = new Map();
     this.users = new Map();
+    this.socketToUserId = new Map();
     this.setUpDataFromRedis();
     //
   }
@@ -145,11 +148,25 @@ export class GameManager {
 
   addUser(googleId: string, socket: WebSocket) {
     this.users.set(googleId, socket);
+    this.socketToUserId.set(socket, googleId);
+
     this.addHandler(socket);
   }
 
   removeUser(googleId: string) {
+    const socket = this.users.get(googleId);
+    if (socket) {
+      this.socketToUserId.delete(socket);
+    }
     this.users.delete(googleId);
+  }
+
+  getUserId(socket: WebSocket): UserId | undefined {
+    return this.socketToUserId.get(socket);
+  }
+
+  getSocket(userId: UserId): WebSocket | undefined {
+    return this.users.get(userId);
   }
 
   private addHandler(socket: WebSocket) {
@@ -309,15 +326,22 @@ export class GameManager {
           }
 
           case PUT_ADD_FRIEND: {
-            console.log("this is here");
             const data = message as PAYLOAD_PUT_ADD_FRIEND;
+            const fromGoogleId = this.getUserId(socket); // this will def come
+            console.log("this is fromUserGoogleId", fromGoogleId);
+            // save to DB
+            redis_sentFriendRequest({ 
+              from: fromGoogleId!,
+              to: data.payload.userId,
+            });
+
             const receiverSocket = this.users.get(data.payload.userId);
             // tell redis to sent request in db
             if (!receiverSocket) {
               socket.send("User not online");
               return;
             }
-            sendPayload(receiverSocket, PUT_ADD_FRIEND, data.payload);
+            sendPayload(receiverSocket, GET_ADD_FRIEND, data.payload);
             break;
           }
           default:

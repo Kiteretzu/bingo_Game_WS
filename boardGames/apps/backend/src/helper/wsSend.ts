@@ -14,6 +14,8 @@ import {
   GET_RECONNECT,
   GET_RECIEVE_EMOTE,
   PAYLOAD_GET_RECONNECT,
+  GET_ADD_FRIEND,
+  PAYLOAD_GET_ADD_FRIEND,
 } from "@repo/games/mechanics";
 import { WebSocket } from "ws";
 
@@ -23,6 +25,7 @@ export function sendPayload(
   data?: any
 ): void {
   switch (type) {
+    
     case GET_RESPONSE: {
       to.send(
         JSON.stringify({
@@ -89,6 +92,10 @@ export function sendPayload(
     case GET_RECONNECT: {
       to.send(JSON.stringify(data as PAYLOAD_GET_RECONNECT));
       break;
+    }
+
+    case GET_ADD_FRIEND: {
+      to.send(JSON.stringify(data as PAYLOAD_GET_ADD_FRIEND));
     }
   }
 }

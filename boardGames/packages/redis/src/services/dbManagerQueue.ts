@@ -26,7 +26,7 @@ interface GameRequest {
   payload: any;
 }
 
-export class BingoDbManager {
+export class DbManagerQueue {
   private client: RedisClientType = redisClient;
   private queueName = QUEUE_NAME;
 
@@ -82,6 +82,7 @@ export class BingoDbManager {
 
   private async handleEndGame(payload: REDIS_PAYLOAD_END_GAME["payload"]) {
     try {
+      console.log("this is THEP PROBLEM IN handleEndGame");
       await client.$transaction(async (tx) => {
         // 1. Update game record
         const updatedGame = await tx.bingoGame.update({
@@ -231,6 +232,8 @@ export class BingoDbManager {
 
   private async handleNewGame(payload: REDIS_PAYLOAD_NewGame["payload"]) {
     try {
+      console.log("this is THEP PROBLEM IN handleNewGame");
+
       await client.$transaction(async (tx) => {
         // Create game
         const game = await tx.bingoGame.create({
@@ -283,7 +286,7 @@ export class BingoDbManager {
           },
           update: {},
         });
-      });
+      }, {timeout: 10000});
 
       console.log(`Created new game: ${payload.gameId}`);
     } catch (error) {
@@ -317,6 +320,7 @@ export class BingoDbManager {
   private async handleFriendRequests(
     payload: REDIS_PAYLOAD_SentFriendRequest["payload"]
   ) {
+    console.log("inside redis FriendRequests");
     try {
       const data = await client.friendRequest.create({
         data: {

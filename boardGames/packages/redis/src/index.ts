@@ -1,8 +1,8 @@
 import { client } from "@repo/db/client";
 import { createClient, RedisClientType } from "redis";
-import { BingoDbManager } from "./services/bingoDbManager";
+import { DbManagerQueue } from "./services/dbManagerQueue";
 
-const redisClient : RedisClientType = createClient({
+const redisClient: RedisClientType = createClient({
   url: process.env.REDIS_URL || "redis://localhost:6379",
 });
 
@@ -30,9 +30,9 @@ process.on("SIGINT", async () => {
 
 async function startApp() {
   await connectToRedis(); // Ensure Redis is ready
-  const BingoManager = new BingoDbManager();
+  const dbManagerQueue = new DbManagerQueue();
   try {
-    await BingoManager.processRequests();
+    await dbManagerQueue.processRequests();
   } catch (err) {
     console.error("Unexpected error:", err);
     process.exit(1);

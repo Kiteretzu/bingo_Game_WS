@@ -28,6 +28,7 @@ import {
   PAYLOAD_PUT_GAME_INIT,
   BoxesValue,
   PAYLOAD_PUT_SEND_EMOTE,
+  GET_ADD_FRIEND,
 } from "@repo/games/mechanics";
 import {
   MessageType,
@@ -118,11 +119,12 @@ function useBingo() {
 
     socket.onmessage = (message: MessageEvent) => {
       const parsedMessage = JSON.parse(message.data);
+      console.log("this is parsed onMessage", parsedMessage);
       switch (parsedMessage.type as MessageType) {
         case GET_RESPONSE: {
           const data = parsedMessage as PAYLOAD_GET_RESPONSE;
           setResponse(data.payload.message);
-          console.log("kuch toh aara ha", data.payload.message);
+          console.log("RESPONSE:", data.payload.message);
           if (data.payload.message === "Ping") {
             socket.send(
               JSON.stringify({
@@ -133,7 +135,6 @@ function useBingo() {
           }
           break;
         }
-
         case GET_GAME: {
           const data = parsedMessage as PAYLOAD_GET_GAME;
           setIsFinding(false);
@@ -143,13 +144,11 @@ function useBingo() {
           setIsReconnectGame(true);
           break;
         }
-
         case GET_CHECK_MARK: {
           const data = parsedMessage as PAYLOAD_PUT_GET_CHECK_MARK;
           lastValue = data.payload.value; // i think bug state here
           break;
         }
-
         case GET_VICTORY: {
           const data = parsedMessage as PAYLOAD_GET_VICTORY;
           setVictoryData(data.payload);
@@ -158,7 +157,6 @@ function useBingo() {
           client.refetchQueries({ include: [GetGameHistoryDocument] });
           break;
         }
-
         case GET_LOST: {
           const data = parsedMessage as PAYLOAD_GET_LOST;
           setLostData(data.payload);
@@ -170,7 +168,6 @@ function useBingo() {
 
           break;
         }
-
         case GET_RECIEVE_EMOTE: {
           const data = parsedMessage as PAYLOAD_GET_RECIEVE_EMOTE;
           setEmote(data.payload.emote);
@@ -199,6 +196,12 @@ function useBingo() {
         }
         case GET_CHALLENGE: {
           console.log("get challenged");
+          break;
+        }
+        case GET_ADD_FRIEND: {
+          // show at realTime of ui!
+          console.log("get add friend");
+          break;
         }
       }
     };

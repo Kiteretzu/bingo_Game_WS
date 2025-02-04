@@ -24,6 +24,7 @@ export const resolvers: Resolvers<CustomContext> = {
         if (!user) {
           return null;
         }
+        
         return user;
       } catch (error) {
         console.error("Error in authUser", error);

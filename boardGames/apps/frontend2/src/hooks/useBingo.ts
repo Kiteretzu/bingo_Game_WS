@@ -23,6 +23,11 @@ import {
   GET_REFRESH,
   PUT_CHALLENGE,
   GET_CHALLENGE,
+  PAYLOAD_PUT_ADD_FRIEND,
+  PUT_ADD_FRIEND,
+  PAYLOAD_PUT_GAME_INIT,
+  BoxesValue,
+  PAYLOAD_PUT_SEND_EMOTE,
 } from "@repo/games/mechanics";
 import {
   MessageType,
@@ -70,11 +75,11 @@ function useBingo() {
     setVictoryData,
     victoryData,
     emote,
-    isOpenChallenge,  
+    isOpenChallenge,
     setIsOpenChallenge,
     setEmote,
     isOpenAddFriend,
-    setIsOpenAddFriend
+    setIsOpenAddFriend,
   } = useDialogContext();
   // Sync Redux state for game-related logic
   const gameId = bingoState.gameId;
@@ -194,7 +199,6 @@ function useBingo() {
         }
         case GET_CHALLENGE: {
           console.log("get challenged");
-          
         }
       }
     };
@@ -203,7 +207,10 @@ function useBingo() {
   const findMatch = () => {
     setIsFinding(true);
     const token = localStorage.getItem("auth-token");
-    sendData(PUT_GAME_INIT, { token });
+    if (token) {
+      const data: PAYLOAD_PUT_GAME_INIT["payload"] = { token }; // it must come from authenticated user that it is not jwt expired
+      sendData(PUT_GAME_INIT, data);
+    }
   };
 
   const cancelFindMatch = () => {
@@ -211,17 +218,24 @@ function useBingo() {
     sendData(PUT_CANCEL_GAME_INIT, {});
   };
 
-  const addCheck = (value: string) => {
-    sendData(PUT_CHECK_MARK, { gameId, value });
+  const addCheck = (value: BoxesValue) => {
+    const data: PAYLOAD_PUT_GET_CHECK_MARK["payload"] = { gameId, value };
+    sendData(PUT_CHECK_MARK, data);
   };
 
   const sendEmote = (emote: string) => {
-    sendData(PUT_SEND_EMOTE, { gameId, emote });
+    const data: PAYLOAD_PUT_SEND_EMOTE["payload"] = { gameId, emote };
+    sendData(PUT_SEND_EMOTE, data);
   };
 
   const sendResign = () => {
     const data: PAYLOAD_PUT_RESIGN["payload"] = { gameId };
     sendData(PUT_RESIGN, data);
+  };
+
+  const handleAddFriend = (userId: string) => {
+    const data: PAYLOAD_PUT_ADD_FRIEND["payload"] = { userId }; // maybe in future userId to be number
+    sendData(PUT_ADD_FRIEND, data);
   };
 
   return {
@@ -249,6 +263,7 @@ function useBingo() {
     lostData,
     socket,
     isReconnectGame,
+    handleAddFriend,
     setIsReconnectGame,
     setIsVictory, // for dialog
     setIsLost, // for dialog
@@ -261,7 +276,7 @@ function useBingo() {
     isOpenChallenge,
     setIsOpenChallenge,
     isOpenAddFriend,
-    setIsOpenAddFriend
+    setIsOpenAddFriend,
   };
 }
 

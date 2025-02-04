@@ -9,16 +9,16 @@ import { Loader } from "./components/Loader";
 function App() {
   const { data, loading } = useGetAuthProfileQuery()
   const dispatch = useAppDispatch()
-  console.log('New', data, loading)
+  console.log('New', data?.authUser?.googleId, loading)
   useEffect(() => {
     dispatch(initialize(data))
   }, [data])
-  if (loading) return <Loader/>
+  if (loading) return <Loader />
   return (
     <>
       <SocketContextProvider>
         <DialogContextProvider>
-        <AppRoutes />
+          <AppRoutes />
         </DialogContextProvider>
       </SocketContextProvider>
     </>

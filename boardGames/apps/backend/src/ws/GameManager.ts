@@ -19,9 +19,11 @@ import {
   PAYLOAD_PUT_SEND_EMOTE,
   GameBoard,
   PAYLOAD_PUT_CHALLENGE,
-  ChallangeSchema,
+  ChallengeSchema,
   PUT_CHALLENGE,
   GET_CHALLENGE,
+  PUT_ADD_FRIEND,
+  PAYLOAD_PUT_ADD_FRIEND,
 } from "@repo/games/mechanics";
 import { amazing, getPlayerData } from "../helper/";
 import { redis_newGame } from "@repo/redis/helper";
@@ -38,7 +40,7 @@ export class GameManager {
   private usersToGames: Map<UserId, GameId>; // Map of user to game
   private pendingPlayer: WebSocket | null; // Player 1
   private pendingPlayerData: PlayerData | null;
-  private challangedGames: Map<string, ChallangeSchema>;
+  private challangedGames: Map<string, ChallengeSchema>;
   private users: Map<UserId, WebSocket>; // Use Map for better performance
 
   public static getInstance(): GameManager {
@@ -291,7 +293,7 @@ export class GameManager {
             }
             break;
           }
-
+          // test Pending
           case PUT_CHALLENGE: {
             const data = message as PAYLOAD_PUT_CHALLENGE;
             data.payload.challangeId = uuidv4();
@@ -303,8 +305,21 @@ export class GameManager {
               return;
             }
             sendPayload(receiverSocket, GET_CHALLENGE, data.payload);
+            break;
           }
 
+          case PUT_ADD_FRIEND: {
+            console.log("this is here");
+            const data = message as PAYLOAD_PUT_ADD_FRIEND;
+            const receiverSocket = this.users.get(data.payload.userId);
+            // tell redis to sent request in db
+            if (!receiverSocket) {
+              socket.send("User not online");
+              return;
+            }
+            sendPayload(receiverSocket, PUT_ADD_FRIEND, data.payload);
+            break;
+          }
           default:
             socket.send("Unknown message type");
         }

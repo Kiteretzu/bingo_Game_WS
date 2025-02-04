@@ -3,19 +3,21 @@ import { useState } from "react"
 import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import useBingo from "@/hooks/useBingo"
 
-interface AddFriendPopupProps {
-  onClose: () => void
-  onAddFriend: (friendId: string) => void
-}
 
-export default function AddFriendPopup({ onClose, onAddFriend }: AddFriendPopupProps) {
+
+export default function AddFriendPopup() {
   const [friendId, setFriendId] = useState("")
+  const { setIsOpenAddFriend, handleAddFriend } = useBingo()
+
+  const onClose = () => setIsOpenAddFriend(false)
+
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (friendId.trim()) {
-      onAddFriend(friendId.trim())
+      handleAddFriend(friendId)
       setFriendId("")
     }
   }

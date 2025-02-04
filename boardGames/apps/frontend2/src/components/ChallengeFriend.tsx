@@ -1,16 +1,15 @@
 import React, { useState } from 'react';
 import { X, Swords, Trophy } from 'lucide-react';
+import useBingo from '@/hooks/useBingo';
 
 interface Friend {
-    id: string;
-    name: string;
-    status: 'online' | 'offline';
-    avatar ?: string;
+  id: string;
+  name: string;
+  status: 'online' | 'offline';
+  avatar?: string;
 }
 
 interface ChallengeModalProps {
-  isOpen: boolean;
-  onClose: () => void;
   friend: Friend | null;
 }
 
@@ -29,7 +28,10 @@ const gameModes = [
   { id: 'custom', name: 'Custom' },
 ];
 
-export default function ChallengeModal({ isOpen, onClose, friend }: ChallengeModalProps) {
+export default function ChallengeModal({ friend }: ChallengeModalProps) {
+  const { isOpenChallenge: isOpen, setIsOpenChallenge } = useBingo();
+
+  const onClose = () => setIsOpenChallenge(false)
   const [selectedGame, setSelectedGame] = useState('');
   const [selectedMode, setSelectedMode] = useState('');
 
@@ -61,9 +63,8 @@ export default function ChallengeModal({ isOpen, onClose, friend }: ChallengeMod
             />
             <div>
               <h3 className="text-white font-medium">{friend.name}</h3>
-              <p className={`text-sm ${
-                friend.status === 'online' ? 'text-green-500' : 'text-gray-400'
-              }`}>
+              <p className={`text-sm ${friend.status === 'online' ? 'text-green-500' : 'text-gray-400'
+                }`}>
                 {friend.status}
               </p>
             </div>
@@ -108,7 +109,7 @@ export default function ChallengeModal({ isOpen, onClose, friend }: ChallengeMod
             </div>
           </div>
 
-        
+
           <button
             onClick={() => {
               console.log('Challenge sent!', {

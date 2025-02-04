@@ -1,21 +1,57 @@
-import { EndGame, GameEndMethod, Goals } from "../../games/src/mechanics/bingo/messages";
+import {
+  BoxesValue,
+  EndGame,
+  GameEndMethod,
+  Goals,
+  PlayerData,
+  PlayerGameboardData,
+} from "../../games/src/mechanics/bingo/messages";
 
-export enum REQUESTS {
-  BINGO_NEW_GAME = "Food",
-  BINGO_ADD_MOVE = "Entertainment",
-}
-
+export const QUEUE_NAME = "game-requests";
 
 export interface REDIS_PAYLOAD_END_GAME {
   type: "end-game";
   payload: {
     gameId: string;
-    winner: EndGame['winner']
-    loser: EndGame['loser']
-    gameEndMethod: EndGame['gameEndMethod'];
+    winner: EndGame["winner"];
+    loser: EndGame["loser"];
+    gameEndMethod: EndGame["gameEndMethod"];
   };
 }
 
-// // Export individual keys
-// export const BINGO_NEW_GAME = TransactionCategory.BINGO_NEW_GAME;
-// export const BINGO_ADD_MOVE = TransactionCategory.BINGO_ADD_MOVE;
+export interface REDIS_PAYLOAD_TossUpdate {
+  type: "toss-update-game";
+  payload: {
+    gameId: string;
+    players: PlayerData[];
+  };
+}
+
+export interface REDIS_PAYLOAD_AddMove {
+  type: "add-move";
+  payload: {
+    gameId: string;
+    moveCount: number;
+    value: BoxesValue;
+    by: string;
+    time: string;
+  };
+}
+
+export interface REDIS_PAYLOAD_NewGame {
+  type: "new-game";
+  payload: {
+    gameId: string;
+    players: PlayerData[];
+    playerGameboardData: PlayerGameboardData[];
+    tossWinner: string;
+  };
+}
+
+export interface REDIS_PAYLOAD_SentFriendRequest {
+  type: "friend-requests";
+  payload: {
+    from: string;
+    to: string;
+  };
+}

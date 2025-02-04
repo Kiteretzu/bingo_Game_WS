@@ -11,7 +11,7 @@ model User {
   googleId           String          @id @unique @default(uuid())
   isAdmin            Boolean         @default(false)
   displayName        String?
-  email              String?
+  email              String?  @unique
   avatar             String?
   sentRequests       FriendRequest[] @relation("SentRequests")
   receivedRequests   FriendRequest[] @relation("ReceivedRequests")
@@ -32,7 +32,7 @@ model FriendRequest {
   receiverId String
   status     RequestStatus @default(PENDING)
   createdAt  DateTime            @default(now())
-  updatedAt  DateTime            @default(now())
+  updatedAt  DateTime            @updatedAt
   sender     User                @relation("SentRequests", fields: [senderId], references: [googleId])
   receiver   User                @relation("ReceivedRequests", fields: [receiverId], references: [googleId])
 
@@ -45,11 +45,12 @@ model Friendship {
   user1Id   String
   user2Id   String
   createdAt DateTime @default(now())
-  updatedAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
   user1     User     @relation("FriendshipsUser1", fields: [user1Id], references: [googleId])
   user2     User     @relation("FriendshipsUser2", fields: [user2Id], references: [googleId])
 
   @@unique([user1Id, user2Id])
+@@unique([user2Id, user1Id])
 }
 
 model BingoProfile {
@@ -67,14 +68,33 @@ model BingoProfile {
   league              Leagues              @default(BRONZE)
   preferredBoards     Json[]
   userId              String               @unique
-  gameHistory         BingoGame[]          @relation("GamePlayers")
   User                User                 @relation(fields: [userId], references: [googleId])
   recordsAsPlayer1    BingoPlayerRecords[] @relation("PlayerOneRecords")
   recordsAsPlayer2    BingoPlayerRecords[] @relation("PlayerTwoRecords")
   gameWinner          BingoGame[]          @relation("GameWinner")
   tossWinner          BingoGame[]          @relation("GameTossWinner")
   gameLoser           BingoGame[]          @relation("GameLoser")
+
+  BingoGameHistory BingoGameHistory[]
+
+  BingoGame BingoGame[] @relation("GamePlayers")
 }
+
+/// ✅ NEW MODEL FOR GAME HISTORY
+model BingoGameHistory {
+  id            String      @id @default(cuid())
+  bingoProfileId String     // Reference to BingoProfile
+  gameId        String
+  createdAt     DateTime    @default(now())
+
+  /// Relations
+  bingoProfile  BingoProfile @relation(fields: [bingoProfileId], references: [id])
+  game          BingoGame    @relation(fields: [gameId], references: [gameId])
+
+  @@index([bingoProfileId]) // Improves query performance
+  @@index([gameId])         // Optimizes fetching game details
+}
+
 
 enum BingoGameTier {
   A // 1000rs
@@ -101,6 +121,8 @@ model BingoGame {
   gameLoser   BingoProfile? @relation("GameLoser", fields: [gameLoserId], references: [id])
   gameEndedAt DateTime?       
   createdAt    DateTime       @default(now())
+
+  gameHistory BingoGameHistory[]
 }
 
 model BingoPlayerRecords {
@@ -115,6 +137,9 @@ model BingoPlayerRecords {
   player2      BingoProfile @relation("PlayerTwoRecords", fields: [player2Id], references: [id])
 
   @@unique([player1Id, player2Id])
+  @@unique([player2Id, player1Id])
+
+  
 }
 
 enum Leagues {

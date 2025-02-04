@@ -8,39 +8,14 @@ import {
 } from "../../../games/src/mechanics/bingo/messages";
 import { createClient } from "redis";
 
-import { REDIS_PAYLOAD_END_GAME, REQUESTS } from "types";
-
-// const getter = async (type: REQUESTS) => {
-//     const timerstamp = Date.now()
-
-//     switch(type) {
-//         case BINGO_NEW_GAME: {
-//               const newGame = await client.bingoGame.create({
-//       data: {
-//         players: {
-//           connect: [
-//             {id: this.player1_Data.bingoProfile.id},
-//             {id: this.player2_Data.bingoProfile.id}
-//           ]
-//         }
-//       }
-//     })
-
-//         }
-//     }
-// }
-
-export interface NewGameObj {
-  gameId: string;
-  tossWinner: string;
-  players: PlayerData[];
-  playerGameboardData: PlayerGameboardData[];
-}
-
-export interface NewGame {
-  type: "new-game";
-  payload: NewGameObj;
-}
+import {
+  QUEUE_NAME,
+  REDIS_PAYLOAD_AddMove,
+  REDIS_PAYLOAD_END_GAME,
+  REDIS_PAYLOAD_NewGame,
+  REDIS_PAYLOAD_SentFriendRequest,
+  REDIS_PAYLOAD_TossUpdate,
+} from "../types";
 
 export const redis_newGame = async (
   gameId: string,
@@ -53,9 +28,9 @@ export const redis_newGame = async (
   try {
     await redisClient.connect();
 
-    const newGameObj: NewGame = {
+    const newGameObj: REDIS_PAYLOAD_NewGame = {
       type: "new-game",
-      payload: {       
+      payload: {
         gameId,
         players,
         tossWinner,
@@ -63,7 +38,7 @@ export const redis_newGame = async (
       },
     };
 
-    await redisClient.lPush("game-requests", JSON.stringify(newGameObj));
+    await redisClient.lPush(QUEUE_NAME, JSON.stringify(newGameObj));
   } catch (error) {
     console.error("Error interacting with Redis:", error);
   } finally {
@@ -71,30 +46,19 @@ export const redis_newGame = async (
   }
 };
 
-export interface AddMove {
-  type: "add-move";
-  payload: {
-    gameId: string;
-    moveCount: number;
-    value: BoxesValue;
-    by: string;
-    time: any; // Replace `any` with a more specific type if possible, such as `Date` or `string`.
-  };
-}
-
 export const redis_addMove = async (
   gameId: string,
   moveCount: number,
   value: BoxesValue,
   by: string,
-  time: any,
+  time: any
 ) => {
   const redisClient = createClient();
 
   try {
     await redisClient.connect();
 
-    const obj: AddMove = {
+    const obj: REDIS_PAYLOAD_AddMove = {
       type: "add-move",
       payload: {
         gameId,
@@ -106,21 +70,13 @@ export const redis_addMove = async (
     };
 
     // Push the new move into the Redis queue
-    await redisClient.lPush("game-requests", JSON.stringify(obj));
+    await redisClient.lPush(QUEUE_NAME, JSON.stringify(obj));
   } catch (error) {
     console.error("Error interacting with Redis in redis_addMove:", error);
   } finally {
     await redisClient.disconnect();
   }
 };
-
-export interface TossGameUpdate {
-  type: "toss-update-game";
-  payload: {
-    gameId: string;
-    players: PlayerData[];
-  };
-}
 
 export const redis_tossGameUpdate = async (
   gameId: string,
@@ -131,7 +87,7 @@ export const redis_tossGameUpdate = async (
   try {
     await redisClient.connect();
 
-    const obj: TossGameUpdate = {
+    const obj: REDIS_PAYLOAD_TossUpdate = {
       type: "toss-update-game",
       payload: {
         gameId,
@@ -140,7 +96,7 @@ export const redis_tossGameUpdate = async (
     };
 
     // Push the new move into the Redis queue
-    await redisClient.lPush("game-requests", JSON.stringify(obj));
+    await redisClient.lPush(QUEUE_NAME, JSON.stringify(obj));
   } catch (error) {
     console.error("Error interacting with Redis in redis_addMove:", error);
   } finally {
@@ -148,10 +104,12 @@ export const redis_tossGameUpdate = async (
   }
 };
 
-
-
-
-export const redis_saveEndGame = async ({gameId, winner, loser, gameEndMethod}: REDIS_PAYLOAD_END_GAME['payload']) => {
+export const redis_saveEndGame = async ({
+  gameId,
+  winner,
+  loser,
+  gameEndMethod,
+}: REDIS_PAYLOAD_END_GAME["payload"]) => {
   const redisClient = createClient();
 
   try {
@@ -163,15 +121,40 @@ export const redis_saveEndGame = async ({gameId, winner, loser, gameEndMethod}: 
         gameId,
         winner,
         loser,
-        gameEndMethod
+        gameEndMethod,
       },
     };
 
     // Push the new move into the Redis queue
-    await redisClient.lPush("game-requests", JSON.stringify(obj));
+    await redisClient.lPush(QUEUE_NAME, JSON.stringify(obj));
   } catch (error) {
     console.error("Error interacting with Redis in redis_addMove:", error);
   } finally {
     await redisClient.disconnect();
   }
-}
+};
+
+export const redis_sentFriendRequest = async ({
+  from,
+  to,
+}: REDIS_PAYLOAD_SentFriendRequest["payload"]) => {
+  const redisClient = createClient();
+
+  try {
+    await redisClient.connect();
+
+    const obj = {
+      type: "friend-requests",
+      payload: {
+        from,
+        to,
+      },
+    };
+
+    await redisClient.lPush(QUEUE_NAME, JSON.stringify(obj));
+  } catch (error) {
+    console.error("Error interacting with Redis in redis_addMove:", error);
+  } finally {
+    await redisClient.disconnect();
+  }
+};

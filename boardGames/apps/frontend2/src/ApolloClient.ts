@@ -9,7 +9,6 @@ const httpLink = new HttpLink({
 // Add the authLink to attach authorization headers
 const authLink = setContext((_, { headers }) => {
     const token = localStorage.getItem('auth-token'); // Retrieve the token from localStorage or another source
-    console.log('token', token)
     return {
         headers: {
             ...headers,

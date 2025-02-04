@@ -83,6 +83,7 @@ export enum MessageType {
   PUT_TOSS_DECISION = "put_toss_decision",
   PUT_SEND_EMOTE = "put_send_emote",
   PUT_CHALLENGE = "put_challange",
+  PUT_ADD_FRIEND = "put_add_friend",
   // all get
   GET_RESPONSE = "get_server_response",
   GET_GAME = "get_game",
@@ -95,6 +96,7 @@ export enum MessageType {
   GET_RECONNECT = "get_reconnect",
   GET_REFRESH = "get_refresh",
   GET_CHALLENGE = "get_challange",
+  GET_ADD_FRIEND = "get_add_friend",
   // consideration
   // GET_GAME_ID = "get_game_id",
   // GET_GAMEBOARD = "send_game_board",
@@ -123,6 +125,8 @@ export const GET_RECONNECT = MessageType.GET_RECONNECT;
 export const GET_REFRESH = MessageType.GET_REFRESH;
 export const PUT_CHALLENGE = MessageType.PUT_CHALLENGE;
 export const GET_CHALLENGE = MessageType.GET_CHALLENGE;
+export const PUT_ADD_FRIEND = MessageType.PUT_ADD_FRIEND;
+export const GET_ADD_FRIEND = MessageType.GET_ADD_FRIEND;
 
 // Data interface for the message data
 export interface DATA {
@@ -145,6 +149,14 @@ export interface PAYLOAD_GET_RECONNECT {
   payload: PAYLOAD_GET_GAME["payload"];
 }
 
+export interface PAYLOAD_GET_ADD_FRIEND {
+  type: MessageType.GET_ADD_FRIEND;
+  payload: {
+    fromName: string;
+    fromId: string;
+  };
+}
+
 export type ChallengeSchema = {
   challangeId: string;
   senderId: string;
@@ -158,6 +170,13 @@ export type ChallengeSchema = {
 export interface PAYLOAD_PUT_CHALLENGE {
   type: MessageType.PUT_CHALLENGE;
   payload: ChallengeSchema;
+}
+
+export interface PAYLOAD_PUT_ADD_FRIEND {
+  type: MessageType.PUT_ADD_FRIEND;
+  payload: {
+    userId: string;
+  };
 }
 
 export interface PAYLOAD_GET_CHALLENGE {

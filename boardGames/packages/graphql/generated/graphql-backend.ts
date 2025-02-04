@@ -59,7 +59,6 @@ export type BingoProfile = {
   __typename?: 'BingoProfile';
   doubleKill_count: Scalars['Int']['output'];
   firstBlood_count: Scalars['Int']['output'];
-  gameHistory: Array<Maybe<BingoGame>>;
   id: Scalars['String']['output'];
   league: Leagues;
   lines_count: Scalars['Int']['output'];
@@ -350,7 +349,6 @@ export type BingoPlayerRecordsResolvers<ContextType = any, ParentType extends Re
 export type BingoProfileResolvers<ContextType = any, ParentType extends ResolversParentTypes['BingoProfile'] = ResolversParentTypes['BingoProfile']> = {
   doubleKill_count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   firstBlood_count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  gameHistory?: Resolver<Array<Maybe<ResolversTypes['BingoGame']>>, ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   league?: Resolver<ResolversTypes['Leagues'], ParentType, ContextType>;
   lines_count?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;

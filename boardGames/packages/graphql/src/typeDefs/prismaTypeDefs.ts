@@ -66,7 +66,6 @@ export const prismaTypeDefs = gql`
     mmr: Int!
     league: Leagues!
     preferredBoards: [JSON]!
-    gameHistory: [BingoGame]!
   }
 
   type BingoGame {

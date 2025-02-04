@@ -14,14 +14,14 @@ export const getFriendsByUserId = async (
     where: {
       googleId: userId,
     },
-    include: {
+    select: {
       friendshipsAsUser1: {
-        include: {
+        select: {
           user2: true,
         },
       },
       friendshipsAsUser2: {
-        include: {
+        select: {
           user1: true,
         },
       },
@@ -57,40 +57,28 @@ export const getBingoProfileByUserId = async (
   return bingoProfile as unknown as BingoProfile;
 };
 
-export const getGameHistoryByBingoId = async (
+export const getGameHistoryByBingoProfileId = async (
   bingoProfileId: string,
   limit: number = 10
-): Promise<BingoGame[] | null> => {
+): Promise<BingoGame[]> => {
   if (!bingoProfileId) {
     throw new GraphQLError("Bingo Profile ID is required");
   }
-  const bingoProfile = await client.bingoProfile.findUnique({
+
+  const allGames = await client.bingoGameHistory.findMany({
     where: {
-      id: bingoProfileId,
+      bingoProfileId,
     },
-    include: {
-      gameHistory: {
-        include: {
-          players: true,
-        },
-        orderBy: {
-          createdAt: "desc",
-        },
-        take: limit,
-      },
+    orderBy: {
+      createdAt: "desc",
+    },
+    take: limit || 10,
+    select: {
+      game: true,
     },
   });
 
-  if (!bingoProfile) {
-    throw new GraphQLError("Bingo Profile not found");
-  }
+  const history = allGames.map((game) => game.game);
 
-  const gameHistory = bingoProfile?.gameHistory;
-  console.log("gameHistory checkup");
-
-  if (!gameHistory) {
-    throw new GraphQLError("Game history not found");
-  }
-
-  return gameHistory as unknown as BingoGame[];
+  return history as unknown as BingoGame[];
 };

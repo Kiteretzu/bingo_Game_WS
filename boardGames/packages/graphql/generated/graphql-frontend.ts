@@ -60,7 +60,6 @@ export type BingoProfile = {
   __typename?: 'BingoProfile';
   doubleKill_count: Scalars['Int']['output'];
   firstBlood_count: Scalars['Int']['output'];
-  gameHistory: Array<Maybe<BingoGame>>;
   id: Scalars['String']['output'];
   league: Leagues;
   lines_count: Scalars['Int']['output'];

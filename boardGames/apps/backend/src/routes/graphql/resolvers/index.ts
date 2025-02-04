@@ -10,7 +10,7 @@ import { get } from "http";
 import {
   getBingoProfileByUserId,
   getFriendsByUserId,
-  getGameHistoryByBingoId,
+  getGameHistoryByBingoProfileId,
 } from "../dbServices";
 
 export const resolvers: Resolvers<CustomContext> = {
@@ -24,7 +24,7 @@ export const resolvers: Resolvers<CustomContext> = {
         if (!user) {
           return null;
         }
-        
+
         return user;
       } catch (error) {
         console.error("Error in authUser", error);
@@ -60,10 +60,9 @@ export const resolvers: Resolvers<CustomContext> = {
           throw new GraphQLError("Bingo profile ID not found");
         }
       }
-      const history = await getGameHistoryByBingoId(
-        bingoProfileId,
-        Number(limit) || 10
-      );
+
+      const history = getGameHistoryByBingoProfileId(bingoProfileId);
+
       return history || [];
     },
 
@@ -249,11 +248,5 @@ export const resolvers: Resolvers<CustomContext> = {
       getBingoProfileByUserId(parent.googleId),
     friends: async (parent, args, context) =>
       getFriendsByUserId(parent.googleId),
-  },
-  BingoProfile: {
-    gameHistory: async (parent, args, context) => {
-      const history = await getGameHistoryByBingoId(parent.id);
-      return history || [];
-    },
   },
 };

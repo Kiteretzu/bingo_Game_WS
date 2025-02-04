@@ -1,5 +1,5 @@
 import { createSlice, PayloadAction } from "@reduxjs/toolkit";
-import { GetAuthProfileQuery } from "@repo/graphql/types/client";
+import { BingoGame, GetAuthProfileQuery } from "@repo/graphql/types/client";
 
 interface BingoProfile {
   id: string;
@@ -17,6 +17,7 @@ interface ProfileState {
   email?: string;
   avatar?: string;
   bingoProfile?: BingoProfile;
+  gameHistory: BingoGame[];
 }
 
 // Initial state
@@ -33,6 +34,7 @@ const initialState: ProfileState = {
     losses: 0,
     league: "",
   },
+  gameHistory: [],
 };
 
 // Create the slice
@@ -63,6 +65,8 @@ const profileSlice = createSlice({
           losses: authUser.bingoProfile?.losses ?? undefined,
           league: authUser.bingoProfile?.league ?? undefined,
         };
+        state.gameHistory = (authUser.bingoProfile?.gameHistory ??
+          []) as BingoGame[];
       }
     },
     logout: () => {

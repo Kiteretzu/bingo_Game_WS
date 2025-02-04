@@ -64,14 +64,10 @@ const GameCard = ({ game }: { game: GameResult }) => (
 );
 
 export default function GameHistory() {
-  const { data, loading } = useGetGameHistoryQuery({
-    fetchPolicy: "network-only",
-    notifyOnNetworkStatusChange: true,
-  });
-  const { bingoProfileId } = useBingo();
+  const { bingoProfileId, gameHistory } = useBingo();
 
   const gameResults: GameResult[] =
-    data?.gameHistory?.map((game: any) => {
+    gameHistory?.map((game: any) => {
       const isWin = game.gameWinnerId === bingoProfileId;
       const duration = Math.floor(
         (parseInt(game.gameEndedAt) - parseInt(game.createdAt)) / 1000
@@ -115,11 +111,7 @@ export default function GameHistory() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.4 }}
       >
-        {loading ? (
-          <div className="w-full h-full flex items-center justify-center">
-          <HistorySkeleton />
-        </div>
-        ) : gameResults.length === 0 ? (
+        {gameResults.length === 0 ? (
           <p className="text-gray-400 text-center">No game history available.</p>
         ) : (
           gameResults.map((game, index) => (

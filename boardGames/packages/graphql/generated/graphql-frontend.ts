@@ -60,6 +60,7 @@ export type BingoProfile = {
   __typename?: 'BingoProfile';
   doubleKill_count: Scalars['Int']['output'];
   firstBlood_count: Scalars['Int']['output'];
+  gameHistory: Array<Maybe<BingoGame>>;
   id: Scalars['String']['output'];
   league: Leagues;
   lines_count: Scalars['Int']['output'];
@@ -209,7 +210,7 @@ export enum Win_Method {
 export type GetAuthProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAuthProfileQuery = { __typename?: 'Query', authUser?: { __typename?: 'User', googleId: string, displayName?: string | null, email?: string | null, avatar?: string | null, bingoProfile?: { __typename?: 'BingoProfile', id: string, totalMatches: number, wins: number, losses: number, league: Leagues } | null } | null };
+export type GetAuthProfileQuery = { __typename?: 'Query', authUser?: { __typename?: 'User', googleId: string, displayName?: string | null, email?: string | null, avatar?: string | null, bingoProfile?: { __typename?: 'BingoProfile', id: string, totalMatches: number, wins: number, losses: number, league: Leagues, gameHistory: Array<{ __typename?: 'BingoGame', gameId: string, gameWinnerId?: string | null, createdAt?: string | null, gameEndedAt?: string | null, winMethod?: Win_Method | null, tier: BingoGameTier, gameLoserId?: string | null, winMMR?: number | null, loserMMR?: number | null } | null> } | null } | null };
 
 export type GetServerPlayerProfileQueryVariables = Exact<{
   googleId: Scalars['String']['input'];
@@ -247,6 +248,17 @@ export const GetAuthProfileDocument = gql`
       wins
       losses
       league
+      gameHistory {
+        gameId
+        gameWinnerId
+        createdAt
+        gameEndedAt
+        winMethod
+        tier
+        gameLoserId
+        winMMR
+        loserMMR
+      }
     }
   }
 }

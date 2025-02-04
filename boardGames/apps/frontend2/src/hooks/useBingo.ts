@@ -41,6 +41,7 @@ import {
 import { useDialogContext } from "@/context/DialogContext";
 import { useApolloClient } from "@apollo/client";
 import { GetGameHistoryDocument } from "@repo/graphql/types/client";
+import GameHistory from "@/components/GameHistory";
 
 function useBingo() {
   const bingoState = useAppSelector((state) => ({
@@ -52,7 +53,11 @@ function useBingo() {
     goals: state.bingo.goals,
     matchHistory: state.bingo.matchHistory,
     tossWinner: state.bingo.game.tossWinner,
+  }));
+
+  const profileState = useAppSelector((state) => ({
     bingoProfileId: state.profile.bingoProfile?.id,
+    gameHistory: state.profile.gameHistory,
   }));
 
   const dispatch = useAppDispatch();
@@ -91,7 +96,8 @@ function useBingo() {
   const goals = bingoState.goals;
   const matchHistory = bingoState.matchHistory;
   const tossWinner = bingoState.tossWinner;
-  const bingoProfileId = bingoState.bingoProfileId;
+  const bingoProfileId = profileState.bingoProfileId;
+  const gameHistory = profileState.gameHistory;
   let lastValue = ""; // i think bug state here
   const [response, setResponse] = useState<string>("");
   const [gameLoading, setGameLoading] = useState<boolean>(true);
@@ -266,6 +272,9 @@ function useBingo() {
     lostData,
     socket,
     isReconnectGame,
+    gameHistory,
+    isOpenChallenge,
+    isOpenAddFriend,
     handleAddFriend,
     setIsReconnectGame,
     setIsVictory, // for dialog
@@ -276,9 +285,7 @@ function useBingo() {
     addCheck,
     sendEmote,
     cancelFindMatch,
-    isOpenChallenge,
     setIsOpenChallenge,
-    isOpenAddFriend,
     setIsOpenAddFriend,
   };
 }

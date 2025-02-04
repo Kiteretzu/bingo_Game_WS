@@ -10,7 +10,18 @@ query getAuthProfile {
       wins
       losses
       league
-    } 
+      gameHistory {
+        gameId
+        gameWinnerId
+        createdAt
+        gameEndedAt
+        winMethod
+        tier
+        gameLoserId
+        winMMR
+        loserMMR
+      }
+    }
   }
 }
 

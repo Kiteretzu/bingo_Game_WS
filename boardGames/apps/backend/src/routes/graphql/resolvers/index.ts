@@ -249,4 +249,8 @@ export const resolvers: Resolvers<CustomContext> = {
     friends: async (parent, args, context) =>
       getFriendsByUserId(parent.googleId),
   },
+  BingoProfile: {
+    gameHistory: async (parent, args, context) =>
+      getGameHistoryByBingoProfileId(parent.id),
+  },
 };

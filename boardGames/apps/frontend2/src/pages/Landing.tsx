@@ -9,8 +9,10 @@ import MatchFoundScreen from '@/components/dialog/matchFound-dialog';
 import FriendList from '@/components/FriendList';
 import FindMatch from '@/components/FindMatch';
 
+
 export default function Dashboard() {
     const { isMatchFound } = useBingo();
+    
     const rowHeight = window.visualViewport ? window.visualViewport.height / 6 : window.innerHeight / 6;
     console.log('this is height', rowHeight, "px");
 
@@ -32,13 +34,13 @@ export default function Dashboard() {
                 <div className="col-span-1 row-span-6">
                     <Leaderboard />
                 </div>
-
-                {/* Second row */}
+        
+               
                 <div className="col-span-1 row-span-2">
                     <HowToPlay />
                 </div>
                 <div className="col-span-1 row-span-3">
-                    <FriendList />
+                    <FriendList  />
                 </div>
                 <div className="col-span-1 row-span-2">
                     <DeveloperMessage />
@@ -46,7 +48,9 @@ export default function Dashboard() {
 
                 {/* Third row */}
                 {isMatchFound && <MatchFoundScreen />}
+                <div className='col-span-1 row-span-1 '>
                 <FindMatch />
+                </div>
             </div>
         </div>
     );

@@ -4,6 +4,7 @@ import { Clock, Star, TrendingUp, TrendingDown } from "lucide-react";
 import { motion } from "framer-motion";
 import { useGetGameHistoryQuery } from "@repo/graphql/types/client";
 import useBingo from "@/hooks/useBingo";
+import HistorySkeleton from "./HistorySkeleton";
 
 type GameResult = {
   id: string; // Changed to string to match gameId
@@ -63,37 +64,41 @@ const GameCard = ({ game }: { game: GameResult }) => (
 );
 
 export default function GameHistory() {
-  const { data, loading,  } = useGetGameHistoryQuery({
-    fetchPolicy: "network-only", // Always fetch fresh data
-    notifyOnNetworkStatusChange: true, // Update UI when fetching
+  const { data, loading } = useGetGameHistoryQuery({
+    fetchPolicy: "network-only",
+    notifyOnNetworkStatusChange: true,
   });
-  const { bingoProfileId } = useBingo()
+  const { bingoProfileId } = useBingo();
 
-  // Transform the incoming data into the GameResult format
-  const gameResults: GameResult[] = data?.gameHistory?.map((game: any) => {
-    const isWin = game.gameWinnerId === bingoProfileId // Replace with the actual user ID
-    const duration = Math.floor((parseInt(game.gameEndedAt) - parseInt(game.createdAt)) / 1000);
-    const minutes = Math.floor(duration / 60);
-    const seconds = duration % 60;
-    const durationString = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+  const gameResults: GameResult[] =
+    data?.gameHistory?.map((game: any) => {
+      const isWin = game.gameWinnerId === bingoProfileId;
+      const duration = Math.floor(
+        (parseInt(game.gameEndedAt) - parseInt(game.createdAt)) / 1000
+      );
+      const minutes = Math.floor(duration / 60);
+      const seconds = duration % 60;
+      const durationString = `${minutes}:${seconds
+        .toString()
+        .padStart(2, "0")}`;
 
-    return {
-      id: game.gameId,
-      outcome: isWin ? "Win" : "Loss",
-      ranked: true, // Assuming all games are ranked
-      duration: durationString,
-      mmrChange: isWin ? game.winMMR : -game.loserMMR,
-      date: new Date(parseInt(game.createdAt)).toISOString(),
-      startTime: new Date(parseInt(game.createdAt)).toISOString(), // Added start time
-    };
-  }) || [];
+      return {
+        id: game.gameId,
+        outcome: isWin ? "Win" : "Loss",
+        ranked: true,
+        duration: durationString,
+        mmrChange: isWin ? game.winMMR : -game.loserMMR,
+        date: new Date(parseInt(game.createdAt)).toISOString(),
+        startTime: new Date(parseInt(game.createdAt)).toISOString(),
+      };
+    }) || [];
 
   return (
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="bg-gray-800 border w-full h-full border-gray-500/25 p-6 rounded-lg shadow-lg  flex flex-col"
+      className="bg-gray-800 border w-full h-full border-gray-500/25 p-6 rounded-lg shadow-lg flex flex-col"
     >
       <motion.h2
         initial={{ y: -20 }}
@@ -110,16 +115,24 @@ export default function GameHistory() {
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.4 }}
       >
-        {gameResults.map((game, index) => (
-          <motion.div
-            key={game.id}
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.3, delay: index * 0.1 }}
-          >
-            <GameCard game={game} />
-          </motion.div>
-        ))}
+        {loading ? (
+          <div className="w-full h-full flex items-center justify-center">
+          <HistorySkeleton />
+        </div>
+        ) : gameResults.length === 0 ? (
+          <p className="text-gray-400 text-center">No game history available.</p>
+        ) : (
+          gameResults.map((game, index) => (
+            <motion.div
+              key={game.id}
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.3, delay: index * 0.1 }}
+            >
+              <GameCard game={game} />
+            </motion.div>
+          ))
+        )}
       </motion.div>
     </motion.div>
   );

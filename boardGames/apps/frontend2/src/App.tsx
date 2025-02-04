@@ -5,6 +5,7 @@ import { useEffect } from "react";
 import { useAppDispatch } from "./store/hooks";
 import { initialize } from "./store/slices/profileSlice";
 import DialogContextProvider from "./context/DialogContext";
+import { Loader } from "./components/Loader";
 function App() {
   const { data, loading } = useGetAuthProfileQuery()
   const dispatch = useAppDispatch()
@@ -12,7 +13,7 @@ function App() {
   useEffect(() => {
     dispatch(initialize(data))
   }, [data])
-  if (loading) return <div className="w-full min-h-screen flex items-center justify-center">Fetching...</div>
+  if (loading) return <Loader/>
   return (
     <>
       <SocketContextProvider>

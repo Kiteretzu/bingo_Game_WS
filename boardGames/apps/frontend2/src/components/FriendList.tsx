@@ -3,12 +3,15 @@ import { useState } from 'react'
 import { UserPlus, Swords, ChevronDown } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
+import useBingo from '@/hooks/useBingo'
+import  ChallengeModal  from './ChallengeFriend'
 
 interface Friend {
     id: string
     name: string
     status: 'online' | 'offline'
 }
+
 
 export default function FriendList() {
     const [friends, setFriends] = useState<Friend[]>([
@@ -17,6 +20,7 @@ export default function FriendList() {
         { id: '3', name: 'Charlie', status: 'online' },
         { id: '4', name: 'David', status: 'offline' },
     ])
+    const { isOpenChallenge, setIsOpenChallenge } = useBingo();
 
     const [isOnlineExpanded, setIsOnlineExpanded] = useState(true)
     const [isOfflineExpanded, setIsOfflineExpanded] = useState(true)
@@ -32,6 +36,7 @@ export default function FriendList() {
     const handleChallenge = (friendId: string) => {
         // Implement challenge logic here
         console.log(`Challenged friend with ID: ${friendId}`)
+        setIsOpenChallenge(true)
     }
 
     const FriendSection = ({
@@ -87,6 +92,10 @@ export default function FriendList() {
                                 size={20}
                                 onClick={isOnline ? () => handleChallenge(friend.id) : undefined}
                             />
+                            
+                        {isOpenChallenge && <div className='z-10'> <ChallengeModal  isOpen={isOpenChallenge} friend={friend} onClose={() => setIsOpenChallenge(false)} /></div>}
+                        
+                        
                         </li>
                     ))}
                 </ul>
@@ -97,7 +106,16 @@ export default function FriendList() {
     return (
         <Card className="w-full h-full bg-gray-800 min-h-full border-gray-700">
             <CardHeader>
+                <div className='flex items-center justify-between w-full'>
                 <CardTitle className="text-2xl font-bold text-gray-100">Friend List</CardTitle>
+                <Button
+                    onClick={handleAddFriend}
+                    className="w-auto bg-blue-500/85 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
+                >
+                    <UserPlus className="mr-2" size={20} />
+                    Add Friend
+                </Button>
+                </div>
             </CardHeader>
             <CardContent>
                 <FriendSection
@@ -116,13 +134,7 @@ export default function FriendList() {
                     isOnline={false}
                 />
 
-                <Button
-                    onClick={handleAddFriend}
-                    className="w-full bg-blue-500/85 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded transition-colors duration-200"
-                >
-                    <UserPlus className="mr-2" size={20} />
-                    Add Friend
-                </Button>
+                
             </CardContent>
         </Card>
     )

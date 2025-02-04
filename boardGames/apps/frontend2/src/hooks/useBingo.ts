@@ -70,6 +70,8 @@ function useBingo() {
     setVictoryData,
     victoryData,
     emote,
+    isOpenChallenge,  
+    setIsOpenChallenge,
     setEmote,
   } = useDialogContext();
   // Sync Redux state for game-related logic
@@ -254,6 +256,8 @@ function useBingo() {
     addCheck,
     sendEmote,
     cancelFindMatch,
+    isOpenChallenge,
+    setIsOpenChallenge,
   };
 }
 

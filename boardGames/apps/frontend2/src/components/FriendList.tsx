@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card'
 import useBingo from '@/hooks/useBingo'
 import  ChallengeModal  from './ChallengeFriend'
+import AddFriendPopup from './AddFriend'
 
 interface Friend {
     id: string
@@ -20,7 +21,8 @@ export default function FriendList() {
         { id: '3', name: 'Charlie', status: 'online' },
         { id: '4', name: 'David', status: 'offline' },
     ])
-    const { isOpenChallenge, setIsOpenChallenge } = useBingo();
+    const [friendId,SetFriendId]=useState<string>("")
+    const { isOpenChallenge, setIsOpenChallenge,isOpenAddFriend,setIsOpenAddFriend } = useBingo();
 
     const [isOnlineExpanded, setIsOnlineExpanded] = useState(true)
     const [isOfflineExpanded, setIsOfflineExpanded] = useState(true)
@@ -31,6 +33,7 @@ export default function FriendList() {
     const handleAddFriend = () => {
         // Implement add friend logic here
         console.log('Add friend clicked')
+        setIsOpenAddFriend(true)
     }
 
     const handleChallenge = (friendId: string) => {
@@ -116,6 +119,7 @@ export default function FriendList() {
                     Add Friend
                 </Button>
                 </div>
+                {isOpenAddFriend && <div className='z-10'><AddFriendPopup onClose={()=>setIsOpenAddFriend(false)} onAddFriend={SetFriendId}/></div> }
             </CardHeader>
             <CardContent>
                 <FriendSection

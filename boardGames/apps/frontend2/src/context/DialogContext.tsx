@@ -20,6 +20,11 @@ type DialogContextType = {
     setIsReconnectGame: React.Dispatch<React.SetStateAction<boolean>>;
     isOpenChallenge:boolean;
     setIsOpenChallenge:React.Dispatch<React.SetStateAction<boolean>>;
+    isOpenAddFriend:boolean;
+    setIsOpenAddFriend:React.Dispatch<React.SetStateAction<boolean>>;
+    
+
+    
     
 };
 
@@ -37,6 +42,7 @@ const DialogContextProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const [lostData, setLostData] = useState<any>(null); // Replace `any` with a specific type.
     const [emote, setEmote] = useState<string>("");
     const [isOpenChallenge,setIsOpenChallenge]=useState<boolean>(false);
+    const [isOpenAddFriend,setIsOpenAddFriend]=useState<boolean>(false)
 
     return (
         <DialogContext.Provider
@@ -58,7 +64,10 @@ const DialogContextProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 isReconnectGame,
                 setIsReconnectGame,
                 isOpenChallenge,
-                setIsOpenChallenge
+                setIsOpenChallenge,
+                isOpenAddFriend,
+                setIsOpenAddFriend
+                
             }}
         >
             {children}

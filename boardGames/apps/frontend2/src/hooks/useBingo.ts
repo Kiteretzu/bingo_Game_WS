@@ -73,6 +73,8 @@ function useBingo() {
     isOpenChallenge,  
     setIsOpenChallenge,
     setEmote,
+    isOpenAddFriend,
+    setIsOpenAddFriend
   } = useDialogContext();
   // Sync Redux state for game-related logic
   const gameId = bingoState.gameId;
@@ -258,6 +260,8 @@ function useBingo() {
     cancelFindMatch,
     isOpenChallenge,
     setIsOpenChallenge,
+    isOpenAddFriend,
+    setIsOpenAddFriend
   };
 }
 

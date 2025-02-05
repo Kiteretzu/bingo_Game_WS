@@ -154,11 +154,18 @@ export class GameManager {
   }
 
   removeUser(googleId: string) {
+
     const socket = this.users.get(googleId);
+    // also removing from pending players
+    if(socket == this.pendingPlayer) {
+      this.pendingPlayer = null;
+      this.pendingPlayerData = null;
+    }
     if (socket) {
       this.socketToUserId.delete(socket);
     }
     this.users.delete(googleId);
+    
   }
 
   getUserId(socket: WebSocket): UserId | undefined {

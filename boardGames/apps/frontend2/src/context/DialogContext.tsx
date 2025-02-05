@@ -22,7 +22,8 @@ type DialogContextType = {
     setIsOpenChallenge:React.Dispatch<React.SetStateAction<boolean>>;
     isOpenAddFriend:boolean;
     setIsOpenAddFriend:React.Dispatch<React.SetStateAction<boolean>>;
-    
+    isConfirmedMatch:boolean;
+    setIsConfirmedMatch:React.Dispatch<React.SetStateAction<boolean>>;
 
     
     
@@ -43,6 +44,7 @@ const DialogContextProvider: React.FC<{ children: React.ReactNode }> = ({ childr
     const [emote, setEmote] = useState<string>("");
     const [isOpenChallenge,setIsOpenChallenge]=useState<boolean>(false);
     const [isOpenAddFriend,setIsOpenAddFriend]=useState<boolean>(false)
+    const [isConfirmedMatch,setIsConfirmedMatch]=useState<boolean>(false)
 
     return (
         <DialogContext.Provider
@@ -66,7 +68,9 @@ const DialogContextProvider: React.FC<{ children: React.ReactNode }> = ({ childr
                 isOpenChallenge,
                 setIsOpenChallenge,
                 isOpenAddFriend,
-                setIsOpenAddFriend
+                setIsOpenAddFriend,
+                isConfirmedMatch,
+                setIsConfirmedMatch
                 
             }}
         >

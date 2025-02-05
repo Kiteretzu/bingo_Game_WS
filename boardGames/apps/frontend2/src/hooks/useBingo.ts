@@ -40,7 +40,10 @@ import {
 } from "@repo/games/mechanics";
 import { useDialogContext } from "@/context/DialogContext";
 import { useApolloClient } from "@apollo/client";
-import { GetGameHistoryDocument } from "@repo/graphql/types/client";
+import {
+  GetGameHistoryDocument,
+  useGetBingoPlayerRecordsQuery,
+} from "@repo/graphql/types/client";
 import GameHistory from "@/components/GameHistory";
 
 function useBingo() {
@@ -86,6 +89,8 @@ function useBingo() {
     setEmote,
     isOpenAddFriend,
     setIsOpenAddFriend,
+    isConfirmedMatch,
+    setIsConfirmedMatch,
   } = useDialogContext();
   // Sync Redux state for game-related logic
   const gameId = bingoState.gameId;
@@ -143,11 +148,11 @@ function useBingo() {
         }
         case GET_GAME: {
           const data = parsedMessage as PAYLOAD_GET_GAME;
-          setIsFinding(false);
+          setIsFinding(false); // removing -> ui
           dispatch(initialGameboard(data));
-          setIsMatchFound(true);
+          setIsMatchFound(true); // giving ui -> CONFIRMING MATCH
           setMatchFoundData(data.payload.players); // contextApi
-          setIsReconnectGame(true);
+          // setIsReconnectGame(true); // will be set in when confirmedMatch === true
           break;
         }
         case GET_CHECK_MARK: {
@@ -275,6 +280,8 @@ function useBingo() {
     gameHistory,
     isOpenChallenge,
     isOpenAddFriend,
+    isConfirmedMatch,
+    setIsConfirmedMatch,
     handleAddFriend,
     setIsReconnectGame,
     setIsVictory, // for dialog

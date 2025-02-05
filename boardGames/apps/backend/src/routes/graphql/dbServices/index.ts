@@ -1,5 +1,10 @@
 import { client } from "@repo/db/client";
-import { FUser, BingoProfile, BingoGame } from "@repo/graphql/types/server";
+import {
+  FUser,
+  BingoProfile,
+  BingoGame,
+  BingoPlayerRecords,
+} from "@repo/graphql/types/server";
 import { GraphQLError } from "graphql";
 
 export const getFriendsByUserId = async (
@@ -57,7 +62,7 @@ export const getBingoProfileByUserId = async (
   return bingoProfile as unknown as BingoProfile;
 };
 
-export const getGameHistoryByBingoProfileId = async (
+export const getGameHistoryByProfileId = async (
   bingoProfileId: string,
   limit: number = 10
 ): Promise<BingoGame[]> => {
@@ -81,4 +86,30 @@ export const getGameHistoryByBingoProfileId = async (
   const history = allGames.map((game) => game.game);
 
   return history as unknown as BingoGame[];
+};
+
+export const getBingoPlayerRecordsByProfileId = async (
+  profileId_1: string,
+  profileId_2: string
+): Promise<BingoPlayerRecords | null> => {
+  if (!profileId_1) {
+    throw new GraphQLError("Profile ID 1 is required");
+  }
+
+  const record = await client.bingoPlayerRecords.findFirst({
+    where: {
+      OR: [
+        {
+          player1Id: profileId_1,
+          player2Id: profileId_2,
+        },
+        {
+          player1Id: profileId_2,
+          player2Id: profileId_1,
+        },
+      ],
+    },
+  });
+
+  return record as unknown as BingoPlayerRecords;
 };

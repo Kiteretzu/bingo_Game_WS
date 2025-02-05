@@ -1,24 +1,29 @@
-'use client';
+"use client";
 
 import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Sparkles } from "lucide-react";
-import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
-import { PlayerData } from "@repo/games/bingo/messages";
+import {
+    Tooltip,
+    TooltipContent,
+    TooltipProvider,
+    TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "@/store/hooks";
 import useBingo from "@/hooks/useBingo";
-
+import { PlayerData } from "@repo/games/mechanics";
 
 export default function MatchFoundScreen() {
     const [countdown, setCountdown] = useState(5);
-    const { matchFoundData: data, setIsMatchFound } = useBingo()
+    const { matchFoundData: data, setIsMatchFound, bingoProfileId, setIsConfirmedMatch } = useBingo();
+
 
     const [player1, player2] = data;
-    const navigate = useNavigate()
-    const bingoId = useAppSelector(state => state.bingo.game.gameId)
-    console.log({ player1 })
+    const navigate = useNavigate();
+    const bingoId = useAppSelector((state) => state.bingo.game.gameId);
+    console.log({ player1 });
 
     useEffect(() => {
         const timer = setInterval(() => {
@@ -26,8 +31,8 @@ export default function MatchFoundScreen() {
                 if (prevCount === 1) {
                     clearInterval(timer); // Stop the timer
                     navigate(`game/${bingoId}`); // Navigate when the countdown reaches 1
-                    setIsMatchFound(false)
-
+                    console.log('reached here?',)
+                    setIsConfirmedMatch(false)
                 }
                 return prevCount > 1 ? prevCount - 1 : prevCount;
             });
@@ -87,7 +92,15 @@ const SparkleEffect = React.memo(() => (
 
 const MemoizedPlayerCard = React.memo(PlayerCard);
 
-function PlayerCard({ player, initialX, delay }: { player: PlayerData; initialX: number; delay: number }) {
+function PlayerCard({
+    player,
+    initialX,
+    delay,
+}: {
+    player: PlayerData;
+    initialX: number;
+    delay: number;
+}) {
     return (
         <motion.div
             key={player.user.googleId}
@@ -111,7 +124,8 @@ function PlayerCard({ player, initialX, delay }: { player: PlayerData; initialX:
                     delay={delay + 0.4}
                 />
                 <AnimatedText
-                    text={`Win Rate: ${(player.user.bingoProfile.wins / player.user.bingoProfile.totalMatches * 100).toFixed(2)}%`}                    className="text-gray-400 text-sm"
+                    text={`Win Rate: ${((player.user.bingoProfile.wins / player.user.bingoProfile.totalMatches) * 100).toFixed(2)}%`}
+                    className="text-gray-400 text-sm"
                     delay={delay + 0.5}
                 />
             </div>
@@ -119,7 +133,15 @@ function PlayerCard({ player, initialX, delay }: { player: PlayerData; initialX:
     );
 }
 
-function AnimatedText({ text, className, delay }: { text: string; className: string; delay: number }) {
+function AnimatedText({
+    text,
+    className,
+    delay,
+}: {
+    text: string;
+    className: string;
+    delay: number;
+}) {
     return (
         <motion.span
             className={className}
@@ -132,33 +154,36 @@ function AnimatedText({ text, className, delay }: { text: string; className: str
     );
 }
 
-const VsLogo = React.memo(() => (
-    <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
-        className="relative text-4xl flex flex-col font-bold text-white h-full"
-    >
-        <motion.p
-            initial={{ opacity: 0, y: 55 }}
-            animate={{ opacity: 1, y: -10 }}
-            transition={{ delay: 1, duration: 0.9, type: "spring" }}
-            className="text-center"
+const VsLogo = React.memo(() => {
+    const { wins, loss } = useAppSelector(state => state.bingo.playerRecord)
+    return (
+        <motion.div
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            transition={{ delay: 0.5, type: "spring", stiffness: 200 }}
+            className="relative text-4xl flex flex-col font-bold text-white h-full"
         >
-            <span className="text-green-500">2</span>-
-            <span className="text-red-500">3</span>
-        </motion.p>
-        <div>
-            <motion.img
-                src="https://upload.wikimedia.org/wikipedia/commons/7/70/Street_Fighter_VS_logo.png"
-                className="w-20 h-20 object-contain"
-                alt="VS Logo"
-                whileHover={{ scale: 1.2 }}
-                transition={{ duration: 0.5 }}
-            />
-        </div>
-    </motion.div>
-));
+            <motion.p
+                initial={{ opacity: 0, y: 55 }}
+                animate={{ opacity: 1, y: -10 }}
+                transition={{ delay: 1, duration: 0.9, type: "spring" }}
+                className="text-center"
+            >
+                <span className="text-green-500">{wins}</span>-
+                <span className="text-red-500">{loss}</span>
+            </motion.p>
+            <div>
+                <motion.img
+                    src="https://upload.wikimedia.org/wikipedia/commons/7/70/Street_Fighter_VS_logo.png"
+                    className="w-20 h-20 object-contain"
+                    alt="VS Logo"
+                    whileHover={{ scale: 1.2 }}
+                    transition={{ duration: 0.5 }}
+                />
+            </div>
+        </motion.div>
+    )
+});
 
 const CountdownDisplay = React.memo(({ countdown }: { countdown: number }) => (
     <div className="flex justify-center items-center h-24 bg-gradient-to-t from-[#1C1C1E] to-transparent">
@@ -171,14 +196,14 @@ const CountdownDisplay = React.memo(({ countdown }: { countdown: number }) => (
                 transition={{ duration: 0.3 }}
                 className="text-3xl font-bold text-white text-center"
             >
-                Game will start in{' '}
+                Game will start in{" "}
                 <span className="text-4xl text-yellow-400">{countdown}</span>s
             </motion.div>
         </AnimatePresence>
     </div>
 ));
 
-const PlayerProfile = React.memo(({ user }: { user: PlayerData['user'] }) => (
+const PlayerProfile = React.memo(({ user }: { user: PlayerData["user"] }) => (
     <TooltipProvider>
         <Tooltip>
             <TooltipTrigger>

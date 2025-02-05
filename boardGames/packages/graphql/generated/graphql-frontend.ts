@@ -47,10 +47,8 @@ export type BingoPlayerRecords = {
   __typename?: 'BingoPlayerRecords';
   id: Scalars['String']['output'];
   lastPlayedAt: Scalars['String']['output'];
-  player1: BingoProfile;
   player1Id: Scalars['String']['output'];
   player1Wins: Scalars['Int']['output'];
-  player2: BingoProfile;
   player2Id: Scalars['String']['output'];
   player2Wins: Scalars['Int']['output'];
   totalMatches: Scalars['Int']['output'];
@@ -160,11 +158,17 @@ export type MutationSendFriendRequestArgs = {
 export type Query = {
   __typename?: 'Query';
   authUser?: Maybe<User>;
+  bingoPlayerRecords?: Maybe<BingoPlayerRecords>;
   friendRequests: Array<Maybe<FriendRequest>>;
   friends: Array<Maybe<FUser>>;
   gameHistory: Array<Maybe<BingoGame>>;
   leaderboard: Array<LeaderboardEntry>;
   user?: Maybe<User>;
+};
+
+
+export type QueryBingoPlayerRecordsArgs = {
+  profileId: Scalars['String']['input'];
 };
 
 
@@ -233,6 +237,13 @@ export type GetGameHistoryQueryVariables = Exact<{
 
 
 export type GetGameHistoryQuery = { __typename?: 'Query', gameHistory: Array<{ __typename?: 'BingoGame', gameId: string, gameWinnerId?: string | null, createdAt?: string | null, gameEndedAt?: string | null, winMethod?: Win_Method | null, tier: BingoGameTier, gameLoserId?: string | null, winMMR?: number | null, loserMMR?: number | null } | null> };
+
+export type GetBingoPlayerRecordsQueryVariables = Exact<{
+  profileId: Scalars['String']['input'];
+}>;
+
+
+export type GetBingoPlayerRecordsQuery = { __typename?: 'Query', bingoPlayerRecords?: { __typename?: 'BingoPlayerRecords', player1Id: string, player2Id: string, player1Wins: number, player2Wins: number, totalMatches: number } | null };
 
 
 export const GetAuthProfileDocument = gql`
@@ -437,3 +448,47 @@ export type GetGameHistoryQueryHookResult = ReturnType<typeof useGetGameHistoryQ
 export type GetGameHistoryLazyQueryHookResult = ReturnType<typeof useGetGameHistoryLazyQuery>;
 export type GetGameHistorySuspenseQueryHookResult = ReturnType<typeof useGetGameHistorySuspenseQuery>;
 export type GetGameHistoryQueryResult = Apollo.QueryResult<GetGameHistoryQuery, GetGameHistoryQueryVariables>;
+export const GetBingoPlayerRecordsDocument = gql`
+    query getBingoPlayerRecords($profileId: String!) {
+  bingoPlayerRecords(profileId: $profileId) {
+    player1Id
+    player2Id
+    player1Wins
+    player2Wins
+    totalMatches
+  }
+}
+    `;
+
+/**
+ * __useGetBingoPlayerRecordsQuery__
+ *
+ * To run a query within a React component, call `useGetBingoPlayerRecordsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetBingoPlayerRecordsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetBingoPlayerRecordsQuery({
+ *   variables: {
+ *      profileId: // value for 'profileId'
+ *   },
+ * });
+ */
+export function useGetBingoPlayerRecordsQuery(baseOptions: Apollo.QueryHookOptions<GetBingoPlayerRecordsQuery, GetBingoPlayerRecordsQueryVariables> & ({ variables: GetBingoPlayerRecordsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetBingoPlayerRecordsQuery, GetBingoPlayerRecordsQueryVariables>(GetBingoPlayerRecordsDocument, options);
+      }
+export function useGetBingoPlayerRecordsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetBingoPlayerRecordsQuery, GetBingoPlayerRecordsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetBingoPlayerRecordsQuery, GetBingoPlayerRecordsQueryVariables>(GetBingoPlayerRecordsDocument, options);
+        }
+export function useGetBingoPlayerRecordsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetBingoPlayerRecordsQuery, GetBingoPlayerRecordsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetBingoPlayerRecordsQuery, GetBingoPlayerRecordsQueryVariables>(GetBingoPlayerRecordsDocument, options);
+        }
+export type GetBingoPlayerRecordsQueryHookResult = ReturnType<typeof useGetBingoPlayerRecordsQuery>;
+export type GetBingoPlayerRecordsLazyQueryHookResult = ReturnType<typeof useGetBingoPlayerRecordsLazyQuery>;
+export type GetBingoPlayerRecordsSuspenseQueryHookResult = ReturnType<typeof useGetBingoPlayerRecordsSuspenseQuery>;
+export type GetBingoPlayerRecordsQueryResult = Apollo.QueryResult<GetBingoPlayerRecordsQuery, GetBingoPlayerRecordsQueryVariables>;

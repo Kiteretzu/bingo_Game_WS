@@ -63,3 +63,13 @@ query getGameHistory($bingoProfileId: String, $limit: Int) {
     loserMMR
   }
 }
+
+query getBingoPlayerRecords($profileId: String!) {
+  bingoPlayerRecords(profileId: $profileId) {
+    player1Id
+    player2Id
+    player1Wins
+    player2Wins
+    totalMatches
+  }
+}

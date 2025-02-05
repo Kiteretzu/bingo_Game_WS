@@ -1,7 +1,20 @@
-import { createSlice, PayloadAction } from '@reduxjs/toolkit';
-import { Box, BoxesName, Goals, GoalType, MatchHistory, MessageType, PAYLOAD_GET_CHECKBOXES, PAYLOAD_GET_GAME, PAYLOAD_GET_RECONNECT, PAYLOAD_GET_UPDATED_GAME, PlayerData } from "@repo/games/mechanics";
-import { Goal } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
+import { createSlice, PayloadAction } from "@reduxjs/toolkit";
+import {
+  Box,
+  BoxesName,
+  Goals,
+  GoalType,
+  MatchHistory,
+  MessageType,
+  PAYLOAD_GET_CHECKBOXES,
+  PAYLOAD_GET_GAME,
+  PAYLOAD_GET_RECONNECT,
+  PAYLOAD_GET_UPDATED_GAME,
+  PlayerData,
+} from "@repo/games/mechanics";
+import { GetBingoPlayerRecordsQuery } from "@repo/graphql/types/client";
+import { Goal } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 // Define the initial state type
 interface BingoState {
@@ -15,17 +28,21 @@ interface BingoState {
     checkedBoxes: BoxesName[] | null;
     checkedLines: BoxesName[][] | null;
   };
-  goals: Goals[] // Goals stored as an array
-  matchHistory: MatchHistory // Match history stored as an array;
+  goals: Goals[]; // Goals stored as an array
+  matchHistory: MatchHistory; // Match history stored as an array;
+  playerRecord: {
+    wins: number;
+    loss: number;
+  };
 }
 
 // Initial state
 const initialState: BingoState = {
   game: {
-    gameId: '',
+    gameId: "",
     gameBoard: [],
     players: [],
-    tossWinner: '',
+    tossWinner: "",
   },
   checks: {
     checkedBoxes: [],
@@ -51,39 +68,53 @@ const initialState: BingoState = {
     {
       goalName: GoalType.PERFECTIONIST,
       isCompleted: false,
-    }
+    },
   ],
-  matchHistory: []
+  matchHistory: [],
+  playerRecord: {
+    wins: 0,
+    loss: 0,
+  },
 };
 
 // Create the slice
 const bingoSlice = createSlice({
-  name: 'bingo',
+  name: "bingo",
   initialState,
   reducers: {
-    initialGameboard: (state, action: PayloadAction<PAYLOAD_GET_GAME | PAYLOAD_GET_RECONNECT>) => {
+    initialGameboard: (
+      state,
+      action: PayloadAction<PAYLOAD_GET_GAME | PAYLOAD_GET_RECONNECT>
+    ) => {
       state.game.gameBoard = action.payload.payload.gameBoard;
       state.game.gameId = action.payload.payload.gameId;
       state.game.players = action.payload.payload.players;
       state.game.tossWinner = action.payload.payload.tossWinner;
-     
     },
-    setUpdatedGame: (state, action: PayloadAction<PAYLOAD_GET_UPDATED_GAME>) => {
+    setUpdatedGame: (
+      state,
+      action: PayloadAction<PAYLOAD_GET_UPDATED_GAME>
+    ) => {
       state.checks.checkedBoxes = action.payload.payload.checks.checkedBoxes;
       state.checks.checkedLines = action.payload.payload.checks.checkedLines;
       state.goals = action.payload.payload.goals;
       state.matchHistory = action.payload.payload.matchHistory;
 
-      console.log('this is match History', state.matchHistory)
-    }
-    
+      console.log("this is match History", state.matchHistory);
+    },
+    setPlayerRecord: (
+      state,
+      action: PayloadAction<{ wins: number; loss: number }>
+    ) => {
+      state.playerRecord.wins = action.payload.wins;
+      state.playerRecord.loss = action.payload.loss;
+      console.log("this is the state ", state.playerRecord.wins, state.playerRecord.loss);
+    },
   },
 });
 
 // Export actions and reducer
-export const {
-  initialGameboard,
-  setUpdatedGame,
-} = bingoSlice.actions;
+export const { initialGameboard, setUpdatedGame, setPlayerRecord } =
+  bingoSlice.actions;
 
 export default bingoSlice.reducer;

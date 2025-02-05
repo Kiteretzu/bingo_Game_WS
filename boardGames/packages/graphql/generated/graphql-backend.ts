@@ -46,10 +46,8 @@ export type BingoPlayerRecords = {
   __typename?: 'BingoPlayerRecords';
   id: Scalars['String']['output'];
   lastPlayedAt: Scalars['String']['output'];
-  player1: BingoProfile;
   player1Id: Scalars['String']['output'];
   player1Wins: Scalars['Int']['output'];
-  player2: BingoProfile;
   player2Id: Scalars['String']['output'];
   player2Wins: Scalars['Int']['output'];
   totalMatches: Scalars['Int']['output'];
@@ -159,11 +157,17 @@ export type MutationSendFriendRequestArgs = {
 export type Query = {
   __typename?: 'Query';
   authUser?: Maybe<User>;
+  bingoPlayerRecords?: Maybe<BingoPlayerRecords>;
   friendRequests: Array<Maybe<FriendRequest>>;
   friends: Array<Maybe<FUser>>;
   gameHistory: Array<Maybe<BingoGame>>;
   leaderboard: Array<LeaderboardEntry>;
   user?: Maybe<User>;
+};
+
+
+export type QueryBingoPlayerRecordsArgs = {
+  profileId: Scalars['String']['input'];
 };
 
 
@@ -337,10 +341,8 @@ export type BingoGameResolvers<ContextType = any, ParentType extends ResolversPa
 export type BingoPlayerRecordsResolvers<ContextType = any, ParentType extends ResolversParentTypes['BingoPlayerRecords'] = ResolversParentTypes['BingoPlayerRecords']> = {
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   lastPlayedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  player1?: Resolver<ResolversTypes['BingoProfile'], ParentType, ContextType>;
   player1Id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   player1Wins?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
-  player2?: Resolver<ResolversTypes['BingoProfile'], ParentType, ContextType>;
   player2Id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   player2Wins?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
   totalMatches?: Resolver<ResolversTypes['Int'], ParentType, ContextType>;
@@ -417,6 +419,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   authUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
+  bingoPlayerRecords?: Resolver<Maybe<ResolversTypes['BingoPlayerRecords']>, ParentType, ContextType, RequireFields<QueryBingoPlayerRecordsArgs, 'profileId'>>;
   friendRequests?: Resolver<Array<Maybe<ResolversTypes['FriendRequest']>>, ParentType, ContextType>;
   friends?: Resolver<Array<Maybe<ResolversTypes['FUser']>>, ParentType, ContextType, RequireFields<QueryFriendsArgs, 'googleId'>>;
   gameHistory?: Resolver<Array<Maybe<ResolversTypes['BingoGame']>>, ParentType, ContextType, Partial<QueryGameHistoryArgs>>;

@@ -5,12 +5,11 @@ import { CustomContext } from "helper/customContext";
 import { FriendRequest, FUser, Resolvers } from "@repo/graphql/types/server";
 import { BingoGame, BingoProfile, client, User } from "@repo/db/client";
 import { leaderboardService } from "@repo/redis/services";
-import { Friendship } from "@repo/graphql/types/client";
-import { get } from "http";
 import {
+  getBingoPlayerRecordsByProfileId,
   getBingoProfileByUserId,
   getFriendsByUserId,
-  getGameHistoryByBingoProfileId,
+  getGameHistoryByProfileId,
 } from "../dbServices";
 
 export const resolvers: Resolvers<CustomContext> = {
@@ -61,7 +60,7 @@ export const resolvers: Resolvers<CustomContext> = {
         }
       }
 
-      const history = getGameHistoryByBingoProfileId(bingoProfileId);
+      const history = await getGameHistoryByProfileId(bingoProfileId);
 
       return history || [];
     },
@@ -75,7 +74,18 @@ export const resolvers: Resolvers<CustomContext> = {
       return leaderboardEntries;
     },
 
-    friends: async (parent, args, context) => getFriendsByUserId(args.googleId),
+    bingoPlayerRecords: async (parent, args, context) => {
+      const user = await context.getUser();
+      if (!user) {
+        throw new GraphQLError("User not authenticated");
+      }
+      const profileId = user.bingoProfile.id;
+
+      return await getBingoPlayerRecordsByProfileId(profileId, args.profileId);
+    },
+
+    friends: async (parent, args, context) =>
+      await getFriendsByUserId(args.googleId),
 
     friendRequests: async (parent, args, context) => {
       const user = await context.getUser();
@@ -251,6 +261,6 @@ export const resolvers: Resolvers<CustomContext> = {
   },
   BingoProfile: {
     gameHistory: async (parent, args, context) =>
-      getGameHistoryByBingoProfileId(parent.id),
+      getGameHistoryByProfileId(parent.id),
   },
 };

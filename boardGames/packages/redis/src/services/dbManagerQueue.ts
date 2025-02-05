@@ -76,133 +76,146 @@ export class DbManagerQueue {
     }
   }
   private countGoals(goals: any[], goalType: GoalType) {
+    if (!Array.isArray(goals)) {
+      console.error("countGoals received an invalid goals value:", goals);
+      return 0; // Return 0 if goals is not an array
+    }
+
     return goals.filter((e) => e.goalName.includes(goalType) && e.isCompleted)
       .length;
   }
 
   private async handleEndGame(payload: REDIS_PAYLOAD_END_GAME["payload"]) {
     try {
-      console.log("this is THEP PROBLEM IN handleEndGame");
-      await client.$transaction(async (tx) => {
-        // 1. Update game record
-        const updatedGame = await tx.bingoGame.update({
-          where: { gameId: payload.gameId },
-          data: {
-            gameWinner: { connect: { id: payload.winner.id } },
-            gameLoser: { connect: { id: payload.loser.id } },
-            winMethod: payload.gameEndMethod,
-            winMMR: payload.winner.winnerMMR.totalWinningPoints,
-            loserMMR: payload.loser.loserMMR.totalLosingPoints,
-            gameEndedAt: new Date(),
-          },
-        });
+      await client.$transaction(
+        async (tx) => {
+          // 1. Update game record
+          const updatedGame = await tx.bingoGame.update({
+            where: { gameId: payload.gameId },
+            data: {
+              gameWinner: { connect: { id: payload.winner.id } },
+              gameLoser: { connect: { id: payload.loser.id } },
+              winMethod: payload.gameEndMethod,
+              winMMR: payload.winner.winnerMMR.totalWinningPoints,
+              loserMMR: payload.loser.loserMMR.totalLosingPoints,
+              gameEndedAt: new Date(),
+            },
+          });
 
-        // 3. Update winner stats
-        await tx.bingoProfile.update({
-          where: { id: payload.winner.id },
-          data: {
-            mmr: { increment: payload.winner.winnerMMR.totalWinningPoints },
-            firstBlood_count: {
-              increment: this.countGoals(
-                payload.winner.winnerGoal,
-                GoalType.FIRST_BLOOD
-              ),
+          // 3. Update winner stats
+          await tx.bingoProfile.update({
+            where: { id: payload.winner.id },
+            data: {
+              mmr: { increment: payload.winner.winnerMMR.totalWinningPoints },
+              firstBlood_count: {
+                increment: this.countGoals(
+                  payload.winner.winnerGoal,
+                  GoalType.FIRST_BLOOD
+                ),
+              },
+              doubleKill_count: {
+                increment: this.countGoals(
+                  payload.winner.winnerGoal,
+                  GoalType.DOUBLE_KILL
+                ),
+              },
+              tripleKill_count: {
+                increment: this.countGoals(
+                  payload.winner.winnerGoal,
+                  GoalType.TRIPLE_KILL
+                ),
+              },
+              rampage_count: {
+                increment: this.countGoals(
+                  payload.winner.winnerGoal,
+                  GoalType.RAMPAGE
+                ),
+              },
+              perfectionist_count: {
+                increment: this.countGoals(
+                  payload.winner.winnerGoal,
+                  GoalType.PERFECTIONIST
+                ),
+              },
+              lines_count: { increment: payload.winner.lineCount },
+              totalMatches: { increment: 1 },
+              wins: { increment: 1 },
             },
-            doubleKill_count: {
-              increment: this.countGoals(
-                payload.winner.winnerGoal,
-                GoalType.DOUBLE_KILL
-              ),
-            },
-            tripleKill_count: {
-              increment: this.countGoals(
-                payload.winner.winnerGoal,
-                GoalType.TRIPLE_KILL
-              ),
-            },
-            rampage_count: {
-              increment: this.countGoals(
-                payload.winner.winnerGoal,
-                GoalType.RAMPAGE
-              ),
-            },
-            perfectionist_count: {
-              increment: this.countGoals(
-                payload.winner.winnerGoal,
-                GoalType.PERFECTIONIST
-              ),
-            },
-            lines_count: { increment: payload.winner.lineCount },
-            totalMatches: { increment: 1 },
-            wins: { increment: 1 },
-          },
-        });
+          });
 
-        // 4. Update loser stats
-        await tx.bingoProfile.update({
-          where: { id: payload.loser.id },
-          data: {
-            mmr: {
-              decrement: Math.abs(payload.loser.loserMMR.totalLosingPoints),
+          // 4. Update loser stats
+          await tx.bingoProfile.update({
+            where: { id: payload.loser.id },
+            data: {
+              mmr: {
+                decrement: Math.abs(payload.loser.loserMMR.totalLosingPoints),
+              },
+              firstBlood_count: {
+                increment: this.countGoals(
+                  payload.loser.loserGoal,
+                  GoalType.FIRST_BLOOD
+                ),
+              },
+              doubleKill_count: {
+                increment: this.countGoals(
+                  payload.loser.loserGoal,
+                  GoalType.DOUBLE_KILL
+                ),
+              },
+              tripleKill_count: {
+                increment: this.countGoals(
+                  payload.loser.loserGoal,
+                  GoalType.TRIPLE_KILL
+                ),
+              },
+              rampage_count: {
+                increment: this.countGoals(
+                  payload.loser.loserGoal,
+                  GoalType.RAMPAGE
+                ),
+              },
+              perfectionist_count: {
+                increment: this.countGoals(
+                  payload.loser.loserGoal,
+                  GoalType.PERFECTIONIST
+                ),
+              },
+              lines_count: { increment: payload.loser.lineCount },
+              totalMatches: { increment: 1 },
+              losses: { increment: 1 },
             },
-            firstBlood_count: {
-              increment: this.countGoals(
-                payload.loser.loserGoal,
-                GoalType.FIRST_BLOOD
-              ),
-            },
-            doubleKill_count: {
-              increment: this.countGoals(
-                payload.loser.loserGoal,
-                GoalType.DOUBLE_KILL
-              ),
-            },
-            tripleKill_count: {
-              increment: this.countGoals(
-                payload.loser.loserGoal,
-                GoalType.TRIPLE_KILL
-              ),
-            },
-            rampage_count: {
-              increment: this.countGoals(
-                payload.loser.loserGoal,
-                GoalType.RAMPAGE
-              ),
-            },
-            perfectionist_count: {
-              increment: this.countGoals(
-                payload.loser.loserGoal,
-                GoalType.PERFECTIONIST
-              ),
-            },
-            lines_count: { increment: payload.loser.lineCount },
-            totalMatches: { increment: 1 },
-            losses: { increment: 1 },
-          },
-        });
+          });
 
-        // 5. Update player records
-        await tx.bingoPlayerRecords.upsert({
-          where: {
-            player1Id_player2Id: {
-              player1Id: payload.winner.id,
-              player2Id: payload.loser.id,
+          // 5. Update player records
+
+          const existingRecord = await tx.bingoPlayerRecords.findFirst({
+            where: {
+              OR: [
+                { player1Id: payload.winner.id, player2Id: payload.loser.id },
+                { player1Id: payload.loser.id, player2Id: payload.winner.id },
+              ],
             },
-          },
-          create: {
-            player1Id: payload.winner.id,
-            player2Id: payload.loser.id,
-            player1Wins: 1,
-            totalMatches: 1,
-            lastPlayedAt: new Date(),
-          },
-          update: {
-            player1Wins: { increment: 1 },
-            totalMatches: { increment: 1 },
-            lastPlayedAt: new Date(),
-          },
-        });
-      });
+          });
+          if (existingRecord) {
+            console.log("Updating bingPlayerRecords");
+            await tx.bingoPlayerRecords.update({
+              where: { id: existingRecord.id },
+              data: {
+                player1Wins:
+                  payload.winner.id === existingRecord.player1Id
+                    ? existingRecord.player1Wins + 1
+                    : existingRecord.player1Wins,
+                player2Wins:
+                  payload.winner.id === existingRecord.player2Id
+                    ? existingRecord.player2Wins + 1
+                    : existingRecord.player2Wins,
+                totalMatches: existingRecord.totalMatches + 1,
+              },
+            });
+          }
+        },
+        { timeout: 20000 }
+      );
 
       console.log(`Successfully ended game: ${payload.gameId}`);
     } catch (error) {
@@ -234,59 +247,74 @@ export class DbManagerQueue {
     try {
       console.log("this is THEP PROBLEM IN handleNewGame");
 
-      await client.$transaction(async (tx) => {
-        // Create game
-        const game = await tx.bingoGame.create({
-          data: {
-            gameId: payload.gameId,
-            players: {
-              connect: payload.players.map((player) => ({
-                id: player.user.bingoProfile.id,
-              })),
-            },
-            tossWinner: {
-              connect: { id: payload.tossWinner },
-            },
-            matchHistory: [],
-            gameboards: [
-              {
-                playerId: payload.players[0].user.bingoProfile.id,
-                gameBoard: payload.playerGameboardData[0].gameBoard,
+      await client.$transaction(
+        async (tx) => {
+          // Create game
+          const game = await tx.bingoGame.create({
+            data: {
+              gameId: payload.gameId,
+              players: {
+                connect: payload.players.map((player) => ({
+                  id: player.user.bingoProfile.id,
+                })),
               },
-              {
-                playerId: payload.players[1].user.bingoProfile.id,
-                gameBoard: payload.playerGameboardData[1].gameBoard,
+              tossWinner: {
+                connect: { id: payload.tossWinner },
               },
-            ],
-          },
-        });
-
-        // Create initial game history entries
-        await tx.bingoGameHistory.createMany({
-          data: payload.players.map((player) => ({
-            bingoProfileId: player.user.bingoProfile.id,
-            gameId: payload.gameId,
-          })),
-        });
-
-        // Initialize player records if needed
-        await tx.bingoPlayerRecords.upsert({
-          where: {
-            player1Id_player2Id: {
-              player1Id: payload.players[0].user.bingoProfile.id,
-              player2Id: payload.players[1].user.bingoProfile.id,
+              matchHistory: [],
+              gameboards: [
+                {
+                  playerId: payload.players[0].user.bingoProfile.id,
+                  gameBoard: payload.playerGameboardData[0].gameBoard,
+                },
+                {
+                  playerId: payload.players[1].user.bingoProfile.id,
+                  gameBoard: payload.playerGameboardData[1].gameBoard,
+                },
+              ],
             },
-          },
-          create: {
-            player1Id: payload.players[0].user.bingoProfile.id,
-            player2Id: payload.players[1].user.bingoProfile.id,
-            player1Wins: 0,
-            player2Wins: 0,
-            totalMatches: 0,
-          },
-          update: {},
-        });
-      }, {timeout: 10000});
+          });
+
+          // Create initial game history entries
+          await tx.bingoGameHistory.createMany({
+            data: payload.players.map((player) => ({
+              bingoProfileId: player.user.bingoProfile.id,
+              gameId: payload.gameId,
+            })),
+          });
+
+          // Initialize player records if needed
+
+          const existingRecord = await tx.bingoPlayerRecords.findFirst({
+            where: {
+              OR: [
+                {
+                  player1Id: payload.players[0].user.bingoProfile.id,
+                  player2Id: payload.players[1].user.bingoProfile.id,
+                },
+                {
+                  player1Id: payload.players[1].user.bingoProfile.id,
+                  player2Id: payload.players[0].user.bingoProfile.id,
+                },
+              ],
+            },
+          });
+
+          if (!existingRecord) {
+            console.log("Creating new bingPlayerRecords");
+            await tx.bingoPlayerRecords.create({
+              data: {
+                player1Id: payload.players[0].user.bingoProfile.id,
+                player2Id: payload.players[1].user.bingoProfile.id,
+                totalMatches: 0,
+                player1Wins: 0,
+                player2Wins: 0,
+              },
+            });
+          }
+        },
+        { timeout: 10000 }
+      );
 
       console.log(`Created new game: ${payload.gameId}`);
     } catch (error) {

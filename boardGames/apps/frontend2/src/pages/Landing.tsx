@@ -11,7 +11,7 @@ import FindMatch from '@/components/FindMatch';
 
 
 export default function Dashboard() {
-    const { isMatchFound } = useBingo();
+    const { isConfirmedMatch } = useBingo();
 
     const rowHeight = window.visualViewport ? window.visualViewport.height / 6 : window.innerHeight / 6;
 
@@ -46,11 +46,11 @@ export default function Dashboard() {
                 </div>
 
                 {/* Third row */}
-                {isMatchFound && <MatchFoundScreen />}
+                {isConfirmedMatch && <MatchFoundScreen />}
                 <div className='col-span-1 row-span-1 '>
                     <FindMatch />
                 </div>
-            </div>
+            </div>x
         </div>
     );
 }

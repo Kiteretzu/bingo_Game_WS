@@ -66,7 +66,7 @@ export const prismaTypeDefs = gql`
     mmr: Int!
     league: Leagues!
     preferredBoards: [JSON]!
-    gameHistory: [BingoGame]! 
+    gameHistory: [BingoGame]!
   }
 
   type BingoGame {
@@ -93,8 +93,6 @@ export const prismaTypeDefs = gql`
     player2Wins: Int!
     totalMatches: Int!
     lastPlayedAt: String!
-    player1: BingoProfile!
-    player2: BingoProfile!
   }
 
   type FriendRequest {
@@ -122,11 +120,11 @@ export const prismaTypeDefs = gql`
     authUser: User
     user(googleId: String!): User
     # bingoGame(id: String!): BingoGame
-    # bingoPlayerRecords: [BingoPlayerRecords]
     # bingoPlayerRecord(
     #   player1Id: String!
     #   player2Id: String!
     # ): BingoPlayerRecords
+    bingoPlayerRecords(profileId: String!): BingoPlayerRecords
     friendRequests: [FriendRequest]!
     friends(googleId: String!): [FUser]!
     gameHistory(bingoProfileId: String, limit: Int): [BingoGame]!

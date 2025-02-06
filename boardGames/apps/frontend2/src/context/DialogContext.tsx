@@ -24,6 +24,7 @@ type DialogContextType = {
     setIsOpenAddFriend:React.Dispatch<React.SetStateAction<boolean>>;
     isConfirmedMatch:boolean;
     setIsConfirmedMatch:React.Dispatch<React.SetStateAction<boolean>>;
+    
 
     
     

@@ -14,11 +14,11 @@
   "description": "",
   "devDependencies": {
     "@types/node": "^22.10.5",
-    "prisma": "^6.1.0"
+    "prisma": "^6.3.1"
   },
   "dependencies": {
     "@paljs/plugins": "^8.1.0",
-    "@prisma/client": "6.1.0",
+    "@prisma/client": "6.3.1",
     "ts-node": "^10.9.2"
   }
 }

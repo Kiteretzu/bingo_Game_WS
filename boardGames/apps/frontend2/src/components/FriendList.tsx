@@ -6,6 +6,7 @@ import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import useBingo from "@/hooks/useBingo";
 import ChallengeModal from "./ChallengeFriend";
 import AddFriendPopup from "./AddFriend";
+import GameChallengePopup from "./ChallengeRecivedPopUp";
 
 interface Friend {
   id: string;
@@ -29,6 +30,7 @@ export default function FriendList() {
 
   const [isOnlineExpanded, setIsOnlineExpanded] = useState(true);
   const [isOfflineExpanded, setIsOfflineExpanded] = useState(true);
+  const [isChallengeRecived,SetisChallengeRecived]=useState<boolean>(true);
 
   const onlineFriends = friends.filter((friend) => friend.status === "online");
   const offlineFriends = friends.filter(
@@ -106,6 +108,9 @@ export default function FriendList() {
                                     {" "}
                                     <ChallengeModal friend={friend} />
                                 </div>
+                            )}
+                            {isChallengeRecived && (
+                              <GameChallengePopup challenger="user1" onAccept={()=>SetisChallengeRecived(false)} onDecline={()=>SetisChallengeRecived(false)}/>
                             )}
                         </li>
                     ))}

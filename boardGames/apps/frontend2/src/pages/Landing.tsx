@@ -8,7 +8,7 @@ import useBingo from '@/hooks/useBingo';
 import MatchFoundScreen from '@/components/dialog/matchFound-dialog';
 import FriendList from '@/components/FriendList';
 import FindMatch from '@/components/FindMatch';
-import { ExpandableCard } from '@repo/ui/exp';
+import { ExpandableCard } from '@/components/Expandable-cards';
 
 
 export default function Dashboard() {

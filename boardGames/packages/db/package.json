@@ -19,6 +19,7 @@
   "dependencies": {
     "@paljs/plugins": "^8.1.0",
     "@prisma/client": "6.3.1",
+    "dotenv": "^16.4.7",
     "ts-node": "^10.9.2"
   }
 }

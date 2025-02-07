@@ -26,6 +26,6 @@
     "noUncheckedSideEffectImports": true
   },
   "include": [
-    "src",
+    "src", "../../packages/ui/src/components/CoinToss.tsx",
   ]
 }

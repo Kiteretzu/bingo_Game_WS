@@ -1,8 +1,6 @@
-import CoinToss from '@/components/coinToss'
 import { Button } from "@repo/ui/button";
+import { CoinToss } from "@repo/ui/exp";
 import Test from "@repo/ui/test";
-import { ExpandableCard } from "@repo/ui/exp";
-import HowToPlay from '@/components/HowToPlay';
 
 
 

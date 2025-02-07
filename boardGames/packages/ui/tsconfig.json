@@ -1,13 +1,12 @@
 {
   "extends": "@repo/typescript-config/react-library.json",
   "compilerOptions": {
-    "outDir": "dist"
+    "outDir": "dist",
+    "baseUrl": "src",
+    "paths": {
+      "@/*": ["*"]
+    }
   },
-  "include": [
-    "src",
-    "src/hooks/use-outside-click.ts",
-    "../../apps/frontend2/src/components/GameHistory.tsx",
-    "../../apps/frontend2/src/components/HistorySkeleton.tsx"
-  ],
+  "include": ["src"],
   "exclude": ["node_modules", "dist"]
 }

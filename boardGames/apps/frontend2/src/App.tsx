@@ -5,7 +5,8 @@ import { useEffect } from "react";
 import { useAppDispatch } from "./store/hooks";
 import { initialize } from "./store/slices/profileSlice";
 import DialogContextProvider from "./context/DialogContext";
-import { Loader } from "./components/Loader";
+import { Loader } from "@repo/ui/exp";
+
 function App() {
   const { data, loading } = useGetAuthProfileQuery()
   const dispatch = useAppDispatch()

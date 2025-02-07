@@ -5,8 +5,10 @@
   "private": true,
   "exports": {
     "./button": "./src/button.tsx",
-    "./card": "./src/card.tsx", 
-    "./code": "./src/code.tsx"
+    "./card": "./src/card.tsx",
+    "./code": "./src/code.tsx",
+    "./test": "./src/test.tsx",
+    "./exp": "./src/components/index.ts"
   },
   "scripts": {
     "lint": "eslint . --max-warnings 0",
@@ -21,11 +23,18 @@
     "@types/react": "18.3.0",
     "@types/react-dom": "18.3.1",
     "@types/three": "^0.172.0",
+    "autoprefixer": "^10.4.20",
+    "postcss": "^8.4.49",
+    "tailwindcss": "^3.4.17",
     "typescript": "5.5.4"
   },
   "dependencies": {
+    "clsx": "^2.1.1",
+    "framer-motion": "^11.15.0",
+    "motion": "^12.4.1",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "tailwind-merge": "^2.6.0",
     "three": "^0.172.0"
   }
 }

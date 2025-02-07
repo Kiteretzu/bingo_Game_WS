@@ -1,4 +1,4 @@
-import CoinTossDialog from "@/components/coin-toss-dialog"
+import CoinTossDialog from "@/components/dialog/coin-toss-dialog"
 
 export default function Home() {
   return (

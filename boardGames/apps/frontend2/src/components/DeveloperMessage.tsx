@@ -8,6 +8,7 @@ export default function DeveloperMessage() {
       <p className="text-gray-300">
         🌟 Mark your calendars! The official launch is set for <span className="font-semibold">January 8th</span>. Stay tuned for updates!
       </p>
+      <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Nostrum hic natus enim perspiciatis voluptate cum laudantium! Voluptas, debitis placeat! Omnis aspernatur quo earum, aut laborum excepturi? Illum architecto dolore explicabo placeat est.</p>
     </div>
   );
 }

@@ -8,6 +8,7 @@ import useBingo from '@/hooks/useBingo';
 import MatchFoundScreen from '@/components/dialog/matchFound-dialog';
 import FriendList from '@/components/FriendList';
 import FindMatch from '@/components/FindMatch';
+import { ExpandableCard } from '@repo/ui/exp';
 
 
 export default function Dashboard() {
@@ -34,15 +35,28 @@ export default function Dashboard() {
                     <Leaderboard />
                 </div>
 
-
                 <div className="col-span-1 row-span-2">
-                    <HowToPlay />
+                    <ExpandableCard
+                        item={<HowToPlay />}
+                        renderItem={(item, isExpanded) => item}
+                        maxHeight="h-full"
+                        expandedMaxHeight="max-h-[90vh]"
+                        maxWidth='max-w-[800px]'
+                    />
                 </div>
                 <div className="col-span-1 row-span-3">
                     <FriendList />
                 </div>
                 <div className="col-span-1 row-span-2">
-                    <DeveloperMessage />
+                    <ExpandableCard
+                        item={<DeveloperMessage />}
+                        renderItem={(item, isExpanded) => item}
+                        // maxHeight="h-full"
+                        expandedMaxHeight="max-h-[90vh]"
+                        maxWidth='max-w-[800px]'
+
+                    />
+
                 </div>
 
                 {/* Third row */}

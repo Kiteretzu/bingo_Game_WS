@@ -44,7 +44,6 @@ import {
   GetGameHistoryDocument,
   useGetBingoPlayerRecordsQuery,
 } from "@repo/graphql/types/client";
-import GameHistory from "@/components/GameHistory";
 
 function useBingo() {
   const bingoState = useAppSelector((state) => ({

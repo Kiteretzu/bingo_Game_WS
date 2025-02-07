@@ -10,7 +10,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
-import Coin3D from "./Coin3D"
+import Coin3D from "../Coin3D"
 
 const CoinTossDialog = () => {
   const [isOpen, setIsOpen] = useState(false)

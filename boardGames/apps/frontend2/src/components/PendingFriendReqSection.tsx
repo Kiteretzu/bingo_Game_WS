@@ -1,12 +1,12 @@
-import { ChevronDown, Clock } from "lucide-react";
+import { ChevronDown, Clock, UserPlus, Users } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
-
+import { Badge } from "@/components/ui/badge";
 
 interface PendingRequest {
-  id: string;
-  name: string;
-  timestamp: string;
+    id: string;
+    name: string;
+    timestamp: string;
 }
 
 const PendingRequestsSection = () => {
@@ -15,7 +15,7 @@ const PendingRequestsSection = () => {
         { id: "p2", name: "Frank", timestamp: "5h ago" },
     ]);
 
-    const [isPendingExpanded, setIsPendingExpanded] = useState(true);
+    const [isPendingExpanded, setIsPendingExpanded] = useState(false);
 
     const handleAcceptRequest = (requestId: string) => {
         setPendingRequests(prev => prev.filter(request => request.id !== requestId));
@@ -25,18 +25,29 @@ const PendingRequestsSection = () => {
     const handleDeclineRequest = (requestId: string) => {
         setPendingRequests(prev => prev.filter(request => request.id !== requestId));
     };
+
     return (
         <div className="mb-6">
             <div
-                className="flex items-center justify-between cursor-pointer mb-2"
+                className="flex items-center justify-between cursor-pointer mb-2 group"
                 onClick={() => setIsPendingExpanded(!isPendingExpanded)}
             >
-                <div className="flex items-center gap-2">
-                    <h3 className="text-xl font-semibold text-gray-200">Pending Requests</h3>
-                    <span className="text-sm text-gray-400">({pendingRequests.length})</span>
+                <div className="flex items-center gap-3">
+                    <div className="flex items-center gap-2">
+                        <Users className="text-blue-400" size={24} />
+                        <h3 className="text-xl font-semibold text-gray-200">Pending Requests</h3>
+                    </div>
+                    {pendingRequests.length > 0 && (
+                        <Badge
+                            className="bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors duration-200"
+                        >
+                            <UserPlus size={14} className="mr-1" />
+                            {pendingRequests.length} new
+                        </Badge>
+                    )}
                 </div>
                 <ChevronDown
-                    className={`text-gray-400 transition-transform duration-200 ${isPendingExpanded ? "transform rotate-180" : ""
+                    className={`text-gray-400 transition-transform duration-200 group-hover:text-gray-200 ${isPendingExpanded ? "transform rotate-180" : ""
                         }`}
                     size={20}
                 />
@@ -76,7 +87,7 @@ const PendingRequestsSection = () => {
                 </ul>
             </div>
         </div>
-    )
+    );
 };
 
 export default PendingRequestsSection;

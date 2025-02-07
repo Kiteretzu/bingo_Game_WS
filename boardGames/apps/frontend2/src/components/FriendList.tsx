@@ -1,18 +1,21 @@
 "use client";
 import { useState } from "react";
-import { UserPlus, Swords, ChevronDown } from "lucide-react";
+import { UserPlus, Swords, ChevronDown, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import useBingo from "@/hooks/useBingo";
 import ChallengeModal from "./ChallengeFriend";
 import AddFriendPopup from "./AddFriend";
-import GameChallengePopup from "./ChallengeRecivedPopUp";
+import GameChallengePopup from "./dialog/challangeReceived-dialog";
+import PendingRequestsSection from "./PendingFriendReqSection";
 
 interface Friend {
   id: string;
   name: string;
   status: "online" | "offline";
 }
+
+
 
 export default function FriendList() {
   const [friends, setFriends] = useState<Friend[]>([
@@ -21,6 +24,9 @@ export default function FriendList() {
     { id: "3", name: "Charlie", status: "online" },
     { id: "4", name: "David", status: "offline" },
   ]);
+
+
+
   const {
     isOpenChallenge,
     setIsOpenChallenge,
@@ -30,94 +36,83 @@ export default function FriendList() {
 
   const [isOnlineExpanded, setIsOnlineExpanded] = useState(true);
   const [isOfflineExpanded, setIsOfflineExpanded] = useState(true);
-  const [isChallengeRecived,SetisChallengeRecived]=useState<boolean>(true);
+  const [isChallengeRecived, SetisChallengeRecived] = useState<boolean>(true);
 
   const onlineFriends = friends.filter((friend) => friend.status === "online");
-  const offlineFriends = friends.filter(
-    (friend) => friend.status === "offline"
-  );
+  const offlineFriends = friends.filter((friend) => friend.status === "offline");
 
   const handleAddFriendPopup = () => setIsOpenAddFriend(true);
-
   const handleChallengePopup = (friendId: string) => setIsOpenChallenge(true);
 
 
-    const FriendSection = ({
-        title,
-        friends,
-        isExpanded,
-        setIsExpanded,
-        isOnline,
-    }: {
-        title: string;
-        friends: Friend[];
-        isExpanded: boolean;
-        setIsExpanded: (value: boolean) => void;
-        isOnline: boolean;
-    }) => (
-        <div className=" mb-6">
-            <div
-                className="flex items-center justify-between cursor-pointer mb-2"
-                onClick={() => setIsExpanded(!isExpanded)}
-            >
-                <div className="flex items-center gap-2">
-                    <h3 className="text-xl font-semibold text-gray-200">{title}</h3>
-                    <span className="text-sm text-gray-400">({friends.length})</span>
-                </div>
-                <ChevronDown
-                    className={`text-gray-400 transition-transform duration-200 ${isExpanded ? "transform rotate-180" : ""
-                        }`}
-                    size={20}
-                />
-            </div>
 
-            <div
-                className={`transition-all duration-200 overflow-hidden ${isExpanded ? "max-h-96" : "max-h-0"
-                    }`}
-            >
-                <ul className="space-y-2">
-                    {friends.map((friend) => (
-                        <li
-                            key={friend.id}
-                            className="flex items-center justify-between bg-gray-700/50 hover:bg-gray-700 p-3 rounded-md group transition-all duration-200"
-                        >
-                            <div className="flex items-center gap-2">
-                                <div
-                                    className={`w-2 h-2 rounded-full ${isOnline ? "bg-yellow-500" : "bg-gray-500"
-                                        }`}
-                                />
-                                <span
-                                    className={`${isOnline ? "text-gray-100" : "text-gray-400"}`}
-                                >
-                                    {friend.name}
-                                </span>
-                            </div>
-                            <Swords
-                                className={`${isOnline
-                                        ? "text-yellow-500 opacity-0 group-hover:opacity-100 cursor-pointer hover:scale-110"
-                                        : "text-gray-500 opacity-0 group-hover:opacity-100 cursor-not-allowed"
-                                    } transition-all duration-200`}
-                                size={20}
-                                onClick={
-                                    isOnline ? () => handleChallengePopup(friend.id) : undefined
-                                }
-                            />
-
-                            {isOpenChallenge && (
-                                <div className="z-10">
-                                    {" "}
-                                    <ChallengeModal friend={friend} />
-                                </div>
-                            )}
-                            {isChallengeRecived && (
-                              <GameChallengePopup challenger="user1" onAccept={()=>SetisChallengeRecived(false)} onDecline={()=>SetisChallengeRecived(false)}/>
-                            )}
-                        </li>
-                    ))}
-                </ul>
-            </div>
+  const FriendSection = ({
+    title,
+    friends,
+    isExpanded,
+    setIsExpanded,
+    isOnline,
+  }: {
+    title: string;
+    friends: Friend[];
+    isExpanded: boolean;
+    setIsExpanded: (value: boolean) => void;
+    isOnline: boolean;
+  }) => (
+    <div className="mb-6">
+      <div
+        className="flex items-center justify-between cursor-pointer mb-2"
+        onClick={() => setIsExpanded(!isExpanded)}
+      >
+        <div className="flex items-center gap-2">
+          <h3 className="text-xl font-semibold text-gray-200">{title}</h3>
+          <span className="text-sm text-gray-400">({friends.length})</span>
         </div>
-    );
+        <ChevronDown
+          className={`text-gray-400 transition-transform duration-200 ${isExpanded ? "transform rotate-180" : ""
+            }`}
+          size={20}
+        />
+      </div>
+
+      <div
+        className={`transition-all duration-200 overflow-hidden ${isExpanded ? "max-h-96" : "max-h-0"
+          }`}
+      >
+        <ul className="space-y-2">
+          {friends.map((friend) => (
+            <li
+              key={friend.id}
+              className="flex items-center justify-between bg-gray-700/50 hover:bg-gray-700 p-3 rounded-md group transition-all duration-200"
+            >
+              <div className="flex items-center gap-2">
+                <div
+                  className={`w-2 h-2 rounded-full ${isOnline ? "bg-yellow-500" : "bg-gray-500"
+                    }`}
+                />
+                <span
+                  className={`${isOnline ? "text-gray-100" : "text-gray-400"}`}
+                >
+                  {friend.name}
+                </span>
+              </div>
+              <Swords
+                className={`${isOnline
+                    ? "text-yellow-500 opacity-0 group-hover:opacity-100 cursor-pointer hover:scale-110"
+                    : "text-gray-500 opacity-0 group-hover:opacity-100 cursor-not-allowed"
+                  }`}
+                size={20}
+                onClick={
+                  isOnline ? () => handleChallengePopup(friend.id) : undefined
+                }
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+
 
 
   return (
@@ -142,6 +137,7 @@ export default function FriendList() {
         )}
       </CardHeader>
       <CardContent>
+        <PendingRequestsSection />
         <FriendSection
           title="Online Friends"
           friends={onlineFriends}
@@ -149,7 +145,6 @@ export default function FriendList() {
           setIsExpanded={setIsOnlineExpanded}
           isOnline={true}
         />
-
         <FriendSection
           title="Offline Friends"
           friends={offlineFriends}
@@ -157,8 +152,15 @@ export default function FriendList() {
           setIsExpanded={setIsOfflineExpanded}
           isOnline={false}
         />
+        {isChallengeRecived && (
+          <GameChallengePopup
+            challenger="user1"
+            onAccept={() => SetisChallengeRecived(false)}
+            onDecline={() => SetisChallengeRecived(false)}
+          />
+        )}
+        {isOpenChallenge && <ChallengeModal friend={friends[0]} />}
       </CardContent>
     </Card>
   );
 }
-

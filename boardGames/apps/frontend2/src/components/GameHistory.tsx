@@ -1,19 +1,17 @@
 "use client";
 
-import { Clock, Star, TrendingUp, TrendingDown } from "lucide-react";
+import { Clock, TrendingUp, TrendingDown } from "lucide-react";
 import { motion } from "framer-motion";
-import { useGetGameHistoryQuery } from "@repo/graphql/types/client";
 import useBingo from "@/hooks/useBingo";
-import HistorySkeleton from "./HistorySkeleton";
 
 type GameResult = {
-  id: string; // Changed to string to match gameId
-  outcome: "Win" | "Loss";
+  id: string;
+  outcome: "Win" | "Loss" | "Unscored";
   ranked: boolean;
   duration: string;
   mmrChange: number;
   date: string;
-  startTime: string; // Added start time
+  startTime: string;
 };
 
 const GameCard = ({ game }: { game: GameResult }) => (
@@ -25,41 +23,50 @@ const GameCard = ({ game }: { game: GameResult }) => (
     transition={{ duration: 0.3 }}
     className="mb-4 bg-gray-700 rounded-lg cursor-pointer py-4 px-3 xl:p-6 flex items-center justify-between hover:shadow-lg transition-shadow"
   >
-    {/* Outcome */}
     <motion.div className="flex items-center">
       {game.outcome === "Win" ? (
         <TrendingUp className="text-green-500 mr-2" />
-      ) : (
+      ) : game.outcome === "Loss" ? (
         <TrendingDown className="text-red-500 mr-2" />
+      ) : (
+        <Clock className="text-gray-400 mr-2" />
       )}
       <span
-        className={`font-semibold ${game.outcome === "Win" ? "text-green-500" : "text-red-500"}`}
+        className={`font-semibold ${game.outcome === "Win"
+            ? "text-green-500"
+            : game.outcome === "Loss"
+              ? "text-red-500"
+              : "text-gray-400"
+          }`}
       >
         {game.outcome}
       </span>
     </motion.div>
-    {/* Date */}
     <div className="text-gray-400 text-sm xl:font-semibold xl:text-lg">
       {new Date(game.date).toLocaleDateString()}
     </div>
-    {/* Start Time */}
     <div className="text-gray-400 text-sm xl:font-semibold xl:text-lg">
-      {new Date(game.startTime).toLocaleTimeString()}
+      {new Date(game.startTime).toLocaleTimeString("en-US", {
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      })}
     </div>
-    {/* Duration */}
     <motion.div className="flex items-center">
       <Clock className="text-blue-400 mr-2" />
       <span className="text-gray-300">{game.duration}</span>
     </motion.div>
-    {/* MMR Change */}
-    <motion.div className="flex items-center">
-      <span
-        className={`font-semibold ${game.mmrChange > 0 ? "text-green-500" : "text-red-500"}`}
-      >
-        {game.mmrChange > 0 ? "+" : ""}
-        {game.mmrChange} MMR
-      </span>
-    </motion.div>
+    {game.outcome !== "Unscored" && (
+      <motion.div className="flex items-center">
+        <span
+          className={`font-semibold ${game.mmrChange > 0 ? "text-green-500" : "text-red-500"
+            }`}
+        >
+          {game.mmrChange > 0 ? "+" : ""}
+          {game.mmrChange} MMR
+        </span>
+      </motion.div>
+    )}
   </motion.div>
 );
 
@@ -68,15 +75,25 @@ export default function GameHistory() {
 
   const gameResults: GameResult[] =
     gameHistory?.map((game: any) => {
+      if (game.gameEndedAt === "NAN" || game.gameWinnerId === "NAN") {
+        return {
+          id: game.gameId,
+          outcome: "Unscored",
+          ranked: false,
+          duration: "In Progress",
+          mmrChange: 0,
+          date: new Date(parseInt(game.createdAt)).toISOString(),
+          startTime: new Date(parseInt(game.createdAt)).toISOString(),
+        };
+      }
+
       const isWin = game.gameWinnerId === bingoProfileId;
       const duration = Math.floor(
         (parseInt(game.gameEndedAt) - parseInt(game.createdAt)) / 1000
       );
       const minutes = Math.floor(duration / 60);
       const seconds = duration % 60;
-      const durationString = `${minutes}:${seconds
-        .toString()
-        .padStart(2, "0")}`;
+      const durationString = `${minutes}:${seconds.toString().padStart(2, "0")}`;
 
       return {
         id: game.gameId,

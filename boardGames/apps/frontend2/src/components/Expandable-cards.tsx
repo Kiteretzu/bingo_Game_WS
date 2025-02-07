@@ -90,7 +90,7 @@ export function ExpandableCard({
                             <div className={`overflow-auto ${expandedMaxHeight} relative`}>
                                 {renderItem(item, true)}
                                 {isOverflowing && (
-                                    <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white dark:from-neutral-900 to-transparent pointer-events-none" />
+                                    <div className="absolute bottom-0 left-0 right-0 h pointer-events-none" />
                                 )}
                             </div>
                         </motion.div>
@@ -106,7 +106,7 @@ export function ExpandableCard({
                 <div className="relative bg-purple-700 h-full" ref={itemRef}>
                     {renderItem(item, false)}
                     {isOverflowing && (
-                        <div className="absolute bottom-0 left-0 right-0 h-12 bg-gradient-to-t from-white dark:from-neutral-800 to-transparent pointer-events-none w-full" />
+                        <div className="absolute bottom-0 left-0 right-0 h-6 bg-gradient-to-t from-gray-600 to-transparent pointer-events-none w-full" />
                     )}
 
                 </div>

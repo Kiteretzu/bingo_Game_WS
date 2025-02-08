@@ -17,7 +17,7 @@ export default function Dashboard() {
     const rowHeight = window.visualViewport ? window.visualViewport.height / 6 : window.innerHeight / 6;
 
     return (
-        <div className=" min-w-full text-white">
+        <div className=" text-white">
             <div
                 className="grid  p-4 md:p-6 grow-0 min-w-[1280px] overflow-hidden animate-gradient-flow grid-cols-3 gap-4"
                 style={{ gridTemplateRows: `repeat(6, ${rowHeight}px)` }}
@@ -47,7 +47,7 @@ export default function Dashboard() {
                 <div className="col-span-1 row-span-3">
                     <FriendList />
                 </div>
-                <div className="col-span-1 row-span-2 ">
+                <div className="col-span-1 row-span-2">
                     <ExpandableCard
                         item={<DeveloperMessage />}
                         renderItem={(item, isExpanded) => item}

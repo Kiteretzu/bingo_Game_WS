@@ -81,8 +81,10 @@ export type FUser = {
 
 export type FriendRequest = {
   __typename?: 'FriendRequest';
+  createdAt: Scalars['String']['output'];
   id: Scalars['String']['output'];
   sender: User;
+  status: Scalars['String']['output'];
 };
 
 export enum FriendRequestStatus {
@@ -152,9 +154,9 @@ export type Query = {
   __typename?: 'Query';
   authUser?: Maybe<User>;
   bingoPlayerRecords?: Maybe<BingoPlayerRecords>;
-  friendRequests: Array<Maybe<FriendRequest>>;
   friends: Array<Maybe<FUser>>;
   gameHistory: Array<Maybe<BingoGame>>;
+  getFriendRequest: Array<Maybe<FriendRequest>>;
   leaderboard: Array<LeaderboardEntry>;
   user?: Maybe<User>;
 };
@@ -166,7 +168,7 @@ export type QueryBingoPlayerRecordsArgs = {
 
 
 export type QueryFriendsArgs = {
-  googleId: Scalars['String']['input'];
+  googleId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -370,8 +372,10 @@ export type FUserResolvers<ContextType = any, ParentType extends ResolversParent
 };
 
 export type FriendRequestResolvers<ContextType = any, ParentType extends ResolversParentTypes['FriendRequest'] = ResolversParentTypes['FriendRequest']> = {
+  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sender?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 
@@ -408,9 +412,9 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {
   authUser?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType>;
   bingoPlayerRecords?: Resolver<Maybe<ResolversTypes['BingoPlayerRecords']>, ParentType, ContextType, RequireFields<QueryBingoPlayerRecordsArgs, 'profileId'>>;
-  friendRequests?: Resolver<Array<Maybe<ResolversTypes['FriendRequest']>>, ParentType, ContextType>;
-  friends?: Resolver<Array<Maybe<ResolversTypes['FUser']>>, ParentType, ContextType, RequireFields<QueryFriendsArgs, 'googleId'>>;
+  friends?: Resolver<Array<Maybe<ResolversTypes['FUser']>>, ParentType, ContextType, Partial<QueryFriendsArgs>>;
   gameHistory?: Resolver<Array<Maybe<ResolversTypes['BingoGame']>>, ParentType, ContextType, Partial<QueryGameHistoryArgs>>;
+  getFriendRequest?: Resolver<Array<Maybe<ResolversTypes['FriendRequest']>>, ParentType, ContextType>;
   leaderboard?: Resolver<Array<ResolversTypes['LeaderboardEntry']>, ParentType, ContextType, RequireFields<QueryLeaderboardArgs, 'limit'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'googleId'>>;
 };

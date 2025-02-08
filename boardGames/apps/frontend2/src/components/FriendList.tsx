@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { UserPlus, Swords, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
@@ -9,6 +9,7 @@ import ChallengeModal from "./dialog/challengedFriend-dialog";
 import AddFriendPopup from "./AddFriend";
 import GameChallengePopup from "./dialog/challangeReceived-dialog";
 import PendingRequestsSection from "./PendingFriendReqSection";
+import { useGetFriendsQuery } from "@repo/graphql/types/client";
 
 interface Friend {
   id: string;
@@ -31,7 +32,13 @@ export default function FriendList() {
     setIsOpenAddFriend,
   } = useBingo();
 
-  const [isOnlineExpanded, setIsOnlineExpanded] = useState(true);
+  const { data, loading } = useGetFriendsQuery({
+    variables: {
+      googleId: ""
+    }
+  });
+
+  const [isOnlineExpanded, setIsOnlineExpanded] = useState(false);
   const [isOfflineExpanded, setIsOfflineExpanded] = useState(false);
   const [isChallengeRecived, SetisChallengeRecived] = useState<boolean>(false);
 
@@ -40,6 +47,13 @@ export default function FriendList() {
 
   const handleAddFriendPopup = () => setIsOpenAddFriend(true);
   const handleChallengePopup = (friendId: string) => setIsOpenChallenge(true);
+
+  useEffect(() => {
+    if (!data) return;
+    if (data?.friends.length > 0) {
+      setIsOnlineExpanded(true);
+    }
+  }, [data]);
 
   const FriendSection = ({
     title,
@@ -63,51 +77,58 @@ export default function FriendList() {
           <h3 className="text-xl font-semibold text-gray-200">{title}</h3>
           <Badge
             variant="secondary"
-            className={`${isOnline ? "bg-green-500/20 text-green-400" : "bg-gray-500/20 text-gray-400"
-              } hover:bg-opacity-30 transition-colors duration-200`}
+            className={`${
+              isOnline ? "bg-green-500/20 text-green-400" : "bg-gray-500/20 text-gray-400"
+            } hover:bg-opacity-30 transition-colors duration-200`}
           >
-            {friends.length}
+            {data?.friends.length ?? 0}
           </Badge>
         </div>
         <ChevronDown
-          className={`text-gray-400 group-hover:text-gray-200 transition-transform duration-200 ${isExpanded ? "transform rotate-180" : ""
-            }`}
+          className={`text-gray-400 group-hover:text-gray-200 transition-transform duration-300 ease-in-out ${
+            isExpanded ? "transform rotate-180" : ""
+          }`}
           size={20}
         />
       </div>
 
       <div
-        className={`transition-all duration-200 overflow-hidden ${isExpanded ? "max-h-96" : "max-h-0"
-          }`}
+        className={`transform transition-all duration-300 ease-in-out origin-top ${
+          isExpanded ? "scale-y-100 opacity-100" : "scale-y-0 opacity-0 h-0"
+        }`}
       >
         <ul className="space-y-2">
-          {friends.map((friend) => (
+          {data?.friends.map((friend) => (
             <li
-              key={friend.id}
-              className="flex items-center justify-between bg-gray-700/50 hover:bg-gray-700 p-3 rounded-md group transition-all duration-200"
+              key={friend?.googleId}
+              className="flex items-center justify-between bg-gray-700/50 hover:bg-gray-700 p-3 rounded-md group 
+                transition-all duration-200 transform hover:scale-102"
             >
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-2 h-2 rounded-full ${isOnline
+                  className={`w-2 h-2 rounded-full ${
+                    isOnline
                       ? "bg-green-500 shadow-sm shadow-green-500/50"
                       : "bg-gray-500"
-                    }`}
+                  }`}
                 />
                 <span
-                  className={`${isOnline ? "text-gray-100" : "text-gray-400"
-                    } font-medium`}
+                  className={`${
+                    isOnline ? "text-gray-100" : "text-gray-400"
+                  } font-medium`}
                 >
-                  {friend.name}
+                  {friend?.displayName}
                 </span>
               </div>
               <Swords
-                className={`${isOnline
+                className={`${
+                  isOnline
                     ? "text-green-500 opacity-0 group-hover:opacity-100 cursor-pointer hover:scale-110 transition-all duration-200"
                     : "text-gray-500 opacity-0 group-hover:opacity-100 cursor-not-allowed"
-                  }`}
+                }`}
                 size={20}
                 onClick={
-                  isOnline ? () => handleChallengePopup(friend.id) : undefined
+                  isOnline ? () => handleChallengePopup(friend?.googleId!) : undefined
                 }
               />
             </li>

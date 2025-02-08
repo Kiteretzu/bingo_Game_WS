@@ -82,8 +82,10 @@ export type FUser = {
 
 export type FriendRequest = {
   __typename?: 'FriendRequest';
+  createdAt: Scalars['String']['output'];
   id: Scalars['String']['output'];
   sender: User;
+  status: Scalars['String']['output'];
 };
 
 export enum FriendRequestStatus {
@@ -153,9 +155,9 @@ export type Query = {
   __typename?: 'Query';
   authUser?: Maybe<User>;
   bingoPlayerRecords?: Maybe<BingoPlayerRecords>;
-  friendRequests: Array<Maybe<FriendRequest>>;
   friends: Array<Maybe<FUser>>;
   gameHistory: Array<Maybe<BingoGame>>;
+  getFriendRequest: Array<Maybe<FriendRequest>>;
   leaderboard: Array<LeaderboardEntry>;
   user?: Maybe<User>;
 };
@@ -167,7 +169,7 @@ export type QueryBingoPlayerRecordsArgs = {
 
 
 export type QueryFriendsArgs = {
-  googleId: Scalars['String']['input'];
+  googleId?: InputMaybe<Scalars['String']['input']>;
 };
 
 
@@ -242,7 +244,28 @@ export type GetBingoPlayerRecordsQuery = { __typename?: 'Query', bingoPlayerReco
 export type GetAllFriendRequestsQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAllFriendRequestsQuery = { __typename?: 'Query', friendRequests: Array<{ __typename?: 'FriendRequest', sender: { __typename?: 'User', googleId: string, displayName?: string | null, avatar?: string | null } } | null> };
+export type GetAllFriendRequestsQuery = { __typename?: 'Query', getFriendRequest: Array<{ __typename?: 'FriendRequest', id: string, createdAt: string, status: string, sender: { __typename?: 'User', googleId: string, displayName?: string | null, avatar?: string | null } } | null> };
+
+export type AcceptFriendRequestMutationVariables = Exact<{
+  requestId: Scalars['String']['input'];
+}>;
+
+
+export type AcceptFriendRequestMutation = { __typename?: 'Mutation', acceptFriendRequest?: { __typename?: 'FriendRequest', id: string, status: string } | null };
+
+export type DeclineFriendRequestMutationVariables = Exact<{
+  requestId: Scalars['String']['input'];
+}>;
+
+
+export type DeclineFriendRequestMutation = { __typename?: 'Mutation', declineFriendRequest?: { __typename?: 'FriendRequest', id: string, status: string } | null };
+
+export type GetFriendsQueryVariables = Exact<{
+  googleId: Scalars['String']['input'];
+}>;
+
+
+export type GetFriendsQuery = { __typename?: 'Query', friends: Array<{ __typename?: 'FUser', googleId: string, displayName?: string | null, avatar?: string | null } | null> };
 
 
 export const GetAuthProfileDocument = gql`
@@ -493,7 +516,10 @@ export type GetBingoPlayerRecordsSuspenseQueryHookResult = ReturnType<typeof use
 export type GetBingoPlayerRecordsQueryResult = Apollo.QueryResult<GetBingoPlayerRecordsQuery, GetBingoPlayerRecordsQueryVariables>;
 export const GetAllFriendRequestsDocument = gql`
     query getAllFriendRequests {
-  friendRequests {
+  getFriendRequest {
+    id
+    createdAt
+    status
     sender {
       googleId
       displayName
@@ -534,3 +560,113 @@ export type GetAllFriendRequestsQueryHookResult = ReturnType<typeof useGetAllFri
 export type GetAllFriendRequestsLazyQueryHookResult = ReturnType<typeof useGetAllFriendRequestsLazyQuery>;
 export type GetAllFriendRequestsSuspenseQueryHookResult = ReturnType<typeof useGetAllFriendRequestsSuspenseQuery>;
 export type GetAllFriendRequestsQueryResult = Apollo.QueryResult<GetAllFriendRequestsQuery, GetAllFriendRequestsQueryVariables>;
+export const AcceptFriendRequestDocument = gql`
+    mutation acceptFriendRequest($requestId: String!) {
+  acceptFriendRequest(requestId: $requestId) {
+    id
+    status
+  }
+}
+    `;
+export type AcceptFriendRequestMutationFn = Apollo.MutationFunction<AcceptFriendRequestMutation, AcceptFriendRequestMutationVariables>;
+
+/**
+ * __useAcceptFriendRequestMutation__
+ *
+ * To run a mutation, you first call `useAcceptFriendRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useAcceptFriendRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [acceptFriendRequestMutation, { data, loading, error }] = useAcceptFriendRequestMutation({
+ *   variables: {
+ *      requestId: // value for 'requestId'
+ *   },
+ * });
+ */
+export function useAcceptFriendRequestMutation(baseOptions?: Apollo.MutationHookOptions<AcceptFriendRequestMutation, AcceptFriendRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<AcceptFriendRequestMutation, AcceptFriendRequestMutationVariables>(AcceptFriendRequestDocument, options);
+      }
+export type AcceptFriendRequestMutationHookResult = ReturnType<typeof useAcceptFriendRequestMutation>;
+export type AcceptFriendRequestMutationResult = Apollo.MutationResult<AcceptFriendRequestMutation>;
+export type AcceptFriendRequestMutationOptions = Apollo.BaseMutationOptions<AcceptFriendRequestMutation, AcceptFriendRequestMutationVariables>;
+export const DeclineFriendRequestDocument = gql`
+    mutation declineFriendRequest($requestId: String!) {
+  declineFriendRequest(requestId: $requestId) {
+    id
+    status
+  }
+}
+    `;
+export type DeclineFriendRequestMutationFn = Apollo.MutationFunction<DeclineFriendRequestMutation, DeclineFriendRequestMutationVariables>;
+
+/**
+ * __useDeclineFriendRequestMutation__
+ *
+ * To run a mutation, you first call `useDeclineFriendRequestMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useDeclineFriendRequestMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [declineFriendRequestMutation, { data, loading, error }] = useDeclineFriendRequestMutation({
+ *   variables: {
+ *      requestId: // value for 'requestId'
+ *   },
+ * });
+ */
+export function useDeclineFriendRequestMutation(baseOptions?: Apollo.MutationHookOptions<DeclineFriendRequestMutation, DeclineFriendRequestMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<DeclineFriendRequestMutation, DeclineFriendRequestMutationVariables>(DeclineFriendRequestDocument, options);
+      }
+export type DeclineFriendRequestMutationHookResult = ReturnType<typeof useDeclineFriendRequestMutation>;
+export type DeclineFriendRequestMutationResult = Apollo.MutationResult<DeclineFriendRequestMutation>;
+export type DeclineFriendRequestMutationOptions = Apollo.BaseMutationOptions<DeclineFriendRequestMutation, DeclineFriendRequestMutationVariables>;
+export const GetFriendsDocument = gql`
+    query getFriends($googleId: String!) {
+  friends(googleId: $googleId) {
+    googleId
+    displayName
+    avatar
+  }
+}
+    `;
+
+/**
+ * __useGetFriendsQuery__
+ *
+ * To run a query within a React component, call `useGetFriendsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetFriendsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetFriendsQuery({
+ *   variables: {
+ *      googleId: // value for 'googleId'
+ *   },
+ * });
+ */
+export function useGetFriendsQuery(baseOptions: Apollo.QueryHookOptions<GetFriendsQuery, GetFriendsQueryVariables> & ({ variables: GetFriendsQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetFriendsQuery, GetFriendsQueryVariables>(GetFriendsDocument, options);
+      }
+export function useGetFriendsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetFriendsQuery, GetFriendsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetFriendsQuery, GetFriendsQueryVariables>(GetFriendsDocument, options);
+        }
+export function useGetFriendsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetFriendsQuery, GetFriendsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetFriendsQuery, GetFriendsQueryVariables>(GetFriendsDocument, options);
+        }
+export type GetFriendsQueryHookResult = ReturnType<typeof useGetFriendsQuery>;
+export type GetFriendsLazyQueryHookResult = ReturnType<typeof useGetFriendsLazyQuery>;
+export type GetFriendsSuspenseQueryHookResult = ReturnType<typeof useGetFriendsSuspenseQuery>;
+export type GetFriendsQueryResult = Apollo.QueryResult<GetFriendsQuery, GetFriendsQueryVariables>;

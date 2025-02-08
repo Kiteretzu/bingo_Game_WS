@@ -97,6 +97,8 @@ export const prismaTypeDefs = gql`
 
   type FriendRequest {
     id: String!
+    status: String!
+    createdAt: String!
     sender: User!
   }
 
@@ -119,8 +121,8 @@ export const prismaTypeDefs = gql`
     #   player2Id: String!
     # ): BingoPlayerRecords
     bingoPlayerRecords(profileId: String!): BingoPlayerRecords
-    friendRequests: [FriendRequest]!
-    friends(googleId: String!): [FUser]!
+    getFriendRequest: [FriendRequest]!
+    friends(googleId: String): [FUser]!
     gameHistory(bingoProfileId: String, limit: Int): [BingoGame]!
   }
 

@@ -84,10 +84,21 @@ export const resolvers: Resolvers<CustomContext> = {
       return await getBingoPlayerRecordsByProfileId(profileId, args.profileId);
     },
 
-    friends: async (parent, args, context) =>
-      await getFriendsByUserId(args.googleId),
+    friends: async (parent, args, context) => {
+      const user = await context.getUser();
+      let googleId = user?.googleId;
+      if (!user) {
+        googleId = args.googleId || "";
+      }
+      if (!googleId) {
+        throw new GraphQLError("Google ID not found");
+      }
+      return await getFriendsByUserId(googleId);
 
-    friendRequests: async (parent, args, context) => {
+    },
+      
+
+    getFriendRequest: async (parent, args, context) => {
       const user = await context.getUser();
       if (!user) {
         throw new GraphQLError("User not authenticated");
@@ -98,11 +109,12 @@ export const resolvers: Resolvers<CustomContext> = {
           receiverId: user.googleId,
         },
         select: {
+          id: true,
+          createdAt: true,
           sender: true,
         },
       });
 
-      console.log('this is friend req', friendRequests)
       return friendRequests as unknown as FriendRequest[]; // dont know why this is needed
     },
   },
@@ -153,7 +165,7 @@ export const resolvers: Resolvers<CustomContext> = {
         throw new GraphQLError("Unauthorized");
       }
 
-      const friendship = await client.friendship.create({
+      await client.friendship.create({
         data: {
           user1Id: friendRequest.senderId,
           user2Id: friendRequest.receiverId,

@@ -75,11 +75,36 @@ query getBingoPlayerRecords($profileId: String!) {
 }
 
 query getAllFriendRequests {
-  friendRequests {
+  getFriendRequest {
+    id
+    createdAt
+    status
     sender {
       googleId
       displayName
       avatar
     }
+  }
+}
+
+mutation acceptFriendRequest($requestId: String!) {
+  acceptFriendRequest(requestId: $requestId) {
+    id
+    status
+  }
+}
+
+mutation declineFriendRequest($requestId: String!) {
+  declineFriendRequest(requestId: $requestId) {
+    id
+    status
+  }
+}
+
+query getFriends($googleId: String!) {
+  friends(googleId: $googleId) {
+    googleId
+    displayName
+    avatar
   }
 }

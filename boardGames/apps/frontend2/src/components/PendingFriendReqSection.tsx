@@ -2,6 +2,8 @@ import { ChevronDown, Clock, UserPlus, Users } from "lucide-react";
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Badge } from "@/components/ui/badge";
+import { GetAllFriendRequestsDocument, GetFriendsDocument, useAcceptFriendRequestMutation, useDeclineFriendRequestMutation, useGetAllFriendRequestsQuery } from "@repo/graphql/types/client";
+import { getRelativeTime } from "@/lib/getRelativeTime";
 
 interface PendingRequest {
     id: string;
@@ -10,22 +12,17 @@ interface PendingRequest {
 }
 
 const PendingRequestsSection = () => {
-    const [pendingRequests, setPendingRequests] = useState<PendingRequest[]>([
-        { id: "p1", name: "Eve", timestamp: "2h ago" },
-        { id: "p2", name: "Frank", timestamp: "5h ago" },
-    ]);
-
     const [isPendingExpanded, setIsPendingExpanded] = useState(false);
 
-    const handleAcceptRequest = (requestId: string) => {
-        setPendingRequests(prev => prev.filter(request => request.id !== requestId));
-        // Add logic to update friends list
-    };
+    const { data, loading } = useGetAllFriendRequestsQuery()
 
-    const handleDeclineRequest = (requestId: string) => {
-        setPendingRequests(prev => prev.filter(request => request.id !== requestId));
-    };
+    console.log('FriendsRequest: ', data)
 
+    const [handleAcceptRequest, { data: acceptReqData, loading: acceptReqLoading }] = useAcceptFriendRequestMutation({ refetchQueries: [GetFriendsDocument, GetAllFriendRequestsDocument] })
+    const [handleDeclineRequest, { data: declineReqData, loading: declineReqLoading }] = useDeclineFriendRequestMutation({ refetchQueries: [GetAllFriendRequestsDocument] })
+
+    console.log('AcceptData: ', acceptReqLoading, acceptReqData)
+    console.log('DeclineData: ', declineReqLoading, declineReqData)
     return (
         <div className="mb-6">
             <div
@@ -37,12 +34,12 @@ const PendingRequestsSection = () => {
                         <Users className="text-blue-400" size={24} />
                         <h3 className="text-xl font-semibold text-gray-200">Pending Requests</h3>
                     </div>
-                    {pendingRequests.length > 0 && (
+                    {(data?.getFriendRequest?.length ?? 0) > 0 && (
                         <Badge
                             className="bg-blue-500/20 text-blue-400 hover:bg-blue-500/30 transition-colors duration-200"
                         >
                             <UserPlus size={14} className="mr-1" />
-                            {pendingRequests.length} new
+                            {data?.getFriendRequest.length}
                         </Badge>
                     )}
                 </div>
@@ -58,25 +55,25 @@ const PendingRequestsSection = () => {
                     }`}
             >
                 <ul className="space-y-2">
-                    {pendingRequests.map((request) => (
+                    {data?.getFriendRequest.map((request) => (
                         <li
-                            key={request.id}
+                            key={request?.id}
                             className="flex items-center justify-between bg-gray-700/50 hover:bg-gray-700 p-3 rounded-md transition-all duration-200"
                         >
                             <div className="flex items-center gap-2">
                                 <Clock className="text-yellow-500" size={16} />
-                                <span className="text-gray-100">{request.name}</span>
-                                <span className="text-sm text-gray-400">{request.timestamp}</span>
+                                <span className="text-gray-100 max-w-[16ch] truncate">{request?.sender.displayName}</span>
+                                <span className="text-sm text-gray-400">{getRelativeTime(request?.createdAt!)}</span>
                             </div>
                             <div className="flex gap-2">
                                 <Button
-                                    onClick={() => handleAcceptRequest(request.id)}
+                                    onClick={() => handleAcceptRequest({ variables: { requestId: request?.id! } })}
                                     className="bg-green-600 hover:bg-green-700 px-3 py-1 text-sm"
                                 >
                                     Accept
                                 </Button>
                                 <Button
-                                    onClick={() => handleDeclineRequest(request.id)}
+                                    onClick={() => handleDeclineRequest({ variables: { requestId: request?.id! } })}
                                     className="bg-red-600 hover:bg-red-700 px-3 py-1 text-sm"
                                 >
                                     Decline

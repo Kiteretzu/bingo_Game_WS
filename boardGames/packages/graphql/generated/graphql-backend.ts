@@ -81,14 +81,8 @@ export type FUser = {
 
 export type FriendRequest = {
   __typename?: 'FriendRequest';
-  createdAt: Scalars['String']['output'];
   id: Scalars['String']['output'];
-  receiver: User;
-  receiverId: Scalars['String']['output'];
   sender: User;
-  senderId: Scalars['String']['output'];
-  status: FriendRequestStatus;
-  updatedAt: Scalars['String']['output'];
 };
 
 export enum FriendRequestStatus {
@@ -376,14 +370,8 @@ export type FUserResolvers<ContextType = any, ParentType extends ResolversParent
 };
 
 export type FriendRequestResolvers<ContextType = any, ParentType extends ResolversParentTypes['FriendRequest'] = ResolversParentTypes['FriendRequest']> = {
-  createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  receiver?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
-  receiverId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   sender?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
-  senderId?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  status?: Resolver<ResolversTypes['FriendRequestStatus'], ParentType, ContextType>;
-  updatedAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
 

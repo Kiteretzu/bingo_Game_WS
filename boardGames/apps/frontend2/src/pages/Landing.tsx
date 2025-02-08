@@ -47,7 +47,7 @@ export default function Dashboard() {
                 <div className="col-span-1 row-span-3">
                     <FriendList />
                 </div>
-                <div className="col-span-1 row-span-2">
+                <div className="col-span-1 row-span-2 ">
                     <ExpandableCard
                         item={<DeveloperMessage />}
                         renderItem={(item, isExpanded) => item}

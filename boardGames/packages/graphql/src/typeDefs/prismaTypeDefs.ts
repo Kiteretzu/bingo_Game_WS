@@ -97,13 +97,7 @@ export const prismaTypeDefs = gql`
 
   type FriendRequest {
     id: String!
-    senderId: String!
-    receiverId: String!
-    status: FriendRequestStatus!
-    createdAt: String!
-    updatedAt: String!
     sender: User!
-    receiver: User!
   }
 
   type Friendship {

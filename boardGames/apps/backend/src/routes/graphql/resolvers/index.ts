@@ -97,12 +97,12 @@ export const resolvers: Resolvers<CustomContext> = {
         where: {
           receiverId: user.googleId,
         },
-        include: {
+        select: {
           sender: true,
-          receiver: true,
         },
       });
 
+      console.log('this is friend req', friendRequests)
       return friendRequests as unknown as FriendRequest[]; // dont know why this is needed
     },
   },

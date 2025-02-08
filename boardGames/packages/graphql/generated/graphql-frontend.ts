@@ -82,14 +82,8 @@ export type FUser = {
 
 export type FriendRequest = {
   __typename?: 'FriendRequest';
-  createdAt: Scalars['String']['output'];
   id: Scalars['String']['output'];
-  receiver: User;
-  receiverId: Scalars['String']['output'];
   sender: User;
-  senderId: Scalars['String']['output'];
-  status: FriendRequestStatus;
-  updatedAt: Scalars['String']['output'];
 };
 
 export enum FriendRequestStatus {
@@ -244,6 +238,11 @@ export type GetBingoPlayerRecordsQueryVariables = Exact<{
 
 
 export type GetBingoPlayerRecordsQuery = { __typename?: 'Query', bingoPlayerRecords?: { __typename?: 'BingoPlayerRecords', player1Id: string, player2Id: string, player1Wins: number, player2Wins: number, totalMatches: number } | null };
+
+export type GetAllFriendRequestsQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type GetAllFriendRequestsQuery = { __typename?: 'Query', friendRequests: Array<{ __typename?: 'FriendRequest', sender: { __typename?: 'User', googleId: string, displayName?: string | null, avatar?: string | null } } | null> };
 
 
 export const GetAuthProfileDocument = gql`
@@ -492,3 +491,46 @@ export type GetBingoPlayerRecordsQueryHookResult = ReturnType<typeof useGetBingo
 export type GetBingoPlayerRecordsLazyQueryHookResult = ReturnType<typeof useGetBingoPlayerRecordsLazyQuery>;
 export type GetBingoPlayerRecordsSuspenseQueryHookResult = ReturnType<typeof useGetBingoPlayerRecordsSuspenseQuery>;
 export type GetBingoPlayerRecordsQueryResult = Apollo.QueryResult<GetBingoPlayerRecordsQuery, GetBingoPlayerRecordsQueryVariables>;
+export const GetAllFriendRequestsDocument = gql`
+    query getAllFriendRequests {
+  friendRequests {
+    sender {
+      googleId
+      displayName
+      avatar
+    }
+  }
+}
+    `;
+
+/**
+ * __useGetAllFriendRequestsQuery__
+ *
+ * To run a query within a React component, call `useGetAllFriendRequestsQuery` and pass it any options that fit your needs.
+ * When your component renders, `useGetAllFriendRequestsQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useGetAllFriendRequestsQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useGetAllFriendRequestsQuery(baseOptions?: Apollo.QueryHookOptions<GetAllFriendRequestsQuery, GetAllFriendRequestsQueryVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<GetAllFriendRequestsQuery, GetAllFriendRequestsQueryVariables>(GetAllFriendRequestsDocument, options);
+      }
+export function useGetAllFriendRequestsLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<GetAllFriendRequestsQuery, GetAllFriendRequestsQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<GetAllFriendRequestsQuery, GetAllFriendRequestsQueryVariables>(GetAllFriendRequestsDocument, options);
+        }
+export function useGetAllFriendRequestsSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<GetAllFriendRequestsQuery, GetAllFriendRequestsQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<GetAllFriendRequestsQuery, GetAllFriendRequestsQueryVariables>(GetAllFriendRequestsDocument, options);
+        }
+export type GetAllFriendRequestsQueryHookResult = ReturnType<typeof useGetAllFriendRequestsQuery>;
+export type GetAllFriendRequestsLazyQueryHookResult = ReturnType<typeof useGetAllFriendRequestsLazyQuery>;
+export type GetAllFriendRequestsSuspenseQueryHookResult = ReturnType<typeof useGetAllFriendRequestsSuspenseQuery>;
+export type GetAllFriendRequestsQueryResult = Apollo.QueryResult<GetAllFriendRequestsQuery, GetAllFriendRequestsQueryVariables>;

@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import useBingo from "@/hooks/useBingo";
-import ChallengeModal from "./ChallengeFriend";
+import ChallengeModal from "./dialog/challengedFriend-dialog";
 import AddFriendPopup from "./AddFriend";
 import GameChallengePopup from "./dialog/challangeReceived-dialog";
 import PendingRequestsSection from "./PendingFriendReqSection";

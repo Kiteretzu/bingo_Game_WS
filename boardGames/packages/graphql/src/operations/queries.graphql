@@ -73,3 +73,13 @@ query getBingoPlayerRecords($profileId: String!) {
     totalMatches
   }
 }
+
+query getAllFriendRequests {
+  friendRequests {
+    sender {
+      googleId
+      displayName
+      avatar
+    }
+  }
+}

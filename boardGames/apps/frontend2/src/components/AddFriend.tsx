@@ -4,6 +4,7 @@ import { X } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import useBingo from "@/hooks/useBingo"
+import { useSendFriendRequestMutation } from "@repo/graphql/types/client"
 
 
 
@@ -13,11 +14,13 @@ export default function AddFriendPopup() {
 
   const onClose = () => setIsOpenAddFriend(false)
 
+  const [handleSendFriendRequest, { data }] = useSendFriendRequestMutation()
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (friendId.trim()) {
-      handleAddFriend(friendId)
+      handleAddFriend({ to: friendId.trim() })
+      setIsOpenAddFriend(false)
       setFriendId("")
     }
   }
@@ -41,7 +44,7 @@ export default function AddFriendPopup() {
               className="w-full bg-gray-800 text-white border-gray-700 focus:border-gray-600"
             />
           </div>
-          <Button type="submit" className="w-full bg-gray-700 hover:bg-gray-600 text-white">
+          <Button type="submit" className="w-full bg-green-700/90 hover:bg-gray-600 text-white">
             Add Friend
           </Button>
         </form>

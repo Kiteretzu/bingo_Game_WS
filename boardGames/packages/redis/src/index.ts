@@ -1,6 +1,9 @@
 import { client } from "@repo/db/client";
 import { createClient, RedisClientType } from "redis";
 import { DbManagerQueue } from "./services/dbManagerQueue";
+import dotenv from "dotenv";
+
+dotenv.config({ path: "../../.env" });
 
 const redisClient: RedisClientType = createClient({
   url: process.env.REDIS_URL || "redis://localhost:6379",

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { UserPlus, Swords, ChevronDown } from "lucide-react";
+import { UserPlus, Swords, ChevronDown, Loader2, Trash } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -10,11 +10,13 @@ import AddFriendPopup from "./AddFriend";
 import GameChallengePopup from "./dialog/challangeReceived-dialog";
 import PendingRequestsSection from "./PendingFriendReqSection";
 import { useGetFriendsQuery } from "@repo/graphql/types/client";
+import { RemoveFriendDialog } from "./dialog/removeFriend-dialog";
 
 interface Friend {
   id: string;
   name: string;
   status: "online" | "offline";
+  avatarUrl?: string; // Optional avatar URL
 }
 
 export default function FriendList() {
@@ -38,7 +40,7 @@ export default function FriendList() {
     }
   });
 
-  const [isOnlineExpanded, setIsOnlineExpanded] = useState(false);
+  const [isOnlineExpanded, setIsOnlineExpanded] = useState(true);
   const [isOfflineExpanded, setIsOfflineExpanded] = useState(false);
   const [isChallengeRecived, SetisChallengeRecived] = useState<boolean>(false);
 
@@ -77,63 +79,77 @@ export default function FriendList() {
           <h3 className="text-xl font-semibold text-gray-200">{title}</h3>
           <Badge
             variant="secondary"
-            className={`${
-              isOnline ? "bg-green-500/20 text-green-400" : "bg-gray-500/20 text-gray-400"
-            } hover:bg-opacity-30 transition-colors duration-200`}
+            className={`${isOnline ? "bg-green-500/20 text-green-400" : "bg-gray-500/20 text-gray-400"
+              } hover:bg-opacity-30 transition-colors duration-200`}
           >
             {data?.friends.length ?? 0}
           </Badge>
         </div>
         <ChevronDown
-          className={`text-gray-400 group-hover:text-gray-200 transition-transform duration-300 ease-in-out ${
-            isExpanded ? "transform rotate-180" : ""
-          }`}
+          className={`text-gray-400 group-hover:text-gray-200 transition-transform duration-300 ease-in-out ${isExpanded ? "transform rotate-180" : ""
+            }`}
           size={20}
         />
       </div>
 
       <div
-        className={`transform transition-all duration-300 ease-in-out origin-top ${
-          isExpanded ? "scale-y-100 opacity-100" : "scale-y-0 opacity-0 h-0"
-        }`}
+        className={`transform transition-all duration-300 ease-in-out origin-top ${isExpanded ? "scale-y-100 opacity-100" : "scale-y-0 opacity-0 h-0"
+          }`}
       >
-        <ul className="space-y-2">
-          {data?.friends.map((friend) => (
-            <li
-              key={friend?.googleId}
-              className="flex items-center justify-between bg-gray-700/50 hover:bg-gray-700 p-3 rounded-md group 
-                transition-all duration-200 transform hover:scale-102"
-            >
-              <div className="flex items-center gap-3">
-                <div
-                  className={`w-2 h-2 rounded-full ${
-                    isOnline
-                      ? "bg-green-500 shadow-sm shadow-green-500/50"
-                      : "bg-gray-500"
-                  }`}
-                />
-                <span
-                  className={`${
-                    isOnline ? "text-gray-100" : "text-gray-400"
-                  } font-medium`}
+        {loading ? (
+          <div className="flex flex-col items-center justify-center py-2 rounded-lg animate-spin text-gray-300">
+            <Loader2 />
+          </div>
+        ) : (
+          <ul className="space-y-2">
+            {data?.friends.map((friend) => {
+              console.log("Friend Avatar: ", friend?.avatar);
+              return (
+
+
+                <li
+                  key={friend?.googleId}
+                  className="flex items-center justify-between bg-gray-700/50 hover:bg-gray-700 p-3 rounded-md group 
+                  transition-all duration-200 transform hover:scale-102"
                 >
-                  {friend?.displayName}
-                </span>
-              </div>
-              <Swords
-                className={`${
-                  isOnline
-                    ? "text-green-500 opacity-0 group-hover:opacity-100 cursor-pointer hover:scale-110 transition-all duration-200"
-                    : "text-gray-500 opacity-0 group-hover:opacity-100 cursor-not-allowed"
-                }`}
-                size={20}
-                onClick={
-                  isOnline ? () => handleChallengePopup(friend?.googleId!) : undefined
-                }
-              />
-            </li>
-          ))}
-        </ul>
+                  <div className="flex items-center gap-3">
+                    <div
+                      className={`w-2 h-2 rounded-full ${isOnline
+                        ? "bg-green-500 shadow-sm shadow-green-500/50"
+                        : "bg-gray-500"
+                        }`}
+                    />
+                    <img
+                      src={friend?.avatar!}
+                      alt={'avatar'}
+                      className="w-8 h-8 rounded-full object-cover"
+                    />
+                    <span
+                      className={`${isOnline ? "text-gray-100" : "text-gray-400"
+                        } font-medium`}
+                    >
+                      {friend?.displayName}
+                    </span>
+                  </div>
+
+                  <div className="flex space-x-3">
+                    <RemoveFriendDialog />
+                    <Swords
+                      className={`${isOnline
+                        ? "text-red-500 opacity-0 group-hover:opacity-100 cursor-pointer hover:scale-110 transition-all duration-200"
+                        : "text-gray-500 opacity-0 group-hover:opacity-100 cursor-not-allowed"
+                        }`}
+                      size={20}
+                      onClick={
+                        isOnline ? () => handleChallengePopup(friend?.googleId!) : undefined
+                      }
+                    />
+                  </div>
+                </li>
+              )
+            })}
+          </ul>
+        )}
       </div>
     </div>
   );
@@ -147,7 +163,7 @@ export default function FriendList() {
           </CardTitle>
           <Button
             onClick={handleAddFriendPopup}
-            className="bg-blue-600 hover:bg-blue-700 text-white font-semibold transition-colors duration-200"
+            className="bg-green-700 hover:bg-green-800 text-white font-semibold transition-colors duration-200"
           >
             <UserPlus className="mr-2 h-5 w-5" />
             Add Friend

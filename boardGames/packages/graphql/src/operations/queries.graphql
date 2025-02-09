@@ -87,6 +87,14 @@ query getAllFriendRequests {
   }
 }
 
+query getFriends($googleId: String!) {
+  friends(googleId: $googleId) {
+    googleId
+    displayName
+    avatar
+  }
+}
+
 mutation acceptFriendRequest($requestId: String!) {
   acceptFriendRequest(requestId: $requestId) {
     id
@@ -101,10 +109,10 @@ mutation declineFriendRequest($requestId: String!) {
   }
 }
 
-query getFriends($googleId: String!) {
-  friends(googleId: $googleId) {
-    googleId
-    displayName
-    avatar
+mutation SendFriendRequest($from: String!, $to: String!) {
+  sendFriendRequest(from: $from, to: $to) {
+    id
+    status
+    createdAt
   }
 }

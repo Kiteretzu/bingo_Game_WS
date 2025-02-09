@@ -15,7 +15,9 @@ export default function Leaderboard() {
   const { data, loading } = useGetLeaderboardPlayersQuery({
     variables: { limit: 10 }
   });
-  
+
+  console.log('people', data?.leaderboard[0].id)
+
   const getRankIcon = (rank: number) => {
     switch (rank) {
       case 1: return <Trophy className="text-yellow-500" size={24} />;

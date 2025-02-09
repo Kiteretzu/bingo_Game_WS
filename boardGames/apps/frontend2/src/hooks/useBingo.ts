@@ -246,8 +246,7 @@ function useBingo() {
     sendData(PUT_RESIGN, data);
   };
 
-  const handleAddFriend = (userId: string) => {
-    const data: PAYLOAD_PUT_ADD_FRIEND["payload"] = { userId }; // maybe in future userId to be number
+  const handleAddFriend = (data: PAYLOAD_PUT_ADD_FRIEND["payload"]) => {
     sendData(PUT_ADD_FRIEND, data);
   };
 

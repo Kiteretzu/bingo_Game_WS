@@ -12,11 +12,11 @@ interface PendingRequest {
 }
 
 const PendingRequestsSection = () => {
-    const [isPendingExpanded, setIsPendingExpanded] = useState(false);
+    const [isPendingExpanded, setIsPendingExpanded] = useState(true);
 
     const { data, loading } = useGetAllFriendRequestsQuery()
 
-    console.log('FriendsRequest: ', data)
+    console.log('FriendsRequest: ', data, loading)
 
     const [handleAcceptRequest, { data: acceptReqData, loading: acceptReqLoading }] = useAcceptFriendRequestMutation({ refetchQueries: [GetFriendsDocument, GetAllFriendRequestsDocument] })
     const [handleDeclineRequest, { data: declineReqData, loading: declineReqLoading }] = useDeclineFriendRequestMutation({ refetchQueries: [GetAllFriendRequestsDocument] })
@@ -54,34 +54,45 @@ const PendingRequestsSection = () => {
                 className={`transition-all duration-200 overflow-hidden ${isPendingExpanded ? "max-h-96" : "max-h-0"
                     }`}
             >
-                <ul className="space-y-2">
-                    {data?.getFriendRequest.map((request) => (
-                        <li
-                            key={request?.id}
-                            className="flex items-center justify-between bg-gray-700/50 hover:bg-gray-700 p-3 rounded-md transition-all duration-200"
-                        >
-                            <div className="flex items-center gap-2">
-                                <Clock className="text-yellow-500" size={16} />
-                                <span className="text-gray-100 max-w-[16ch] truncate">{request?.sender.displayName}</span>
-                                <span className="text-sm text-gray-400">{getRelativeTime(request?.createdAt!)}</span>
-                            </div>
-                            <div className="flex gap-2">
-                                <Button
-                                    onClick={() => handleAcceptRequest({ variables: { requestId: request?.id! } })}
-                                    className="bg-green-600 hover:bg-green-700 px-3 py-1 text-sm"
-                                >
-                                    Accept
-                                </Button>
-                                <Button
-                                    onClick={() => handleDeclineRequest({ variables: { requestId: request?.id! } })}
-                                    className="bg-red-600 hover:bg-red-700 px-3 py-1 text-sm"
-                                >
-                                    Decline
-                                </Button>
-                            </div>
-                        </li>
-                    ))}
-                </ul>
+                {loading ? (
+                    <div className="flex justify-center items-center py-6">
+                        <div className="animate-spin h-5 w-5 border-2 border-blue-400 border-t-transparent rounded-full" />
+                    </div>
+                ) : data?.getFriendRequest?.length === 0 ? (
+                    <div className="flex flex-col items-center justify-center py-8 rounded-lg">
+                        <Users className="text-gray-400 mb-2" size={24} />
+                        <p className="text-gray-400 text-sm">No pending friend requests</p>
+                    </div>
+                ) : (
+                    <ul className="space-y-2">
+                        {data?.getFriendRequest.map((request) => (
+                            <li
+                                key={request?.id}
+                                className="flex items-center justify-between bg-gray-700/50 hover:bg-gray-700 p-3 rounded-md transition-all duration-200"
+                            >
+                                <div className="flex items-center gap-2">
+                                    <Clock className="text-yellow-500" size={16} />
+                                    <span className="text-gray-100 max-w-[16ch] truncate">{request?.sender.displayName}</span>
+                                    <span className="text-sm text-gray-400">{getRelativeTime(request?.createdAt!)}</span>
+                                </div>
+                                <div className="flex gap-2">
+                                    <Button
+                                        onClick={() => handleAcceptRequest({ variables: { requestId: request?.id! } })}
+                                        className="bg-green-600 hover:bg-green-700 px-3 py-1 text-sm"
+                                    >
+                                        Accept
+                                    </Button>
+                                    <Button
+                                        onClick={() => handleDeclineRequest({ variables: { requestId: request?.id! } })}
+                                        className="bg-red-600 hover:bg-red-700 px-3 py-1 text-sm"
+                                    >
+                                        Decline
+                                    </Button>
+                                </div>
+                            </li>
+                        ))}
+                    </ul>
+                )}
             </div>
         </div>
     );

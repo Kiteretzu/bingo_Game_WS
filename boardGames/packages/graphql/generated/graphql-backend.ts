@@ -83,7 +83,8 @@ export type FriendRequest = {
   __typename?: 'FriendRequest';
   createdAt: Scalars['String']['output'];
   id: Scalars['String']['output'];
-  sender: User;
+  receiver: FUser;
+  sender: FUser;
   status: Scalars['String']['output'];
 };
 
@@ -147,7 +148,8 @@ export type MutationRemoveFriendArgs = {
 
 
 export type MutationSendFriendRequestArgs = {
-  googleId: Scalars['String']['input'];
+  from: Scalars['String']['input'];
+  to: Scalars['String']['input'];
 };
 
 export type Query = {
@@ -374,7 +376,8 @@ export type FUserResolvers<ContextType = any, ParentType extends ResolversParent
 export type FriendRequestResolvers<ContextType = any, ParentType extends ResolversParentTypes['FriendRequest'] = ResolversParentTypes['FriendRequest']> = {
   createdAt?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   id?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
-  sender?: Resolver<ResolversTypes['User'], ParentType, ContextType>;
+  receiver?: Resolver<ResolversTypes['FUser'], ParentType, ContextType>;
+  sender?: Resolver<ResolversTypes['FUser'], ParentType, ContextType>;
   status?: Resolver<ResolversTypes['String'], ParentType, ContextType>;
   __isTypeOf?: IsTypeOfResolverFn<ParentType, ContextType>;
 };
@@ -406,7 +409,7 @@ export type MutationResolvers<ContextType = any, ParentType extends ResolversPar
   acceptFriendRequest?: Resolver<Maybe<ResolversTypes['FriendRequest']>, ParentType, ContextType, RequireFields<MutationAcceptFriendRequestArgs, 'requestId'>>;
   declineFriendRequest?: Resolver<Maybe<ResolversTypes['FriendRequest']>, ParentType, ContextType, RequireFields<MutationDeclineFriendRequestArgs, 'requestId'>>;
   removeFriend?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType, RequireFields<MutationRemoveFriendArgs, 'googleId'>>;
-  sendFriendRequest?: Resolver<Maybe<ResolversTypes['FriendRequest']>, ParentType, ContextType, RequireFields<MutationSendFriendRequestArgs, 'googleId'>>;
+  sendFriendRequest?: Resolver<Maybe<ResolversTypes['FriendRequest']>, ParentType, ContextType, RequireFields<MutationSendFriendRequestArgs, 'from' | 'to'>>;
 };
 
 export type QueryResolvers<ContextType = any, ParentType extends ResolversParentTypes['Query'] = ResolversParentTypes['Query']> = {

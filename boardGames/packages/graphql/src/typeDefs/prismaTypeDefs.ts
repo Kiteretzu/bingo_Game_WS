@@ -99,7 +99,8 @@ export const prismaTypeDefs = gql`
     id: String!
     status: String!
     createdAt: String!
-    sender: User!
+    sender: FUser!
+    receiver: FUser!
   }
 
   type Friendship {
@@ -127,7 +128,7 @@ export const prismaTypeDefs = gql`
   }
 
   type Mutation {
-    sendFriendRequest(googleId: String!): FriendRequest
+    sendFriendRequest(from: String!, to: String!): FriendRequest
     acceptFriendRequest(requestId: String!): FriendRequest
     declineFriendRequest(requestId: String!): FriendRequest
     removeFriend(googleId: String!): Boolean

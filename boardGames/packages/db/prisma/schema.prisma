@@ -36,7 +36,6 @@ model FriendRequest {
   sender     User                @relation("SentRequests", fields: [senderId], references: [googleId])
   receiver   User                @relation("ReceivedRequests", fields: [receiverId], references: [googleId])
 
-  @@unique([senderId, receiverId])
 }
 
 

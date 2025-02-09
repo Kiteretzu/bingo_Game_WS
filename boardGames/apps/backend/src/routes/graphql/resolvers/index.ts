@@ -94,9 +94,7 @@ export const resolvers: Resolvers<CustomContext> = {
         throw new GraphQLError("Google ID not found");
       }
       return await getFriendsByUserId(googleId);
-
     },
-      
 
     getFriendRequest: async (parent, args, context) => {
       const user = await context.getUser();
@@ -107,11 +105,14 @@ export const resolvers: Resolvers<CustomContext> = {
       const friendRequests = await client.friendRequest.findMany({
         where: {
           receiverId: user.googleId,
+          status: "PENDING",
         },
         select: {
           id: true,
+          status: true,
           createdAt: true,
           sender: true,
+          receiver: true,
         },
       });
 
@@ -120,19 +121,36 @@ export const resolvers: Resolvers<CustomContext> = {
   },
   Mutation: {
     sendFriendRequest: async (parent, args, context) => {
-      const { googleId } = args;
-      console.log("Here");
-      const user = await context.getUser();
-      console.log("this is googleId", user?.googleId);
-      if (!user) {
-        throw new GraphQLError("User not authenticated");
+      const { from, to } = args;
+      console.log("Controller reache Here");
+
+      // Check if they are already friends
+      const friends = await getFriendsByUserId(from);
+      if (friends.some((friend) => friend.googleId === to)) {
+        throw new GraphQLError("You are already friends");
       }
 
-      // Implement the logic to send a friend request
+      // Check if a friend request already exists
+      const existingRequest = await client.friendRequest.findFirst({
+        where: {
+          senderId: from,
+          receiverId: to,
+          status: "PENDING",
+        },
+      });
+      console.log("check first on req");
+      if (existingRequest) {
+        throw new GraphQLError(
+          "Friend request already exists or you are already friends."
+        );
+      }
+      console.log("check second on req");
+
+      // Create and send the friend request
       const friendRequest = await client.friendRequest.create({
         data: {
-          senderId: user.googleId,
-          receiverId: googleId,
+          senderId: from,
+          receiverId: to,
         },
         include: {
           receiver: true,
@@ -140,8 +158,8 @@ export const resolvers: Resolvers<CustomContext> = {
         },
       });
 
-      console.log("this is friendRequest", friendRequest);
-      return friendRequest as unknown as FriendRequest; // dont know why this is needed
+      console.log("Friend request created:", friendRequest);
+      return friendRequest as unknown as FriendRequest; // Type assertion if needed
     },
     acceptFriendRequest: async (parent, args, context) => {
       const { requestId } = args;

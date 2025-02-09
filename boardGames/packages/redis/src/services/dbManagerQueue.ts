@@ -15,6 +15,9 @@ import {
   REDIS_PAYLOAD_SentFriendRequest,
   REDIS_PAYLOAD_TossUpdate,
 } from "types";
+import { SendFriendRequestDocument } from "@repo/graphql/types/client";
+import { GraphQLError } from "graphql";
+import { GraphQLClient } from "graphql-request"; // ignore this warning
 
 interface GameRequest {
   type:
@@ -29,6 +32,11 @@ interface GameRequest {
 export class DbManagerQueue {
   private client: RedisClientType = redisClient;
   private queueName = QUEUE_NAME;
+  private gqlClient: GraphQLClient;
+  constructor() {
+    console.log("this graphql endpoint", process.env.GRAPHQL_ENDPOINT);
+    this.gqlClient = new GraphQLClient(process.env.GRAPHQL_ENDPOINT!);
+  }
 
   async processRequests() {
     console.log(`Starting to process requests from queue: ${this.queueName}`);
@@ -348,26 +356,20 @@ export class DbManagerQueue {
   private async handleFriendRequests(
     payload: REDIS_PAYLOAD_SentFriendRequest["payload"]
   ) {
-    console.log("inside redis FriendRequests");
+    console.log("inside redis FriendRequests", typeof payload.from, payload.to);
     try {
-      const data = await client.friendRequest.create({
-        data: {
-          sender: {
-            connect: {
-              googleId: payload.from,
-            },
-          },
-          receiver: {
-            connect: {
-              googleId: payload.to,
-            },
-          },
-        },
-      });
+      const data = await this.gqlClient.request(
+        SendFriendRequestDocument,
+        payload
+      );
 
       console.log("Created friend request:", data);
-    } catch (error) {
-      console.error("Error creating friend request:", error);
+    } catch (error: any) {
+      if (error instanceof GraphQLError) {
+        console.error("GraphQL Error creating friend request:", error.message);
+      } else {
+        console.error("Error creating friend request:", error.message);
+      }
     }
   }
   private safeParseJSON<T>(json: string | undefined): T | null {

@@ -175,7 +175,7 @@ export interface PAYLOAD_PUT_CHALLENGE {
 export interface PAYLOAD_PUT_ADD_FRIEND {
   type: MessageType.PUT_ADD_FRIEND;
   payload: {
-    userId: string;
+    to: string;
   };
 }
 

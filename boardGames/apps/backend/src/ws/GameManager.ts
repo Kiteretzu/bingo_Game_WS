@@ -154,10 +154,9 @@ export class GameManager {
   }
 
   removeUser(googleId: string) {
-
     const socket = this.users.get(googleId);
     // also removing from pending players
-    if(socket == this.pendingPlayer) {
+    if (socket == this.pendingPlayer) {
       this.pendingPlayer = null;
       this.pendingPlayerData = null;
     }
@@ -165,7 +164,6 @@ export class GameManager {
       this.socketToUserId.delete(socket);
     }
     this.users.delete(googleId);
-    
   }
 
   getUserId(socket: WebSocket): UserId | undefined {
@@ -336,13 +334,14 @@ export class GameManager {
             const data = message as PAYLOAD_PUT_ADD_FRIEND;
             const fromGoogleId = this.getUserId(socket); // this will def come
             console.log("this is fromUserGoogleId", fromGoogleId);
+            console.log(`Thi is payload data`, data.payload.to);
             // save to DB
-            redis_sentFriendRequest({ 
+            redis_sentFriendRequest({
               from: fromGoogleId!,
-              to: data.payload.userId,
+              to: data.payload.to,
             });
 
-            const receiverSocket = this.users.get(data.payload.userId);
+            const receiverSocket = this.users.get(data.payload.to);
             // tell redis to sent request in db
             if (!receiverSocket) {
               socket.send("User not online");

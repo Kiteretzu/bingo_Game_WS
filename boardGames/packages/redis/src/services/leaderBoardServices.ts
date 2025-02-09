@@ -2,7 +2,7 @@ import { client, PrismaClient } from "@repo/db/client";
 import { LeaderboardEntry } from "@repo/graphql/types/server";
 import { createClient, RedisClientType } from "redis";
 
- class LeaderboardService {
+class LeaderboardService {
   private static instance: LeaderboardService;
   private redis: RedisClientType;
   private prisma: PrismaClient;
@@ -28,8 +28,7 @@ import { createClient, RedisClientType } from "redis";
     }
   }
 
-
-    public static getInstance(): LeaderboardService {
+  public static getInstance(): LeaderboardService {
     if (!LeaderboardService.instance) {
       LeaderboardService.instance = new LeaderboardService();
     }
@@ -74,7 +73,7 @@ import { createClient, RedisClientType } from "redis";
           multi.zAdd(this.leaderboardKey, {
             score: user.mmr,
             value: JSON.stringify({
-              id: user.id,
+              id: user.User.googleId,
               displayName: user.User.displayName,
               mmr: user.mmr,
             }),
@@ -94,9 +93,7 @@ import { createClient, RedisClientType } from "redis";
 
   //    * Get leaderboard data, refreshing cache if needed.
 
-  async getLeaderboard(limit = 10): Promise<
-    Array<LeaderboardEntry>
-  > {
+  async getLeaderboard(limit = 10): Promise<Array<LeaderboardEntry>> {
     try {
       if (await this.shouldRefreshCache()) {
         await this.refreshLeaderboardCache();
@@ -124,6 +121,3 @@ import { createClient, RedisClientType } from "redis";
 }
 
 export const leaderboardService = LeaderboardService.getInstance();
-
-
-

@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "exports": {
-    "./game": "./src/ws/Game.ts"
+    "./game-manager": "./src/ws/GameManager.ts"
   },
   "scripts": {
     "build": "npx esbuild src/index.ts --bundle --outfile=dist/index.js --platform=node --tsconfig=tsconfig.json",
@@ -27,7 +27,8 @@
     "@types/ws": "^8.5.13",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.2"
+    "typescript": "^5.7.2",
+    "@repo/messages": "workspace:*"
   },
   "dependencies": {
     "@apollo/server": "^4.11.2",

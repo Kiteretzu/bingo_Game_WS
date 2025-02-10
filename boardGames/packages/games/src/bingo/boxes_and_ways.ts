@@ -1,4 +1,4 @@
-import { BoxesName } from "./messages";
+import { BoxesName } from "@repo/messages/message";
 
 export const boxes: BoxesName[] = []; // Initialized with an empty array
 

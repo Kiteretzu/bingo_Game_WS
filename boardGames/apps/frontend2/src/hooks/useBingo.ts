@@ -29,15 +29,13 @@ import {
   BoxesValue,
   PAYLOAD_PUT_SEND_EMOTE,
   GET_ADD_FRIEND,
-} from "@repo/games/mechanics";
-import {
   MessageType,
   PAYLOAD_GET_GAME,
   PAYLOAD_GET_RESPONSE,
   PAYLOAD_PUT_GET_CHECK_MARK,
   PAYLOAD_GET_VICTORY,
   PAYLOAD_GET_LOST,
-} from "@repo/games/mechanics";
+} from "@repo/messages/message";
 import { useDialogContext } from "@/context/DialogContext";
 import { useApolloClient } from "@apollo/client";
 import {

@@ -1,6 +1,12 @@
 import { boxes, possibleLines } from "./boxes_and_ways";
 import { randomValuesForGameBoard } from "./gameBoards";
-import { BoxesName, BoxesValue, GameBoard, Goals, GoalType } from "./messages";
+import {
+  BoxesName,
+  BoxesValue,
+  GameBoard,
+  Goals,
+  GoalType,
+} from "@repo/messages/message";
 
 export class Bingo {
   public lineCheckBoxes: BoxesName[][]; // An array of arrays for storing matched lines

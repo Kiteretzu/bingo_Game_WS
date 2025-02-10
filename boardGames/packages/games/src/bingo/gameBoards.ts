@@ -1,5 +1,5 @@
 import { boxes, possibleLines } from "./boxes_and_ways";
-import { BoxesName, BoxesValue, GameBoard } from "./messages";
+import { BoxesName, BoxesValue, GameBoard } from "@repo/messages/message";
 
 
 // Initialize the game board as an empty array of Boxes

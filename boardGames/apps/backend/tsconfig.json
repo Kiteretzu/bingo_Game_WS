@@ -12,7 +12,5 @@
     "lib": ["es2020"],
     "allowJs": true
   },
-  "include": [
-    "src/**/*.ts"
-, "../../packages/games/src/games/bingo/game.ts"  ]
+  "include": ["src/**/*.ts", "src/ws/game.ts"]
 }

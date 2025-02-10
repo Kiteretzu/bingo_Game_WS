@@ -2,9 +2,10 @@ import { client } from "@repo/db/client";
 import {
   BoxesValue,
   GoalType,
+  MatchHistory,
   PlayerData,
   PlayerGameboardData,
-} from "../../../games/src/mechanics/bingo/messages";
+} from "@repo/messages/message";
 import { redisClient } from "../index";
 import { RedisClientType } from "redis";
 import {
@@ -242,6 +243,14 @@ export class DbManagerQueue {
               id: player.user.bingoProfile.id,
             })),
           },
+          gameboards: [
+            {
+              gameBoard: payload.playerGameBoardData[0].gameBoard,
+            },
+            {
+              gameBoard: payload.playerGameBoardData[1].gameBoard,
+            },
+          ],
         },
       });
 
@@ -272,11 +281,9 @@ export class DbManagerQueue {
               matchHistory: [],
               gameboards: [
                 {
-                  playerId: payload.players[0].user.bingoProfile.id,
                   gameBoard: payload.playerGameboardData[0].gameBoard,
                 },
                 {
-                  playerId: payload.players[1].user.bingoProfile.id,
                   gameBoard: payload.playerGameboardData[1].gameBoard,
                 },
               ],
@@ -337,12 +344,7 @@ export class DbManagerQueue {
         where: { gameId: payload.gameId },
         data: {
           matchHistory: {
-            push: {
-              moveCount: payload.moveCount,
-              value: payload.value,
-              time: payload.time,
-              bingoProfileId: payload.by,
-            },
+            push: payload.data as MatchHistory[0],
           },
         },
       });

@@ -94,6 +94,9 @@ importers:
         specifier: ^8.18.0
         version: 8.18.0
     devDependencies:
+      '@repo/messages':
+        specifier: workspace:*
+        version: link:../../packages/messages
       '@types/cors':
         specifier: ^2.8.17
         version: 2.8.17
@@ -184,12 +187,12 @@ importers:
       '@repo/db':
         specifier: workspace:*
         version: link:../../packages/db
-      '@repo/games':
-        specifier: workspace:*
-        version: link:../../packages/games
       '@repo/graphql':
         specifier: workspace:*
         version: link:../../packages/graphql
+      '@repo/messages':
+        specifier: workspace:*
+        version: link:../../packages/messages
       axios:
         specifier: ^1.7.9
         version: 1.7.9
@@ -370,6 +373,9 @@ importers:
         specifier: ^8.18.0
         version: 8.18.0
     devDependencies:
+      '@repo/messages':
+        specifier: workspace:*
+        version: link:../messages
       '@repo/redis':
         specifier: workspace:*
         version: link:../redis
@@ -411,6 +417,8 @@ importers:
         specifier: ^5.7.2
         version: 5.7.2
 
+  packages/messages: {}
+
   packages/redis:
     dependencies:
       '@repo/db':
@@ -419,6 +427,9 @@ importers:
       '@repo/graphql':
         specifier: workspace:*
         version: link:../graphql
+      '@repo/messages':
+        specifier: workspace:*
+        version: link:../messages
       dotenv:
         specifier: ^16.4.7
         version: 16.4.7

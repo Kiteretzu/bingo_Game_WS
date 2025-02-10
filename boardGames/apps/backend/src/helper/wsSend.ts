@@ -16,7 +16,7 @@ import {
   PAYLOAD_GET_RECONNECT,
   GET_ADD_FRIEND,
   PAYLOAD_GET_ADD_FRIEND,
-} from "@repo/games/mechanics";
+} from "@repo/messages/message";
 import { WebSocket } from "ws";
 
 export function sendPayload(

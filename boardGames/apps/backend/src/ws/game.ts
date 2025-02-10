@@ -28,9 +28,9 @@ import {
   PAYLOAD_GET_RECONNECT,
   GET_RECONNECT,
   GameBoard,
-} from "../../mechanics/bingo/messages";
-import { Bingo } from "../../mechanics/bingo/bingo";
-import { sendPayload } from "../../../../../apps/backend/src/helper/wsSend";
+} from "@repo/messages/message";
+import { Bingo } from "../../../../packages/games/src/bingo/bingo";
+import { sendPayload } from "../helper/wsSend";
 import {
   redis_addMove,
   redis_newGame,
@@ -38,7 +38,7 @@ import {
   redis_tossGameUpdate,
 } from "@repo/redis/helper";
 import { gameServices } from "@repo/redis/services";
-import { GameManager } from "ws/GameManager";
+import { gameManager } from "backend/game-manager";
 
 // assuming all the sockets are alive
 
@@ -64,7 +64,6 @@ export class Game {
     moveCount?: number,
     playerBoards?: GameBoard[]
   ) {
-    
     this.gameId = gameId; // need
 
     if (arguments.length === 7) {
@@ -80,11 +79,9 @@ export class Game {
       ];
       this.playerGameboardData = [
         {
-          playerId: this.playerData[0].user.bingoProfile.id,
           gameBoard: this.playerBoards[0].getGameBoard(),
         },
         {
-          playerId: this.playerData[1].user.bingoProfile.id,
           gameBoard: this.playerBoards[1].getGameBoard(),
         },
       ];
@@ -99,11 +96,9 @@ export class Game {
       this.playerData = [p1_data, p2_data];
       this.playerGameboardData = [
         {
-          playerId: this.playerData[0].user.bingoProfile.id,
           gameBoard: this.playerBoards[0].getGameBoard(),
         },
         {
-          playerId: this.playerData[1].user.bingoProfile.id,
           gameBoard: this.playerBoards[1].getGameBoard(),
         },
       ];
@@ -134,12 +129,12 @@ export class Game {
       );
     }
 
-    this.pingPong()
+    this.pingPong();
   }
 
   // this is working fine
   saveInRedis() {
-    gameServices.test(this)
+    gameServices.test(this);
   }
 
   private getPlayerContext(currentPlayerSocket: WebSocket) {
@@ -445,9 +440,8 @@ export class Game {
         break;
       }
     }
-    GameManager.getInstance().removeGame(this.gameId);
-    GameManager.getInstance().removeUserToGame(this.gameId);
-    
+    gameManager.removeGame(this.gameId);
+    gameManager.removeUserToGame(this.gameId);
   }
 
   private updatePlayerBoards(value: BoxesValue) {
@@ -469,19 +463,15 @@ export class Game {
     const { isFirstPlayerTurn, firstPlayerId, secondPlayerId } =
       this.getPlayerContext(currentPlayerSocket);
 
-    this.matchHistory.push({
+    const moveData: MatchHistory[0] = {
       move: this.moveCount,
       value,
       by: isFirstPlayerTurn ? firstPlayerId : secondPlayerId,
       timestamp: Date.now(),
-    });
-    redis_addMove(
-      this.gameId,
-      this.moveCount,
-      value,
-      isFirstPlayerTurn ? firstPlayerId : secondPlayerId,
-      Date.now()
-    );
+    };
+
+    this.matchHistory.push(moveData);
+    redis_addMove(this.gameId, moveData);
   }
 
   private broadcastUpdatedGame() {
@@ -559,7 +549,7 @@ export class Game {
     try {
       // Add the value to the player's board
 
-      console.log('hello!?',)
+      console.log("hello!?");
 
       this.updatePlayerBoards(value);
 
@@ -599,15 +589,27 @@ export class Game {
         this.playerData[1],
         this.playerData[0],
       ];
+      [this.playerGameboardData[0], this.playerGameboardData[1]] = [
+        this.playerGameboardData[1],
+        this.playerGameboardData[0],
+      ];
     } else if (isSecondPlayer && decision === TossDecision.TOSS_GO_FIRST) {
       [this.p1_socket, this.p2_socket] = [this.p2_socket, this.p1_socket];
       [this.playerData[0], this.playerData[1]] = [
         this.playerData[1],
         this.playerData[0],
       ];
+      [this.playerGameboardData[0], this.playerGameboardData[1]] = [
+        this.playerGameboardData[1],
+        this.playerGameboardData[0],
+      ];
     } else return;
 
-    redis_tossGameUpdate(this.gameId, this.playerData);
+    redis_tossGameUpdate(
+      this.gameId,
+      this.playerData,
+      this.playerGameboardData
+    );
   }
 
   resign(currentPlayerSocket: WebSocket) {
@@ -627,20 +629,20 @@ export class Game {
   reconnectPlayer(newSocket: WebSocket, userId: string) {
     const { gameBoard, oldSocket } = this.getPlayerContextByUserId(userId);
     if (oldSocket == this.p1_socket) {
-      console.log('renewing socket of p1',)
-      
+      console.log("renewing socket of p1");
+
       this.p1_socket = newSocket;
       sendPayload(this.p1_socket!, GET_RESPONSE, "player 1");
     } else if (oldSocket == this.p2_socket) {
-      console.log('renewing socket of p2',)
-      
+      console.log("renewing socket of p2");
+
       this.p2_socket = newSocket;
       sendPayload(this.p2_socket!, GET_RESPONSE, "player 2");
     }
 
     this.playerSockets = [this.p1_socket, this.p2_socket];
 
-    const gameData: PAYLOAD_GET_RECONNECT = { 
+    const gameData: PAYLOAD_GET_RECONNECT = {
       type: MessageType.GET_RECONNECT,
       payload: {
         gameId: this.gameId,
@@ -649,8 +651,6 @@ export class Game {
         gameBoard,
       },
     };
-
-
 
     sendPayload(newSocket, GET_RECONNECT, gameData);
     this.broadcastUpdatedGame();

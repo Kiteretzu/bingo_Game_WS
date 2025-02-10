@@ -1,8 +1,8 @@
-import { PlayerData } from "../../../games/src/mechanics/bingo/messages";
+import { PlayerData } from "@repo/messages/message";
 import { client } from "@repo/db/client";
 import { redisClient } from "../index";
 import { createClient, RedisClientType } from "redis";
-import { Game } from "../../../games/src/games/bingo/game";
+import { Game } from "../../../../apps/backend/src/ws/game";
 
 class GameServices {
   private static instance: GameServices;
@@ -36,20 +36,19 @@ class GameServices {
    * Add a gameId to the active games set.
    */
 
-
-async test(obj: Game) {
+  async test(obj: Game) {
     // Serialize the Game object
     const gameData = {
-        gameId: obj.gameId,
-        tossWinner: obj.tossWinner,
-        playerData: obj.playerData,
-        playerGameboardData: obj.playerGameboardData,
-        moveCount: obj.moveCount,
-        matchHistory: obj.matchHistory,
-        playerBoards: obj.playerBoards.map(board => board.getGameBoard()), // Serialize boards
+      gameId: obj.gameId,
+      tossWinner: obj.tossWinner,
+      playerData: obj.playerData,
+      playerGameboardData: obj.playerGameboardData,
+      moveCount: obj.moveCount,
+      matchHistory: obj.matchHistory,
+      playerBoards: obj.playerBoards.map((board) => board.getGameBoard()), // Serialize boards
     };
 
-    console.log('Storing game data in Redis...');
+    console.log("Storing game data in Redis...");
 
     // Store the serialized game data in Redis
     await this.redis.set(`game:${obj.gameId}`, JSON.stringify(gameData));
@@ -59,27 +58,36 @@ async test(obj: Game) {
     // Deserialize example (retrieve and parse data from Redis)
     const storedData = await this.redis.get(`game:${obj.gameId}`);
     if (storedData) {
-        const deserializedGameData = JSON.parse(storedData);
-        // console.log('Deserialized game data:', deserializedGameData);
+      const deserializedGameData = JSON.parse(storedData);
+      // console.log('Deserialized game data:', deserializedGameData);
     } else {
-        console.log('No data found in Redis for the given game ID.');
+      console.log("No data found in Redis for the given game ID.");
     }
-}
+  }
 
   async addGame(gameId: string) {
     try {
       const response = await this.redis.sAdd(this.GAME_SET, gameId);
 
-      console.log("Game added to set:", response);
+      if (response === 0) {
+        console.log("Game already exists in set");
+      } else {
+        console.log("Game added to set:", response);
+      }
     } catch (error) {
       console.error("Error in addGame:", error);
       throw error;
     }
   }
 
-  async addUserToGame(userId: string, playerData: PlayerData) { 
+  async addUserToGame(userId: string, gameId: string) {
     try {
-      await this.redis.hSet(`${this.USER_SET}:${userId}`, playerData.user.googleId, JSON.stringify(playerData));
+      // Store simple userId -> gameId mapping
+      await this.redis.set(`${this.USER_SET}:${userId}`, gameId);
+
+      // If you need to verify the mapping
+      const test = await this.redis.get(`${this.USER_SET}:${userId}`);
+      // console.log("test", test);
     } catch (error) {
       console.error("Error in addUserToGame:", error);
       throw error;
@@ -87,15 +95,29 @@ async test(obj: Game) {
   }
 
   async getAllUsersToGames() {
-    const keys = await this.redis.keys(`${this.USER_SET}*`);
-    const users = [];
-    for (const key of keys) {
-      const user = await this.redis.hGetAll(key);
-      users.push(user);
-    }
-    return users;
-  }
+    try {
+      // Get all keys matching the pattern
+      const keys = await this.redis.keys(`${this.USER_SET}:*`);
 
+      // Multi is used instead of pipeline for redis package
+      const multi = this.redis.multi();
+      keys.forEach((key) => multi.get(key));
+
+      // Execute and get results
+      const results = await multi.exec();
+
+      // Map results to user-game pairs
+      const userGameMappings = keys.map((key, index) => ({
+        userId: key.split(":")[1],
+        gameId: results[index], // results are direct values with redis package
+      }));
+
+      return userGameMappings;
+    } catch (error) {
+      console.error("Error in getAllUsersToGames:", error);
+      throw error;
+    }
+  }
 
   /**
    * Get a specific game's state from the database by gameId.
@@ -135,7 +157,7 @@ async test(obj: Game) {
    */
   async getAllGames() {
     try {
-      console.log('IN HERER!!!',)
+      console.log("IN HERER!!!");
       // Ensure Redis is connected
       if (!this.redis.isOpen) {
         await this.redis.connect();
@@ -156,7 +178,7 @@ async test(obj: Game) {
           },
         });
 
-        console.log('REDIS game', game)
+        console.log("REDIS game", game);
 
         if (game) games.push(game);
       }
@@ -167,7 +189,6 @@ async test(obj: Game) {
       throw error;
     }
   }
-
 
   /**
    * Remove a gameId from the active games set.

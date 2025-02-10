@@ -26,7 +26,7 @@
     "@react-three/fiber": "^8.17.12",
     "@reduxjs/toolkit": "^2.5.0",
     "@repo/db": "workspace:*",
-    "@repo/games": "workspace:*",
+    "@repo/messages": "workspace:*",
     "@repo/graphql": "workspace:*",
     "axios": "^1.7.9",
     "class-variance-authority": "^0.7.1",

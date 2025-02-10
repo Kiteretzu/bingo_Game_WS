@@ -3,9 +3,10 @@ import {
   EndGame,
   GameEndMethod,
   Goals,
+  MatchHistory,
   PlayerData,
   PlayerGameboardData,
-} from "../../games/src/mechanics/bingo/messages";
+} from "@repo/messages/message";
 
 export const QUEUE_NAME = "db-requests";
 
@@ -24,6 +25,7 @@ export interface REDIS_PAYLOAD_TossUpdate {
   payload: {
     gameId: string;
     players: PlayerData[];
+    playerGameBoardData: PlayerGameboardData[];
   };
 }
 
@@ -31,10 +33,7 @@ export interface REDIS_PAYLOAD_AddMove {
   type: "add-move";
   payload: {
     gameId: string;
-    moveCount: number;
-    value: BoxesValue;
-    by: string;
-    time: string;
+    data: MatchHistory[0];
   };
 }
 

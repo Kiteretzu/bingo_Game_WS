@@ -1,5 +1,4 @@
 import { WebSocket } from "ws";
-import { Game } from "@repo/games/bingo";
 import { v4 as uuidv4 } from "uuid";
 import { sendPayload } from "../helper/wsSend";
 import {
@@ -25,18 +24,18 @@ import {
   PUT_ADD_FRIEND,
   PAYLOAD_PUT_ADD_FRIEND,
   GET_ADD_FRIEND,
-} from "@repo/games/mechanics";
+  PlayerGameboardData,
+} from "@repo/messages/message";
 import { amazing, getPlayerData } from "../helper/";
 import { redis_newGame, redis_sentFriendRequest } from "@repo/redis/helper";
 import { gameServices } from "@repo/redis/services";
 import { Socket } from "dgram";
+import { Game } from "./game";
 
 type GameId = string;
 type UserId = string;
 
 export class GameManager {
-  // just redis it
-  private static readonly instance: GameManager = new GameManager();
   private games: Map<GameId, Game>; // Number of games going on
   private pendingPlayer: WebSocket | null; // Player 1
   private pendingPlayerData: PlayerData | null;
@@ -44,8 +43,12 @@ export class GameManager {
   private usersToGames: Map<UserId, GameId>; // Map of user to game
   private users: Map<UserId, WebSocket>; // Use Map for better performance
   private socketToUserId: Map<WebSocket, UserId>;
+  private static instance: GameManager | null = null;
 
   public static getInstance(): GameManager {
+    if (!GameManager.instance) {
+      GameManager.instance = new GameManager();
+    }
     return GameManager.instance;
   }
 
@@ -72,56 +75,26 @@ export class GameManager {
     }
   }
   async setUpDataFromRedis() {
-    // get all games from redis
-    console.log("HELLOWW!!!!");
-    // const results = amazing();
+    // fetch all active games (coming in form of all gameIDs)
+    const activeGames = await gameServices.getAllGames();
+    const activeUsers = await gameServices.getAllUsersToGames();
 
-    // creating new games
-    // (await results).forEach((game) => {
-    //   const [
-    //     gameId,
-    //     player1_Data,
-    //     player2_Data,
-    //     p1_gameBoard,
-    //     p2_gameBoard,
-    //     moveCount,
-    //   ] = game;
-    //   const newGame = new Game(
-    //     gameId as string,
-    //     null,
-    //     null,
-    //     player1_Data as PlayerData,
-    //     player2_Data as PlayerData,
-    //     moveCount as number,
-    //     [p1_gameBoard as GameBoard, p2_gameBoard as GameBoard]
-    //   );
-    //   this.games.set(gameId as GameId, newGame);
-    // });
+    console.log("Active Games came", activeGames);
+    console.log("Active Users came", activeUsers); 
 
-    // console.log("THIS IS THE GAME MAP!", this.games);
+    // simulate all games
+    for (const game of activeGames) {
+      activeGames.map((game) => {
+        const gameId = game.gameId;
+        const gameBoards = game.gameboards as unknown as PlayerGameboardData[];
+        const tossWinner = game.tossWinnerId;
 
-    // const games = await gameServices.getAllGames();
-    // games.forEach((game) => {
-    //   const [player1_Data, player2_Data] = formatToPlayersData(game)
-    //   const newGame = new Game(
-    //     game.gameId,
-    //     null,
-    //     null,
-    //     player1_Data,
-    //     player2_Data,
+      });
+    }
 
-    //   );
-    //   this.games.set(game.gameId, newGame);
-
-    // });
-
-    // // get all usersToGames from redis
-    // const usersToGames = await gameServices.getAllUsersToGames();
-    // usersToGames.forEach((userToGame) => {
-    //   this.usersToGames.set(userToGame.userId, userToGame.gameId);
-    // });
-
-    // console.log('THIS IS USER2GAMES', this.usersToGames)
+    activeUsers.map((user) => {
+      this.usersToGames.set(user.userId, user.gameId as string);
+    });
   }
 
   isUserReconnecting(userId: string): boolean {
@@ -219,12 +192,12 @@ export class GameManager {
               );
               this.usersToGames.set(playerData.user.googleId, newGameId);
               // store in redis
-              // gameServices.addGame(newGameId);
-              // gameServices.addUserToGame(
-              //   this.pendingPlayerData!.user.googleId,
-              //   this.pendingPlayerData!
-              // );
-              // gameServices.addUserToGame(playerData.user.googleId, playerData);
+              gameServices.addGame(newGameId);
+              gameServices.addUserToGame(
+                this.pendingPlayerData!.user.googleId,
+                newGameId
+              );
+              gameServices.addUserToGame(playerData.user.googleId, newGameId);
 
               this.pendingPlayer.send(`Game started with ID: ${newGameId}`);
               socket.send(`Game started with ID: ${newGameId}`);
@@ -304,6 +277,7 @@ export class GameManager {
             if (game) {
               game.resign(socket);
             }
+            break;
           }
 
           case PUT_SEND_EMOTE: {

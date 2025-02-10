@@ -3,9 +3,10 @@ import {
   BoxesValue,
   GET_GAME,
   Goals,
+  MatchHistory,
   PlayerData,
   PlayerGameboardData,
-} from "../../../games/src/mechanics/bingo/messages";
+} from "@repo/messages/message";
 import { createClient } from "redis";
 
 import {
@@ -46,13 +47,7 @@ export const redis_newGame = async (
   }
 };
 
-export const redis_addMove = async (
-  gameId: string,
-  moveCount: number,
-  value: BoxesValue,
-  by: string,
-  time: any
-) => {
+export const redis_addMove = async (gameId: string, data: MatchHistory[0]) => {
   const redisClient = createClient();
 
   try {
@@ -62,10 +57,7 @@ export const redis_addMove = async (
       type: "add-move",
       payload: {
         gameId,
-        moveCount,
-        value,
-        by,
-        time,
+        data,
       },
     };
 
@@ -80,7 +72,8 @@ export const redis_addMove = async (
 
 export const redis_tossGameUpdate = async (
   gameId: string,
-  players: PlayerData[]
+  players: PlayerData[],
+  playerGameBoardData: PlayerGameboardData[]
 ) => {
   const redisClient = createClient();
 
@@ -92,6 +85,7 @@ export const redis_tossGameUpdate = async (
       payload: {
         gameId,
         players,
+        playerGameBoardData,
       },
     };
 

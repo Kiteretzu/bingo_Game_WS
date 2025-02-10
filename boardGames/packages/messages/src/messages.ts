@@ -325,7 +325,6 @@ export type MatchHistory = {
 }[];
 
 export interface PlayerGameboardData {
-  playerId: string;
   gameBoard: GameBoard;
 }
 

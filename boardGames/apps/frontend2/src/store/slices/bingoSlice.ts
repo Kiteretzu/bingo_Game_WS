@@ -11,7 +11,7 @@ import {
   PAYLOAD_GET_RECONNECT,
   PAYLOAD_GET_UPDATED_GAME,
   PlayerData,
-} from "@repo/games/mechanics";
+} from "@repo/messages/message";
 import { GetBingoPlayerRecordsQuery } from "@repo/graphql/types/client";
 import { Goal } from "lucide-react";
 import { useNavigate } from "react-router-dom";

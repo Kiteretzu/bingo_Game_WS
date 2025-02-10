@@ -51,7 +51,7 @@ export class Game {
   public playerSockets: (WebSocket | null)[];
   public playerBoards: Bingo[];
   public playerGameboardData: PlayerGameboardData[];
-  public tossWinner: string;
+  public tossWinnerId: string;
   public gotFirstBlood: boolean = false;
   public matchHistory: MatchHistory = [];
 
@@ -61,32 +61,33 @@ export class Game {
     p2_socket: WebSocket | null,
     p1_data: PlayerData,
     p2_data: PlayerData,
-    moveCount?: number,
-    playerBoards?: GameBoard[]
+    playerBoards?: PlayerGameboardData[],
+    matchHistory?: MatchHistory,
+    tossWinnerId?: string | null
   ) {
     this.gameId = gameId; // need
 
-    if (arguments.length === 7) {
+    if (arguments.length === 8) {
       this.p1_socket = p1_socket!;
       this.p2_socket = p2_socket!;
       this.playerSockets = [p1_socket!, p2_socket!];
+      this.moveCount = 1;
       this.playerData = [p1_data, p2_data];
-
-      this.moveCount = moveCount!;
       this.playerBoards = [
-        new Bingo(playerBoards![0] as unknown as GameBoard),
-        new Bingo(playerBoards![1] as unknown as GameBoard),
+        new Bingo(playerBoards![0].gameBoard), // need to send
+        new Bingo(playerBoards![1].gameBoard),
       ];
       this.playerGameboardData = [
         {
-          gameBoard: this.playerBoards[0].getGameBoard(),
+          gameBoard: playerBoards![0].gameBoard,
         },
         {
-          gameBoard: this.playerBoards[1].getGameBoard(),
+          gameBoard: playerBoards![1].gameBoard,
         },
       ];
 
-      this.tossWinner = "random"; // need to send
+      this.tossWinnerId = tossWinnerId ?? ""; // need to send
+      this.simulateGame(matchHistory!);
     } else {
       this.moveCount = 1; // need which is not getting
       this.p1_socket = p1_socket; // need which is not getting
@@ -103,7 +104,7 @@ export class Game {
         },
       ];
 
-      this.tossWinner =
+      this.tossWinnerId =
         Math.random() < 0.5
           ? this.playerData[0].user.bingoProfile.id
           : this.playerData[1].user.bingoProfile.id;
@@ -113,7 +114,7 @@ export class Game {
           type: GET_GAME,
           payload: {
             gameId: this.gameId,
-            tossWinner: this.tossWinner,
+            tossWinnerId: this.tossWinnerId,
             players: this.playerData,
             gameBoard: this.playerBoards[index].getGameBoard(),
           },
@@ -123,16 +124,24 @@ export class Game {
 
       redis_newGame(
         this.gameId,
-        this.tossWinner,
+        this.tossWinnerId,
         this.playerData,
         this.playerGameboardData
       );
     }
 
-    this.pingPong();
+    // this.pingPong();
   }
 
-  // this is working fine
+  simulateGame(matchHistory: MatchHistory) {
+    this.matchHistory = matchHistory;
+    matchHistory.forEach((move) => {
+      this.updatePlayerBoards(move.value);
+      this.moveCount++;
+    });
+  }
+
+  // maybe we dont need this
   saveInRedis() {
     gameServices.test(this);
   }
@@ -628,32 +637,41 @@ export class Game {
 
   reconnectPlayer(newSocket: WebSocket, userId: string) {
     const { gameBoard, oldSocket } = this.getPlayerContextByUserId(userId);
-    if (oldSocket == this.p1_socket) {
-      console.log("renewing socket of p1");
+    const playerIndex = this.playerData.findIndex(
+      (player) => player.user.googleId === userId
+    );
 
-      this.p1_socket = newSocket;
-      sendPayload(this.p1_socket!, GET_RESPONSE, "player 1");
-    } else if (oldSocket == this.p2_socket) {
-      console.log("renewing socket of p2");
-
-      this.p2_socket = newSocket;
-      sendPayload(this.p2_socket!, GET_RESPONSE, "player 2");
+    if (playerIndex === -1) {
+      console.error("Player not found for reconnection");
+      return;
     }
 
-    this.playerSockets = [this.p1_socket, this.p2_socket];
+    // Replace the old socket with the new one
+    if (playerIndex === 0) {
+      this.p1_socket = newSocket;
+    } else {
+      this.p2_socket = newSocket;
+    }
 
-    const gameData: PAYLOAD_GET_RECONNECT = {
-      type: MessageType.GET_RECONNECT,
+    this.playerSockets[playerIndex] = newSocket;
+
+    // Notify the player about the reconnection
+    const reconnectData: PAYLOAD_GET_RECONNECT = {
+      type: GET_RECONNECT,
       payload: {
         gameId: this.gameId,
-        tossWinner: this.tossWinner,
-        players: this.playerData,
         gameBoard,
+        players: this.playerData,
+        tossWinnerId: this.tossWinnerId,
       },
     };
 
-    sendPayload(newSocket, GET_RECONNECT, gameData);
-    this.broadcastUpdatedGame();
+    sendPayload(newSocket, GET_RECONNECT, reconnectData);
+
+    // Optionally, you can close the old socket connection
+    if (oldSocket) {
+      oldSocket.close();
+    }
   }
 
   pingPong() {

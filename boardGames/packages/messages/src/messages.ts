@@ -138,7 +138,7 @@ export interface PAYLOAD_GET_GAME {
   type: MessageType.GET_GAME;
   payload: {
     gameId: string;
-    tossWinner: string;
+    tossWinnerId: string;
     players: PlayerData[]; // send playersId only
     gameBoard: Box[];
   };

@@ -27,6 +27,7 @@ export function sendPayload(
   switch (type) {
     
     case GET_RESPONSE: {
+      console.log('called ?', data);
       to.send(
         JSON.stringify({
           type,

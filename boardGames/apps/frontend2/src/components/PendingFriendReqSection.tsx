@@ -16,13 +16,13 @@ const PendingRequestsSection = () => {
 
     const { data, loading } = useGetAllFriendRequestsQuery()
 
-    console.log('FriendsRequest: ', data, loading)
+    // console.log('FriendsRequest: ', data, loading)
 
     const [handleAcceptRequest, { data: acceptReqData, loading: acceptReqLoading }] = useAcceptFriendRequestMutation({ refetchQueries: [GetFriendsDocument, GetAllFriendRequestsDocument] })
     const [handleDeclineRequest, { data: declineReqData, loading: declineReqLoading }] = useDeclineFriendRequestMutation({ refetchQueries: [GetAllFriendRequestsDocument] })
 
-    console.log('AcceptData: ', acceptReqLoading, acceptReqData)
-    console.log('DeclineData: ', declineReqLoading, declineReqData)
+    // console.log('AcceptData: ', acceptReqLoading, acceptReqData)
+    // console.log('DeclineData: ', declineReqLoading, declineReqData)
     return (
         <div className="mb-6">
             <div

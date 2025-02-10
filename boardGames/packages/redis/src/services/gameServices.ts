@@ -36,34 +36,7 @@ class GameServices {
    * Add a gameId to the active games set.
    */
 
-  async test(obj: Game) {
-    // Serialize the Game object
-    const gameData = {
-      gameId: obj.gameId,
-      tossWinner: obj.tossWinner,
-      playerData: obj.playerData,
-      playerGameboardData: obj.playerGameboardData,
-      moveCount: obj.moveCount,
-      matchHistory: obj.matchHistory,
-      playerBoards: obj.playerBoards.map((board) => board.getGameBoard()), // Serialize boards
-    };
 
-    console.log("Storing game data in Redis...");
-
-    // Store the serialized game data in Redis
-    await this.redis.set(`game:${obj.gameId}`, JSON.stringify(gameData));
-
-    // console.log('Game data stored successfully.');
-
-    // Deserialize example (retrieve and parse data from Redis)
-    const storedData = await this.redis.get(`game:${obj.gameId}`);
-    if (storedData) {
-      const deserializedGameData = JSON.parse(storedData);
-      // console.log('Deserialized game data:', deserializedGameData);
-    } else {
-      console.log("No data found in Redis for the given game ID.");
-    }
-  }
 
   async addGame(gameId: string) {
     try {
@@ -178,8 +151,6 @@ class GameServices {
           },
         });
 
-        console.log("REDIS game", game);
-
         if (game) games.push(game);
       }
 
@@ -195,18 +166,34 @@ class GameServices {
    */
   async removeGame(gameId: string) {
     try {
-      // Ensure Redis is connected
-      if (!this.redis.isOpen) {
-        await this.redis.connect();
-      }
-
       const response = await this.redis.sRem(this.GAME_SET, gameId);
-      console.log("Game removed from set:", response);
+
+      if (response === 0) {
+        console.log("Game not found in set");
+      } else {
+        console.log("Game removed from set:", response);
+      }
     } catch (error) {
       console.error("Error in removeGame:", error);
       throw error;
     }
   }
+
+  async removeUserFromGame(userId: string) {
+    try {
+      const response = await this.redis.del(`${this.USER_SET}:${userId}`);
+
+      if (response === 0) {
+        console.log("User not found in set");
+      } else {
+        console.log("User removed from set:", response);
+      }
+    } catch (error) {
+      console.error("Error in removeUserFromGame:", error);
+      throw error;
+    }
+  }
+
 }
 
 export const gameServices = GameServices.getInstance();

@@ -37,7 +37,6 @@ export const getFriendsByUserId = async (
     ...(friends?.friendshipsAsUser1?.map((f) => f.user2) || []),
     ...(friends?.friendshipsAsUser2?.map((f) => f.user1) || []),
   ];
-  console.log("friends checkup", allFriends);
   return allFriends.map((friend) => ({
     googleId: friend.googleId,
     displayName: friend.displayName,
@@ -58,7 +57,6 @@ export const getBingoProfileByUserId = async (
       userId: userId,
     },
   });
-  console.log("Bingo ProfileCheckup");
   return bingoProfile as unknown as BingoProfile;
 };
 

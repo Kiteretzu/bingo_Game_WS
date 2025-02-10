@@ -40,7 +40,6 @@ export const resolvers: Resolvers<CustomContext> = {
         },
       })) as User;
 
-      console.log("user check1");
 
       if (!user) {
         return null;
@@ -122,7 +121,6 @@ export const resolvers: Resolvers<CustomContext> = {
   Mutation: {
     sendFriendRequest: async (parent, args, context) => {
       const { from, to } = args;
-      console.log("Controller reache Here");
 
       // Check if they are already friends
       const friends = await getFriendsByUserId(from);
@@ -138,13 +136,11 @@ export const resolvers: Resolvers<CustomContext> = {
           status: "PENDING",
         },
       });
-      console.log("check first on req");
       if (existingRequest) {
         throw new GraphQLError(
           "Friend request already exists or you are already friends."
         );
       }
-      console.log("check second on req");
 
       // Create and send the friend request
       const friendRequest = await client.friendRequest.create({

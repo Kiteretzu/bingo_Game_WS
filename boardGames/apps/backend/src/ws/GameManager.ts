@@ -25,12 +25,13 @@ import {
   PAYLOAD_PUT_ADD_FRIEND,
   GET_ADD_FRIEND,
   PlayerGameboardData,
+  MatchHistory,
 } from "@repo/messages/message";
 import { amazing, getPlayerData } from "../helper/";
 import { redis_newGame, redis_sentFriendRequest } from "@repo/redis/helper";
 import { gameServices } from "@repo/redis/services";
-import { Socket } from "dgram";
 import { Game } from "./game";
+import { get } from "http";
 
 type GameId = string;
 type UserId = string;
@@ -66,11 +67,13 @@ export class GameManager {
 
   removeGame(gameId: string) {
     this.games.delete(gameId);
+    gameServices.removeGame(gameId);
   }
   removeUserToGame(gameId: string) {
     for (const [userId, game_Id] of this.usersToGames.entries()) {
       if (game_Id === gameId) {
         this.usersToGames.delete(userId);
+        gameServices.removeUserFromGame(userId);
       }
     }
   }
@@ -79,22 +82,60 @@ export class GameManager {
     const activeGames = await gameServices.getAllGames();
     const activeUsers = await gameServices.getAllUsersToGames();
 
-    console.log("Active Games came", activeGames);
-    console.log("Active Users came", activeUsers); 
+    console.log("Active Games came", activeGames.length);
+    console.log("Active Users came", activeUsers);
 
     // simulate all games
     for (const game of activeGames) {
-      activeGames.map((game) => {
+      activeGames.map(async (game) => {
         const gameId = game.gameId;
-        const gameBoards = game.gameboards as unknown as PlayerGameboardData[];
-        const tossWinner = game.tossWinnerId;
-
+        const playerGameBoardData =
+          game.gameboards as unknown as PlayerGameboardData[];
+        const tossWinnerId = game.tossWinnerId;
+        const matchHistory = game.matchHistory as unknown as MatchHistory;
+        const moveCount = game.matchHistory.length;
+        const playerData = this.getPlayerData(game.players);
+        console.log("this is the moveCOUNT", moveCount);
+        const newGame = new Game(
+          gameId,
+          null,
+          null,
+          playerData[0],
+          playerData[1],
+          playerGameBoardData,
+          matchHistory,
+          tossWinnerId
+        );
+        this.games.set(gameId, newGame);
       });
     }
 
     activeUsers.map((user) => {
       this.usersToGames.set(user.userId, user.gameId as string);
     });
+  }
+
+  getPlayerData(players: any): PlayerData[] {
+    const playerData = players.map((player: any) => {
+      // any for now!
+      console.log("this player in getPLayerData ", player);
+      return {
+        user: {
+          googleId: player.User.googleId,
+          displayName: player.User.displayName,
+          avatar: player.User.avatar,
+          bingoProfile: {
+            id: player.id,
+            mmr: player.mmr,
+            league: player.league,
+            wins: player.wins,
+            losses: player.losses,
+            totalMatches: player.totalMatches,
+          },
+        },
+      };
+    });
+    return playerData;
   }
 
   isUserReconnecting(userId: string): boolean {

@@ -9,9 +9,7 @@ const { request } = require("graphql-request");
 export async function getPlayerData(token: string): Promise<PlayerData | null> {
   try {
     // Decode the JWT token to extract googleId
-    const googleId = (
-      jwt.verify(token, process.env.JWT_SECRET!) as DECODED_TOKEN
-    ).googleId;
+    const googleId = verifyToken(token).googleId;
 
     // Prepare the variables for the GraphQL query
     const variables = { googleId };
@@ -23,7 +21,12 @@ export async function getPlayerData(token: string): Promise<PlayerData | null> {
       variables
     );
 
-    return playerData;
+    if (!playerData) {
+      console.error("Player data not found in database");
+      return null;
+    }
+
+    return playerData as PlayerData;
   } catch (error) {
     console.error("Error fetching player data:", error);
     return null; // or handle error accordingly
@@ -86,7 +89,7 @@ export const amazing = async () => {
   for (const game of games) {
     const player1 = game.players[0];
     const player2 = game.players[1];
-    
+
     const playerData1: PlayerData = {
       user: {
         googleId: player1.User.googleId!,
@@ -102,7 +105,7 @@ export const amazing = async () => {
         },
       },
     };
-    
+
     const playerData2: PlayerData = {
       user: {
         googleId: player2.User.googleId!,
@@ -134,9 +137,16 @@ export const amazing = async () => {
 
     // Ensure player game boards are found before proceeding
     if (player1_gameBoard && player2_gameBoard) {
-      results.push([game.gameId, playerData1, playerData2, player1_gameBoard.gameBoard, player2_gameBoard.gameBoard, moveCount]);
+      results.push([
+        game.gameId,
+        playerData1,
+        playerData2,
+        player1_gameBoard.gameBoard,
+        player2_gameBoard.gameBoard,
+        moveCount,
+      ]);
     } else {
-      console.error('Game boards for players not found');
+      console.error("Game boards for players not found");
     }
   }
 

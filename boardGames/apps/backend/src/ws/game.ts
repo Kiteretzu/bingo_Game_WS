@@ -142,9 +142,9 @@ export class Game {
   }
 
   // maybe we dont need this
-  saveInRedis() {
-    gameServices.test(this);
-  }
+  // saveInRedis() {
+  //   gameServices.test(this);
+  // }
 
   private getPlayerContext(currentPlayerSocket: WebSocket) {
     const isFirstPlayer = currentPlayerSocket === this.p1_socket;
@@ -503,7 +503,7 @@ export class Game {
     });
 
     // savng to redis
-    this.saveInRedis();
+    // this.saveInRedis();
   }
 
   private checkFirstBloodStatus(
@@ -637,6 +637,7 @@ export class Game {
 
   reconnectPlayer(newSocket: WebSocket, userId: string) {
     const { gameBoard, oldSocket } = this.getPlayerContextByUserId(userId);
+    console.log('game-Reconnecting',)
     const playerIndex = this.playerData.findIndex(
       (player) => player.user.googleId === userId
     );

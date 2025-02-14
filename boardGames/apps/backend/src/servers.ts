@@ -57,21 +57,21 @@ export const setupExpressApp = async (
       })
     );
 
-
-
     app.use(passport.initialize());
     configurePassport();
 
     app.use("/auth", authRouter);
-    app.use("/admin", adminRouter)
+    app.use("/admin", adminRouter);
     app.use(
       "/graphql",
       cors<cors.CorsRequest>(),
       // @ts-ignore // dont know why
       expressMiddleware<any>(apolloServer, {
-        context: async ({ req, res }) => customContext({req, res}),
+        context: async ({ req, res }) => customContext({ req, res }),
       })
     );
+
+
 
     return app;
   } catch (error: any) {

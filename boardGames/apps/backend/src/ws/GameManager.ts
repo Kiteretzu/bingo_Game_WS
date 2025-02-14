@@ -27,11 +27,12 @@ import {
   PlayerGameboardData,
   MatchHistory,
 } from "@repo/messages/message";
-import { amazing, getPlayerData } from "../helper/";
+import { amazing, getPlayerData, verifyToken } from "../helper/";
 import { redis_newGame, redis_sentFriendRequest } from "@repo/redis/helper";
-import { gameServices } from "@repo/redis/services";
+import { gameServices, matchmakingService } from "@repo/redis/services";
 import { Game } from "./game";
 import { get } from "http";
+import { REDIS_PlayerFindingMatch } from "../../../../packages/redis/src/types";
 
 type GameId = string;
 type UserId = string;
@@ -44,6 +45,7 @@ export class GameManager {
   private usersToGames: Map<UserId, GameId>; // Map of user to game
   private users: Map<UserId, WebSocket>; // Use Map for better performance
   private socketToUserId: Map<WebSocket, UserId>;
+  private usersToPlayerData: Map<UserId, PlayerData>;
   private static instance: GameManager | null = null;
 
   public static getInstance(): GameManager {
@@ -60,9 +62,34 @@ export class GameManager {
     this.usersToGames = new Map();
     this.challangedGames = new Map();
     this.users = new Map();
+    this.usersToPlayerData = new Map();
     this.socketToUserId = new Map();
     this.setUpDataFromRedis();
     //
+  }
+
+  async addUser(googleId: string, token: string, socket: WebSocket) {
+    // set this to redis also! maybe service
+    this.users.set(googleId, socket);
+    this.socketToUserId.set(socket, googleId);
+    const playerData = await getPlayerData(token);
+    if (playerData) {
+      this.usersToPlayerData.set(googleId, playerData);
+    }
+    this.addHandler(socket);
+  }
+
+  removeUser(googleId: string) {
+    const socket = this.users.get(googleId);
+    // also removing from pending players
+    if (socket == this.pendingPlayer) {
+      this.pendingPlayer = null;
+      this.pendingPlayerData = null;
+    }
+    if (socket) {
+      this.socketToUserId.delete(socket);
+    }
+    this.users.delete(googleId);
   }
 
   removeGame(gameId: string) {
@@ -82,7 +109,7 @@ export class GameManager {
     const activeGames = await gameServices.getAllGames();
     const activeUsers = await gameServices.getAllUsersToGames();
 
-    console.log("Active Games came", activeGames.length);
+    console.log("Active Games came", activeGames.length, activeGames);
     console.log("Active Users came", activeUsers);
 
     // simulate all games
@@ -113,6 +140,7 @@ export class GameManager {
     activeUsers.map((user) => {
       this.usersToGames.set(user.userId, user.gameId as string);
     });
+    console.log("end of here");
   }
 
   getPlayerData(players: any): PlayerData[] {
@@ -154,30 +182,12 @@ export class GameManager {
     console.log("inside reconnect to game");
     if (gameId) {
       const game = this.games.get(gameId);
+      console.log("this is gameId ", game);
       if (game) {
+        console.log("found the game");
         game.reconnectPlayer(socket, userId);
       }
     }
-  }
-
-  addUser(googleId: string, socket: WebSocket) {
-    this.users.set(googleId, socket);
-    this.socketToUserId.set(socket, googleId);
-
-    this.addHandler(socket);
-  }
-
-  removeUser(googleId: string) {
-    const socket = this.users.get(googleId);
-    // also removing from pending players
-    if (socket == this.pendingPlayer) {
-      this.pendingPlayer = null;
-      this.pendingPlayerData = null;
-    }
-    if (socket) {
-      this.socketToUserId.delete(socket);
-    }
-    this.users.delete(googleId);
   }
 
   getUserId(socket: WebSocket): UserId | undefined {
@@ -198,53 +208,71 @@ export class GameManager {
           case PUT_GAME_INIT: {
             const data = message as PAYLOAD_PUT_GAME_INIT;
 
+            console.log("This is the data in gameINIT", data.payload);
             const token = data.payload.token;
 
-            const playerData: PlayerData | null = await getPlayerData(token);
+            const decodedToken = verifyToken(token);
+
+            let playerData = this.usersToPlayerData.get(decodedToken.googleId);
+
+            // if not stored in server memory, then reFetch based on token
             if (!playerData) {
-              sendPayload(socket, GET_RESPONSE);
+              playerData = await getPlayerData(token);
+              console.log("HAD TO REFETCH PLAYER DATA!");
+              this.usersToPlayerData.set(decodedToken.googleId, playerData!);
               return;
             }
 
-            if (!this.pendingPlayer) {
-              this.pendingPlayer = socket;
-              this.pendingPlayerData = playerData;
+            const playerFindMatchData: REDIS_PlayerFindingMatch = {
+              id: playerData.user.googleId,
+              mmr: playerData.user.bingoProfile.mmr,
+              matchTier: data.payload.matchTier,
+              // soon ad gameType also => data.payload.gameType
+            };
 
-              sendPayload(socket, GET_RESPONSE, RESPONSE_WAITING_PLAYER);
-            } else {
-              if (this.pendingPlayer == socket) {
-                return;
-              }
-              const newGameId = uuidv4(); // Assigning game ID to find games fast
-              console.log("GameId: ", newGameId);
-              const newGame = new Game(
-                newGameId,
-                this.pendingPlayer,
-                socket,
-                this.pendingPlayerData!,
-                playerData
-              );
+            matchmakingService.addPlayerToQueue(playerFindMatchData);
 
-              // store in games map
-              this.games.set(newGameId, newGame);
-              this.usersToGames.set(
-                this.pendingPlayerData!.user.googleId,
-                newGameId
-              );
-              this.usersToGames.set(playerData.user.googleId, newGameId);
-              // store in redis
-              gameServices.addGame(newGameId);
-              gameServices.addUserToGame(
-                this.pendingPlayerData!.user.googleId,
-                newGameId
-              );
-              gameServices.addUserToGame(playerData.user.googleId, newGameId);
+            
 
-              this.pendingPlayer.send(`Game started with ID: ${newGameId}`);
-              socket.send(`Game started with ID: ${newGameId}`);
-              this.pendingPlayer = null; // Reset pendingUser once the game starts
-              this.pendingPlayerData = null; // Reset pendingUserData
-            }
+            // if (!this.pendingPlayer) {
+            //   this.pendingPlayer = socket;
+            //   this.pendingPlayerData = playerData;
+
+            //   sendPayload(socket, GET_RESPONSE, RESPONSE_WAITING_PLAYER);
+            // } else {
+            //   if (this.pendingPlayer == socket) {
+            //     return;
+            //   }
+            //   const newGameId = uuidv4(); // Assigning game ID to find games fast
+            //   console.log("GameId: ", newGameId);
+            //   const newGame = new Game(
+            //     newGameId,
+            //     this.pendingPlayer,
+            //     socket,
+            //     this.pendingPlayerData!,
+            //     playerData
+            //   );
+
+            //   // store in games map
+            //   this.games.set(newGameId, newGame);
+            //   this.usersToGames.set(
+            //     this.pendingPlayerData!.user.googleId,
+            //     newGameId
+            //   );
+            //   this.usersToGames.set(playerData.user.googleId, newGameId);
+            //   // store in redis
+            //   gameServices.addGame(newGameId);
+            //   gameServices.addUserToGame(
+            //     this.pendingPlayerData!.user.googleId,
+            //     newGameId
+            //   );
+            //   gameServices.addUserToGame(playerData.user.googleId, newGameId);
+
+            //   this.pendingPlayer.send(`Game started with ID: ${newGameId}`);
+            //   socket.send(`Game started with ID: ${newGameId}`);
+            //   this.pendingPlayer = null; // Reset pendingUser once the game starts
+            //   this.pendingPlayerData = null; // Reset pendingUserData
+            // }
             break;
           }
 

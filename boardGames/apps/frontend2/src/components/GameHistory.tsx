@@ -1,6 +1,6 @@
 "use client";
 
-import { Clock, TrendingUp, TrendingDown } from "lucide-react";
+import { Clock, TrendingUp, TrendingDown, LogIn } from "lucide-react";
 import { motion } from "framer-motion";
 import useBingo from "@/hooks/useBingo";
 
@@ -33,10 +33,10 @@ const GameCard = ({ game }: { game: GameResult }) => (
       )}
       <span
         className={`font-semibold ${game.outcome === "Win"
-            ? "text-green-500"
-            : game.outcome === "Loss"
-              ? "text-red-500"
-              : "text-gray-400"
+          ? "text-green-500"
+          : game.outcome === "Loss"
+            ? "text-red-500"
+            : "text-gray-400"
           }`}
       >
         {game.outcome}
@@ -70,8 +70,95 @@ const GameCard = ({ game }: { game: GameResult }) => (
   </motion.div>
 );
 
+const AuthOverlay = () => (
+  <div className="absolute inset-0 bg-black/35 backdrop-blur-lg flex flex-col items-center justify-center z-10 rounded-lg">
+    <LogIn className="w-12 h-12 text-gray-400 mb-4" />
+    <h3 className="text-xl font-semibold text-gray-200 mb-2">Login Required</h3>
+    <p className="text-gray-400 text-center max-w-md px-4">
+      Please login to view your game history and track your progress.
+    </p>
+  </div>
+);
+
+const EmptyState = () => (
+  <div className="flex flex-col items-center justify-center h-64">
+    <Clock className="w-12 h-12 text-gray-400 mb-4" />
+    <h3 className="text-xl font-semibold text-gray-200 mb-2">No Games Yet</h3>
+    <p className="text-gray-400 text-center max-w-md px-4">
+      Start playing to build your game history and track your progress.
+    </p>
+  </div>
+);
+
 export default function GameHistory() {
-  const { bingoProfileId, gameHistory } = useBingo();
+  const { bingoProfileId, gameHistory, isAuth } = useBingo();
+
+  // Dummy data for when the user is not authenticated
+  const dummyGameResults: GameResult[] = [
+    {
+      id: "1",
+      outcome: "Win",
+      ranked: true,
+      duration: "5:30",
+      mmrChange: 25,
+      date: new Date().toISOString(),
+      startTime: new Date().toISOString(),
+    },
+    {
+      id: "2",
+      outcome: "Loss",
+      ranked: true,
+      duration: "4:45",
+      mmrChange: -15,
+      date: new Date().toISOString(),
+      startTime: new Date().toISOString(),
+    },
+    {
+      id: "3",
+      outcome: "Unscored",
+      ranked: false,
+      duration: "In Progress",
+      mmrChange: 0,
+      date: new Date().toISOString(),
+      startTime: new Date().toISOString(),
+    },
+    {
+      id: "4",
+      outcome: "Win",
+      ranked: true,
+      duration: "6:10",
+      mmrChange: 30,
+      date: new Date().toISOString(),
+      startTime: new Date().toISOString(),
+    },
+    {
+      id: "5",
+      outcome: "Loss",
+      ranked: false,
+      duration: "3:50",
+      mmrChange: 0,
+      date: new Date().toISOString(),
+      startTime: new Date().toISOString(),
+    },
+    {
+      id: "6",
+      outcome: "Loss",
+      ranked: true,
+      duration: "5:00",
+      mmrChange: 0,
+      date: new Date().toISOString(),
+      startTime: new Date().toISOString(),
+    },
+    {
+      id: "7",
+      outcome: "Win",
+      ranked: false,
+      duration: "7:20",
+      mmrChange: 10,
+      date: new Date().toISOString(),
+      startTime: new Date().toISOString(),
+    },
+  ];
 
   const gameResults: GameResult[] =
     gameHistory?.map((game: any) => {
@@ -111,8 +198,10 @@ export default function GameHistory() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="bg-gray-800 border w-full h-full border-gray-500/25 p-6 rounded-lg shadow-lg flex flex-col"
+      className="bg-gray-800 border w-full h-full border-gray-500/25 p-6 rounded-lg shadow-lg flex flex-col relative"
     >
+      {!isAuth && <AuthOverlay />}
+
       <motion.h2
         initial={{ y: -20 }}
         animate={{ y: 0 }}
@@ -127,11 +216,12 @@ export default function GameHistory() {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.4 }}
+        style={{ filter: !isAuth ? "blur(4px) brightness(0.5)" : "none" }}
       >
-        {gameResults.length === 0 ? (
-          <p className="text-gray-400 text-center">No game history available.</p>
+        {isAuth && gameResults.length === 0 ? (
+          <EmptyState />
         ) : (
-          gameResults.map((game, index) => (
+          (isAuth ? gameResults : dummyGameResults).map((game, index) => (
             <motion.div
               key={game.id}
               initial={{ opacity: 0, y: 20 }}

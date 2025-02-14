@@ -1,13 +1,11 @@
 import { WebSocketServer, WebSocket } from "ws";
-import { gameManager  } from "./GameManager";
+import { gameManager } from "./GameManager";
 import { v4 as uuidv4 } from "uuid";
 import { Server } from "http";
 import { CustomError } from "../helper/customError"; // Assuming CustomError class is defined
 import { STATUS_CODES } from "../errors";
 import jwt from "jsonwebtoken";
 import { verifyToken } from "helper";
-
-
 
 let wss: WebSocketServer;
 
@@ -31,12 +29,13 @@ export function setupWebSocket(server: Server): void {
         return;
       }
       const { googleId } = decoded;
-      
-      if(gameManager.isUserReconnecting(googleId)) gameManager.reconnectToGame(googleId, ws);
-      
-      // Add the client to the map and game manager
-      gameManager.addUser(googleId, ws);
 
+      if (gameManager.isUserReconnecting(googleId))
+        gameManager.reconnectToGame(googleId, ws);
+
+      // Add the client to the map and game manager
+      console.log(`Client connected. ID: ${googleId}`);
+      gameManager.addUser(googleId, token, ws);
       ws.send(`You have been successfully connected`);
 
       ws.on("error", (error: Error) => {

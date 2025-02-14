@@ -15,6 +15,7 @@
   "license": "ISC",
   "description": "",
   "devDependencies": {
+    "@repo/messages": "workspace:*",
     "@types/cors": "^2.8.17",
     "@types/express": "^5.0.0",
     "@types/express-session": "^1.18.1",
@@ -27,8 +28,7 @@
     "@types/ws": "^8.5.13",
     "nodemon": "^3.1.9",
     "ts-node": "^10.9.2",
-    "typescript": "^5.7.2",
-    "@repo/messages": "workspace:*"
+    "typescript": "^5.7.2"
   },
   "dependencies": {
     "@apollo/server": "^4.11.2",
@@ -52,6 +52,7 @@
     "passport": "^0.7.0",
     "passport-google-oauth20": "^2.0.0",
     "passport-jwt": "^4.0.1",
+    "redis": "^4.7.0",
     "uuid": "^11.0.3",
     "ws": "^8.18.0"
   }

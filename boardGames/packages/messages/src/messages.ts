@@ -266,6 +266,8 @@ export interface PAYLOAD_PUT_GAME_INIT {
   type: MessageType.PUT_GAME_INIT;
   payload: {
     token: string;
+    gameType: "BINGO" | "BINGO-6";
+    matchTier: "A" | "B" | "C" | "D" | "E" | "F";
   };
 }
 

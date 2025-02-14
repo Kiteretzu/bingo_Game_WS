@@ -34,6 +34,7 @@ process.on("SIGINT", async () => {
 async function startApp() {
   await connectToRedis(); // Ensure Redis is ready
   const dbManagerQueue = new DbManagerQueue();
+
   try {
     await dbManagerQueue.processRequests();
   } catch (err) {

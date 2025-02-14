@@ -54,3 +54,10 @@ export interface REDIS_PAYLOAD_SentFriendRequest {
     to: string;
   };
 }
+
+export interface REDIS_PlayerFindingMatch {
+  id: string;
+  mmr: number;
+  matchTier?: "A" | "B" | "C" | "D" | "E" | "F";
+  // Add other relevant fields like preferred game settings, etc.
+}

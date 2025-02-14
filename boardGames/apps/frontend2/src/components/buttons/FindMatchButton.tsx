@@ -21,12 +21,12 @@ function FindMatchButton({
           className="flex items-center gap-3 justify-center"
           aria-live="polite"
         >
-          <span className=" font-jaro text-2xl text-white transition-colors">
+          <span className=" font-jaro text-xl text-white transition-colors">
             FINDING MATCH...
           </span>
           <ActionButton
             className={cn(
-              "  font-jaro text-2xl text-white bg-transparent rounded hover:bg-white p-3 transition-colors"
+              "  font-jaro text-xl text-white bg-transparent rounded hover:bg-white p-3 py-2 transition-colors"
             )}
             onClick={cancelFindMatch}
           >
@@ -36,7 +36,7 @@ function FindMatchButton({
       ) : (
         <ActionButton
           className={cn(
-            "px-24 py-4 font-jaro text-2xl text-white rounded transition-colors disabled:bg-slate-600/50 disabled:hover:scale-100 "
+            "px-24 py-2 font-jaro text-xl text-white rounded transition-colors disabled:bg-slate-600/50 disabled:hover:scale-100 "
           )}
           onClick={findMatch}
           disabled={!isAuth}

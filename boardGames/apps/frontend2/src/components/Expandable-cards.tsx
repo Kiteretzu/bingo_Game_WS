@@ -71,7 +71,7 @@ export function ExpandableCard({
 
             <AnimatePresence>
                 {isExpanded && (
-                    <div className="fixed inset-0 grid place-items-center ">
+                    <div className="fixed inset-0 grid place-items-center z-40 ">
                         <motion.button
                             layout
                             initial={{ opacity: 0 }}

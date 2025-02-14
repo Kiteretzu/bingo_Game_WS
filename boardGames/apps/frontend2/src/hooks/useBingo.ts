@@ -56,6 +56,7 @@ function useBingo() {
   }));
 
   const profileState = useAppSelector((state) => ({
+    isAuth: state.profile.isAuth,
     bingoProfileId: state.profile.bingoProfile?.id,
     gameHistory: state.profile.gameHistory,
   }));
@@ -100,6 +101,7 @@ function useBingo() {
   const tossWinner = bingoState.tossWinner;
   const bingoProfileId = profileState.bingoProfileId;
   const gameHistory = profileState.gameHistory;
+  const isAuth = profileState.isAuth;
   let lastValue = ""; // i think bug state here
   const [response, setResponse] = useState<string>("");
   const [gameLoading, setGameLoading] = useState<boolean>(true);
@@ -215,11 +217,22 @@ function useBingo() {
     };
   }, [socket, dispatch]);
 
-  const findMatch = () => {
+  const findMatch = (selectedMode: string, selectedTier: string) => {
     setIsFinding(true);
     const token = localStorage.getItem("auth-token");
     if (token) {
-      const data: PAYLOAD_PUT_GAME_INIT["payload"] = { token }; // it must come from authenticated user that it is not jwt expired
+      const data: PAYLOAD_PUT_GAME_INIT["payload"] = {
+        token,
+        gameType:
+          selectedMode == "Classic" ? "BINGO" : (selectedMode as "BINGO"),
+        matchTier: selectedTier.split(" ")[1] as
+          | "A"
+          | "B"
+          | "C"
+          | "D"
+          | "E"
+          | "F",
+      }; // it must come from authenticated user that it is not jwt expired
       sendData(PUT_GAME_INIT, data);
     }
   };
@@ -277,6 +290,7 @@ function useBingo() {
     isOpenChallenge,
     isOpenAddFriend,
     isConfirmedMatch,
+    isAuth,
     setIsConfirmedMatch,
     handleAddFriend,
     setIsReconnectGame,

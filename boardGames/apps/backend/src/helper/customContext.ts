@@ -59,7 +59,6 @@ export const customContext = ({ req, res }: ContextParams) => {
 
       // Verify the JWT token
      const decodedToken = verifyToken(token) // always in tryCatch
-     console.log('this is decodedeToken', decodedToken)
 
       // Fetch the user from the database using the decoded token
       const user = await client.user.findUnique({

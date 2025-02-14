@@ -2,7 +2,6 @@ import { PlayerData } from "@repo/messages/message";
 import { client } from "@repo/db/client";
 import { redisClient } from "../index";
 import { createClient, RedisClientType } from "redis";
-import { Game } from "../../../../apps/backend/src/ws/game";
 
 class GameServices {
   private static instance: GameServices;
@@ -70,6 +69,7 @@ class GameServices {
   async getAllUsersToGames() {
     try {
       // Get all keys matching the pattern
+      console.log('working inside GETALL USER TO GAMES',)
       const keys = await this.redis.keys(`${this.USER_SET}:*`);
 
       // Multi is used instead of pipeline for redis package
@@ -129,6 +129,7 @@ class GameServices {
    * Get all active game IDs from the set and their states from the database.
    */
   async getAllGames() {
+    console.log('whats GOING ON!!!!',)
     try {
       console.log("IN HERER!!!");
       // Ensure Redis is connected

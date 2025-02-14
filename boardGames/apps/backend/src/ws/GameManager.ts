@@ -198,6 +198,33 @@ export class GameManager {
     return this.users.get(userId);
   }
 
+  createMatch(player1_ID: string, player2_ID: string) {
+    const player1Data = this.usersToPlayerData.get(player1_ID);
+    const player2Data = this.usersToPlayerData.get(player2_ID);
+    console.log("this is player1Data", player1Data);
+    console.log("this is player2Data", player2Data);
+
+    const newGameId = uuidv4(); // Assigning game ID to find games fast
+    console.log("GameId: ", newGameId);
+
+    const newGame = new Game(
+      newGameId,
+      this.getSocket(player1_ID)!,
+      this.getSocket(player2_ID)!,
+      player1Data!,
+      player2Data!
+    );
+
+    this.games.set(newGameId, newGame);
+    this.usersToGames.set(player1_ID, newGameId);
+    this.usersToGames.set(player2_ID, newGameId);
+    // store in redis
+    gameServices.addGame(newGameId);
+
+    gameServices.addUserToGame(player1_ID, newGameId);
+    gameServices.addUserToGame(player2_ID, newGameId);
+  }
+
   private addHandler(socket: WebSocket) {
     socket.on("message", async (data) => {
       try {
@@ -231,48 +258,6 @@ export class GameManager {
             };
 
             matchmakingService.addPlayerToQueue(playerFindMatchData);
-
-            
-
-            // if (!this.pendingPlayer) {
-            //   this.pendingPlayer = socket;
-            //   this.pendingPlayerData = playerData;
-
-            //   sendPayload(socket, GET_RESPONSE, RESPONSE_WAITING_PLAYER);
-            // } else {
-            //   if (this.pendingPlayer == socket) {
-            //     return;
-            //   }
-            //   const newGameId = uuidv4(); // Assigning game ID to find games fast
-            //   console.log("GameId: ", newGameId);
-            //   const newGame = new Game(
-            //     newGameId,
-            //     this.pendingPlayer,
-            //     socket,
-            //     this.pendingPlayerData!,
-            //     playerData
-            //   );
-
-            //   // store in games map
-            //   this.games.set(newGameId, newGame);
-            //   this.usersToGames.set(
-            //     this.pendingPlayerData!.user.googleId,
-            //     newGameId
-            //   );
-            //   this.usersToGames.set(playerData.user.googleId, newGameId);
-            //   // store in redis
-            //   gameServices.addGame(newGameId);
-            //   gameServices.addUserToGame(
-            //     this.pendingPlayerData!.user.googleId,
-            //     newGameId
-            //   );
-            //   gameServices.addUserToGame(playerData.user.googleId, newGameId);
-
-            //   this.pendingPlayer.send(`Game started with ID: ${newGameId}`);
-            //   socket.send(`Game started with ID: ${newGameId}`);
-            //   this.pendingPlayer = null; // Reset pendingUser once the game starts
-            //   this.pendingPlayerData = null; // Reset pendingUserData
-            // }
             break;
           }
 

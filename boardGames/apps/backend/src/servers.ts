@@ -18,6 +18,10 @@ import authRouter from "routes/auth";
 import { buildContext } from "graphql-passport";
 import customContext from "helper/customContext";
 import adminRouter from "routes/auth/adminAuth";
+import { createClient } from "redis";
+import { parse } from "path";
+import { gameManager } from "ws/GameManager";
+import { REDIS_PlayerFindingMatch } from "../../../packages/redis/src/types";
 
 // Initialize Apollo Server
 export const setupApolloServer = async (httpServer: http.Server) => {
@@ -71,8 +75,6 @@ export const setupExpressApp = async (
       })
     );
 
-
-
     return app;
   } catch (error: any) {
     // In case of error setting up Express middleware, throw an appropriate error
@@ -82,6 +84,28 @@ export const setupExpressApp = async (
       ERROR_CODES.EXPRESS
     );
   }
+};
+
+export const setupRedisPubSub = async () => {
+  const subscriber = createClient({
+    url: "redis://localhost:6379",
+  });
+
+  subscriber.on("error", (err) => console.log("Redis Subscriber Error", err));
+
+  await subscriber.connect().catch((err) => {
+    console.error("Error connecting to Redis:", err);
+    process.exit(1);
+  });
+
+  subscriber.subscribe("matchmakingChannel", (message) => {
+    const parsedMessage = JSON.parse(message) as REDIS_PlayerFindingMatch;
+
+    const playersId =
+      parsedMessage.players as unknown as REDIS_PlayerFindingMatch[];
+    console.log("yo the playersIds is ", playersId);
+    gameManager.createMatch(playersId[0].id, playersId[1].id);
+  });
 };
 
 // Export the WebSocket setup for use in index.ts

@@ -1,7 +1,7 @@
 import express from "express";
 import http from "http";
 import dotenv from "dotenv";
-import { setupApolloServer, setupExpressApp, setupWebSocket } from "./servers";
+import { setupApolloServer, setupExpressApp, setupRedisPubSub, setupWebSocket } from "./servers";
 import { ApolloServer } from "@apollo/server";
 import redis, { createClient } from "redis";
 
@@ -23,21 +23,7 @@ const startServer = async () => {
     const apolloServer = await setupApolloServer(httpServer);
     setupExpressApp(app, apolloServer);
     setupWebSocket(httpServer);
-
-    const subscriber = createClient({
-      url: "redis://localhost:6379",
-    });
-
-    subscriber.on("error", (err) => console.log("Redis Subscriber Error", err));
-
-    await subscriber.connect().catch((err) => {
-      console.error("Error connecting to Redis:", err);
-      process.exit(1);
-    });
-
-    subscriber.subscribe("matchmakingChannel", (message) => {
-      console.log(`Received message: ${message}`);
-    });
+    await setupRedisPubSub();
 
     httpServer.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}/graphql`);

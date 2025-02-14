@@ -45,7 +45,6 @@ export class MatchmakingService {
   async addPlayerToQueue(player: REDIS_PlayerFindingMatch) {
     try {
       await this.publisher.lPush(this.queueName, JSON.stringify(player));
-      await this.publisher.publish(this.channelName, "playerAdded");
       console.log(`Player ${player.id} added to the matchmaking queue.`);
     } catch (error) {
       console.error("Error adding player to queue:", error);
@@ -54,16 +53,19 @@ export class MatchmakingService {
 
   async findMatch() {
     const MAX_RETRIES = 5;
+    const MAX_DELAY = 10000; // 10 seconds
     let retryCount = 0;
 
     while (retryCount < MAX_RETRIES) {
       try {
+        // Fetch all players from the queue
         const players = await this.publisher.lRange(this.queueName, 0, -1);
         if (players.length < 2) {
           console.log("Not enough players in the queue to find a match.");
           return;
         }
 
+        // Parse players once
         const parsedPlayers: REDIS_PlayerFindingMatch[] = players.map(
           (player) => JSON.parse(player)
         );
@@ -71,7 +73,7 @@ export class MatchmakingService {
         // Group players by matchTier
         const playersByTier: Record<string, REDIS_PlayerFindingMatch[]> = {};
         for (const player of parsedPlayers) {
-          const tier = player.matchTier || "default"; // Use "default" if matchTier is not set
+          const tier = player.matchTier || "default";
           if (!playersByTier[tier]) {
             playersByTier[tier] = [];
           }
@@ -86,7 +88,7 @@ export class MatchmakingService {
             continue;
           }
 
-          // Sort players by MMR to find the closest match within the same tier
+          // Sort players by MMR
           tierPlayers.sort((a, b) => a.mmr - b.mmr);
 
           let bestMatch:
@@ -94,6 +96,7 @@ export class MatchmakingService {
             | null = null;
           let smallestMMRDifference = Infinity;
 
+          // Find the best match using a sliding window
           for (let i = 0; i < tierPlayers.length - 1; i++) {
             const player1 = tierPlayers[i];
             const player2 = tierPlayers[i + 1];
@@ -108,35 +111,32 @@ export class MatchmakingService {
           if (bestMatch) {
             const [player1, player2] = bestMatch;
 
-            // Remove matched players from the queue
-            await this.publisher.lRem(
-              this.queueName,
-              1,
-              JSON.stringify(player1)
-            );
-            await this.publisher.lRem(
-              this.queueName,
-              1,
-              JSON.stringify(player2)
-            );
+            // Remove matched players in a single Redis transaction
+            const multi = this.publisher.multi();
+            multi.lRem(this.queueName, 1, JSON.stringify(player1));
+            multi.lRem(this.queueName, 1, JSON.stringify(player2));
+            await multi.exec();
 
             console.log(
               `Matched players in tier ${tier}: ${player1.id} (MMR: ${player1.mmr}) and ${player2.id} (MMR: ${player2.mmr})`
             );
 
-            // Notify GameManager to create a new game with the matched players
+            // Notify GameManager
             await this.publishMatchCreated(player1, player2);
           } else {
             console.log(`No suitable match found in tier ${tier}.`);
           }
         }
 
-        // Reset retry count on successful processing
+        // Reset retry count on success
         retryCount = 0;
       } catch (error: any) {
         console.error("Error finding match:", error.message);
         retryCount++;
-        await this.delay(1000 * retryCount); // Exponential backoff
+
+        // Exponential backoff with a maximum delay
+        const delayMs = Math.min(1000 * retryCount, MAX_DELAY);
+        await this.delay(delayMs);
       }
     }
 

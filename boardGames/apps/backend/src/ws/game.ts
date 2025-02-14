@@ -668,6 +668,7 @@ export class Game {
     };
 
     sendPayload(newSocket, GET_RECONNECT, reconnectData);
+    this.broadcastUpdatedGame(); 
 
     // Optionally, you can close the old socket connection
     if (oldSocket) {

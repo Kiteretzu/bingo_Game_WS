@@ -16,6 +16,7 @@ import {
   PAYLOAD_GET_RECONNECT,
   GET_ADD_FRIEND,
   PAYLOAD_GET_ADD_FRIEND,
+  GET_START_GAME,
 } from "@repo/messages/message";
 import { WebSocket } from "ws";
 
@@ -25,9 +26,8 @@ export function sendPayload(
   data?: any
 ): void {
   switch (type) {
-    
     case GET_RESPONSE: {
-      console.log('called ?', data);
+      console.log("called ?", data);
       to.send(
         JSON.stringify({
           type,
@@ -97,6 +97,16 @@ export function sendPayload(
 
     case GET_ADD_FRIEND: {
       to.send(JSON.stringify(data as PAYLOAD_GET_ADD_FRIEND));
+      break;
+    }
+    case GET_START_GAME: {
+      to.send(
+        JSON.stringify({
+          type,
+          data: null,
+        })
+      );
+      break;
     }
   }
 }

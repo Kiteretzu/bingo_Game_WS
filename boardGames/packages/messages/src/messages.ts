@@ -97,6 +97,7 @@ export enum MessageType {
   GET_REFRESH = "get_refresh",
   GET_CHALLENGE = "get_challange",
   GET_ADD_FRIEND = "get_add_friend",
+  GET_START_GAME = "get_start_game",
   // consideration
   // GET_GAME_ID = "get_game_id",
   // GET_GAMEBOARD = "send_game_board",
@@ -127,6 +128,7 @@ export const PUT_CHALLENGE = MessageType.PUT_CHALLENGE;
 export const GET_CHALLENGE = MessageType.GET_CHALLENGE;
 export const PUT_ADD_FRIEND = MessageType.PUT_ADD_FRIEND;
 export const GET_ADD_FRIEND = MessageType.GET_ADD_FRIEND;
+export const GET_START_GAME = MessageType.GET_START_GAME;
 
 // Data interface for the message data
 export interface DATA {
@@ -182,6 +184,11 @@ export interface PAYLOAD_PUT_ADD_FRIEND {
 export interface PAYLOAD_GET_CHALLENGE {
   type: MessageType.GET_CHALLENGE;
   payload: ChallengeSchema;
+}
+
+export interface PAYLOAD_GET_START_GAME {
+  type: MessageType.GET_START_GAME;
+  payload: {};
 }
 
 export interface PAYLOAD_GET_RESPONSE {

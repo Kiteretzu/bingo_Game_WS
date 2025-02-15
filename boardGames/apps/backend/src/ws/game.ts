@@ -28,6 +28,7 @@ import {
   PAYLOAD_GET_RECONNECT,
   GET_RECONNECT,
   GameBoard,
+  GET_START_GAME,
 } from "@repo/messages/message";
 import { Bingo } from "../../../../packages/games/src/bingo/bingo";
 import { sendPayload } from "../helper/wsSend";
@@ -54,6 +55,7 @@ export class Game {
   public tossWinnerId: string;
   public gotFirstBlood: boolean = false;
   public matchHistory: MatchHistory = [];
+  private gameStarted: boolean = false;
 
   constructor(
     gameId: string,
@@ -529,6 +531,13 @@ export class Game {
   }
 
   addCheck(currentPlayerSocket: WebSocket, value: BoxesValue) {
+    if (!this.gameStarted) {
+      sendPayload(
+        currentPlayerSocket,
+        GET_RESPONSE,
+        "Game has not started yet"
+      );
+    }
     if (Number(value) > 25) {
       sendPayload(
         currentPlayerSocket,
@@ -592,6 +601,7 @@ export class Game {
     const { isFirstPlayer, isSecondPlayer } =
       this.getPlayerContext(currentPlayerSocket);
 
+    console.log("in here tossDecision with decision", decision);
     if (isFirstPlayer && decision === TossDecision.TOSS_GO_SECOND) {
       [this.p1_socket, this.p2_socket] = [this.p2_socket, this.p1_socket];
       [this.playerData[0], this.playerData[1]] = [
@@ -612,13 +622,21 @@ export class Game {
         this.playerGameboardData[1],
         this.playerGameboardData[0],
       ];
-    } else return;
+    } else {
+      console.log('isSecond Player', isSecondPlayer, decision)
+    };
 
+    
     redis_tossGameUpdate(
       this.gameId,
-      this.playerData,
+      this.playerData,  
       this.playerGameboardData
     );
+
+    this.gameStarted = true;
+    sendPayload(this.p1_socket!, GET_START_GAME);
+    sendPayload(this.p2_socket!, GET_START_GAME);
+
   }
 
   resign(currentPlayerSocket: WebSocket) {
@@ -637,7 +655,7 @@ export class Game {
 
   reconnectPlayer(newSocket: WebSocket, userId: string) {
     const { gameBoard, oldSocket } = this.getPlayerContextByUserId(userId);
-    console.log('game-Reconnecting',)
+    console.log("game-Reconnecting");
     const playerIndex = this.playerData.findIndex(
       (player) => player.user.googleId === userId
     );
@@ -668,7 +686,7 @@ export class Game {
     };
 
     sendPayload(newSocket, GET_RECONNECT, reconnectData);
-    this.broadcastUpdatedGame(); 
+    this.broadcastUpdatedGame();
 
     // Optionally, you can close the old socket connection
     if (oldSocket) {

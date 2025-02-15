@@ -6,7 +6,7 @@ import { Trophy, X } from "lucide-react";
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import useBingo from "@/hooks/useBingo";
-import type { WinnerMMR } from "@repo/games/bingo/messages";
+import type { WinnerMMR } from "@repo/messages/message";
 
 type GoalItem = { label: string; value: number };
 

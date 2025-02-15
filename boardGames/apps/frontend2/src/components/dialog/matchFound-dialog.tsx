@@ -13,7 +13,7 @@ import {
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "@/store/hooks";
 import useBingo from "@/hooks/useBingo";
-import { PlayerData } from "@repo/games/mechanics";
+import { PlayerData } from "@repo/messages/message";
 
 export default function MatchFoundScreen() {
     const [countdown, setCountdown] = useState(5);

@@ -26,6 +26,8 @@ import {
   GET_ADD_FRIEND,
   PlayerGameboardData,
   MatchHistory,
+  PUT_TOSS_DECISION,
+  PAYLOAD_PUT_TOSS_DECISION,
 } from "@repo/messages/message";
 import { amazing, getPlayerData, verifyToken } from "../helper/";
 import { redis_newGame, redis_sentFriendRequest } from "@repo/redis/helper";
@@ -377,6 +379,18 @@ export class GameManager {
             }
             sendPayload(receiverSocket, GET_ADD_FRIEND, data.payload);
             break;
+          }
+
+          case PUT_TOSS_DECISION: {
+            const data = message as PAYLOAD_PUT_TOSS_DECISION;
+            const gameId = this.usersToGames.get(this.getUserId(socket)!);
+            const game = this.games.get(gameId!);
+
+            if (game) {
+              game.tossDecision(socket, data.payload.decision);
+            }
+          
+
           }
           default:
             socket.send("Unknown message type");

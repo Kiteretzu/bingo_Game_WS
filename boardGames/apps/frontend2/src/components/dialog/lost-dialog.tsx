@@ -2,7 +2,6 @@
 
 import { useState, useEffect } from "react"
 import { Dialog, DialogClose, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
-import { Badge } from "@/components/ui/badge"
 import { Skull, MinusCircle, X, Minus } from "lucide-react"
 import { AnimatePresence, motion } from "framer-motion"
 import { Button } from "../ui/button"

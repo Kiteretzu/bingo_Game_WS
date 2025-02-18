@@ -71,3 +71,31 @@
   }
 }
 
+
+/* For WebKit Browsers (Chrome, Safari, Edge) */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+  margin-left: 8px;  /* Add left margin */
+  margin-right: 8px; /* Add right margin */
+}
+
+::-webkit-scrollbar-thumb {
+  background-color: rgba(100, 100, 100, 0.3); /* Semi-transparent dark color */
+  border-radius: 10px;
+  transition: background-color 0.3s ease-in-out;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background-color: rgba(150, 150, 150, 0.5); /* Slightly lighter on hover */
+}
+
+::-webkit-scrollbar-track {
+  background-color: transparent; /* Fully transparent track */
+}
+
+/* Firefox Scrollbar (Using scrollbar-color) */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: rgba(100, 100, 100, 0.3) transparent;
+}

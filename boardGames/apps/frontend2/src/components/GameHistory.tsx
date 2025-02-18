@@ -23,27 +23,30 @@ const GameCard = ({ game }: { game: GameResult }) => (
     transition={{ duration: 0.3 }}
     className="mb-4 bg-gray-700 rounded-lg cursor-pointer py-4 px-3 xl:p-6 flex items-center justify-between hover:shadow-lg transition-shadow"
   >
-    <motion.div className="flex items-center">
-      {game.outcome === "Win" ? (
-        <TrendingUp className="text-green-500 mr-2" />
-      ) : game.outcome === "Loss" ? (
-        <TrendingDown className="text-red-500 mr-2" />
-      ) : (
-        <Clock className="text-gray-400 mr-2" />
-      )}
-      <span
-        className={`font-semibold ${game.outcome === "Win"
-          ? "text-green-500"
-          : game.outcome === "Loss"
-            ? "text-red-500"
-            : "text-gray-400"
-          }`}
-      >
-        {game.outcome}
-      </span>
-    </motion.div>
-    <div className="text-gray-400 text-sm xl:font-semibold xl:text-lg">
-      {new Date(game.date).toLocaleDateString()}
+    <div className="flex flex-col">
+
+      <motion.div className="flex items-center">
+        {game.outcome === "Win" ? (
+          <TrendingUp className="text-green-500 mr-2" />
+        ) : game.outcome === "Loss" ? (
+          <TrendingDown className="text-red-500 mr-2" />
+        ) : (
+          <Clock className="text-gray-400 mr-2" />
+        )}
+        <span
+          className={`font-semibold ${game.outcome === "Win"
+            ? "text-green-500"
+            : game.outcome === "Loss"
+              ? "text-red-500"
+              : "text-gray-400"
+            }`}
+        >
+          {game.outcome}
+        </span>
+      </motion.div>
+      <div className="text-gray-400 text-sm xl:font-semibold xl:text-lg">
+        {new Date(game.date).toLocaleDateString()}
+      </div>
     </div>
     <div className="text-gray-400 text-sm xl:font-semibold xl:text-lg">
       {new Date(game.startTime).toLocaleTimeString("en-US", {
@@ -198,7 +201,7 @@ export default function GameHistory() {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.5 }}
-      className="bg-gray-800 border w-full h-full border-gray-500/25 p-6 rounded-lg shadow-lg flex flex-col relative"
+      className="bg-gray-800 border w-full h-full border-gray-500/25 p-6 px-2 rounded-lg shadow-lg flex flex-col relative"
     >
       {!isAuth && <AuthOverlay />}
 
@@ -212,7 +215,7 @@ export default function GameHistory() {
       </motion.h2>
 
       <motion.div
-        className="flex-grow overflow-y-auto overflow-x-hidden"
+        className="flex-grow overflow-y-auto px-3 overflow-x-hidden"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 0.5, delay: 0.4 }}

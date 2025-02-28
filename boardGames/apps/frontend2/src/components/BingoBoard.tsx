@@ -3,7 +3,7 @@ import Cross from './CssComponents/Cross'
 import useBingo from '@/hooks/useBingo'
 import { Card, CardContent } from '@/components/ui/card'
 import { obj } from '@/dummyTests/gameBoard'
-import { Box, BoxesName, BoxesValue } from '@repo/games/mechanics'
+import { Box, BoxesName, BoxesValue } from '@repo/messages/message'
 
 function GameBoard() {
   const { addCheck, checkedBoxes, gameBoard, checkedLines } = useBingo()

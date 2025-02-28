@@ -57,7 +57,7 @@ async function startMatchmaking() {
 
   console.log("Matchmaking service started.");
 }
-
+ 
 async function startApp() {
   await connectToRedis(); // Ensure Redis is ready
 
@@ -66,6 +66,7 @@ async function startApp() {
   try {
     // Start both services
     await Promise.all([dbManagerQueue.processRequests(), startMatchmaking()]);
+    
   } catch (err) {
     console.error("Unexpected error:", err);
     process.exit(1);

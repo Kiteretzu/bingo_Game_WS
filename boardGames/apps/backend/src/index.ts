@@ -23,7 +23,7 @@ const startServer = async () => {
     const apolloServer = await setupApolloServer(httpServer);
     setupExpressApp(app, apolloServer);
     setupWebSocket(httpServer);
-    // await setupRedisPubSub();
+    await setupRedisPubSub();
 
     httpServer.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}/graphql`);

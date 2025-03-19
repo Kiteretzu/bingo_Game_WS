@@ -1,11 +1,7 @@
 import { useEffect, useState } from "react";
 import { useSocketContext } from "@/context/SocketContext";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
-import {
-  initialGameboard,
-  setUpdatedGame,
-  startGame,
-} from "@/store/slices/bingoSlice";
+import { initialGameboard, setUpdatedGame } from "@/store/slices/bingoSlice";
 import {
   PUT_GAME_INIT,
   PUT_CANCEL_GAME_INIT,
@@ -39,10 +35,6 @@ import {
   PAYLOAD_PUT_GET_CHECK_MARK,
   PAYLOAD_GET_VICTORY,
   PAYLOAD_GET_LOST,
-  GET_START_GAME,
-  PAYLOAD_PUT_TOSS_DECISION,
-  TossDecision,
-  PUT_TOSS_DECISION,
 } from "@repo/messages/message";
 import { useDialogContext } from "@/context/DialogContext";
 import { useApolloClient } from "@apollo/client";
@@ -60,8 +52,7 @@ function useBingo() {
     playersData: state.bingo.game.players, // dont know where it will be used
     goals: state.bingo.goals,
     matchHistory: state.bingo.matchHistory,
-    tossWinnerId: state.bingo.game.tossWinnerId,
-    gameStarted: state.bingo.gameStarted,
+    tossWinner: state.bingo.game.tossWinner,
   }));
 
   const profileState = useAppSelector((state) => ({
@@ -107,16 +98,15 @@ function useBingo() {
   const playersData = bingoState.playersData;
   const goals = bingoState.goals;
   const matchHistory = bingoState.matchHistory;
-  const tossWinnerId = bingoState.tossWinnerId;
+  const tossWinner = bingoState.tossWinner;
   const bingoProfileId = profileState.bingoProfileId;
   const gameHistory = profileState.gameHistory;
   const isAuth = profileState.isAuth;
-  const isGameStarted = bingoState.gameStarted;
   let lastValue = ""; // i think bug state here
   const [response, setResponse] = useState<string>("");
   const [gameLoading, setGameLoading] = useState<boolean>(true);
   const [isFinding, setIsFinding] = useState<boolean>(false);
-  const [isTossWinner, setIsTossWinner] = useState<boolean>(false);
+
   const client = useApolloClient();
 
   // delete this later on
@@ -126,15 +116,6 @@ function useBingo() {
   const sendData = (type: string, payload: any) => {
     socket.send(JSON.stringify({ type, payload }));
   };
-
-  useEffect(() => {
-    if (tossWinnerId && bingoProfileId && tossWinnerId === bingoProfileId) {
-      console.log("You are the toss winner:", tossWinnerId, bingoProfileId);
-      setIsTossWinner(true);
-    } else {
-      setIsTossWinner(false);
-    }
-  }, [tossWinnerId, bingoProfileId]);
 
   useEffect(() => {
     if (!gameBoard) {
@@ -232,10 +213,6 @@ function useBingo() {
           console.log("get add friend");
           break;
         }
-        case GET_START_GAME: {
-          console.log('I was being called in get_start_game',)
-          dispatch(startGame());
-        }
       }
     };
   }, [socket, dispatch]);
@@ -284,16 +261,6 @@ function useBingo() {
     sendData(PUT_ADD_FRIEND, data);
   };
 
-  const handleTossDecision = (decision: "FIRST" | "SECOND") => {
-    const data: PAYLOAD_PUT_TOSS_DECISION["payload"] = {
-      decision:
-        decision === "FIRST"
-          ? TossDecision.TOSS_GO_FIRST
-          : TossDecision.TOSS_GO_SECOND,
-    };
-    sendData(PUT_TOSS_DECISION, data);
-  };
-
   return {
     gameBoard,
     bingoProfileId,
@@ -309,7 +276,7 @@ function useBingo() {
     lastValue,
     isLost,
     isVictory,
-    tossWinnerId,
+    tossWinner,
     // lostData,
     // victoryData,
     playersData, // same as matchFound data
@@ -324,12 +291,9 @@ function useBingo() {
     isOpenAddFriend,
     isConfirmedMatch,
     isAuth,
-    isTossWinner,
-    isGameStarted,
     setIsConfirmedMatch,
     handleAddFriend,
     setIsReconnectGame,
-    handleTossDecision,
     setIsVictory, // for dialog
     setIsLost, // for dialog
     setIsMatchFound, // to turn off dialog after you go back to homePage

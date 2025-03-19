@@ -18,12 +18,11 @@ import { useNavigate } from "react-router-dom";
 
 // Define the initial state type
 interface BingoState {
-  gameStarted: boolean;
   game: {
     gameId: string;
     gameBoard: Box[] | null;
     players: PlayerData[];
-    tossWinnerId: string;
+    tossWinner: string;
   };
   checks: {
     checkedBoxes: BoxesName[] | null;
@@ -39,12 +38,11 @@ interface BingoState {
 
 // Initial state
 const initialState: BingoState = {
-  gameStarted: false,
   game: {
     gameId: "",
     gameBoard: [],
     players: [],
-    tossWinnerId: "",
+    tossWinner: "",
   },
   checks: {
     checkedBoxes: [],
@@ -84,10 +82,6 @@ const bingoSlice = createSlice({
   name: "bingo",
   initialState,
   reducers: {
-    startGame: (state) => {
-      state.gameStarted = true;
-      console.log("State of game:", state.gameStarted)
-    },
     initialGameboard: (
       state,
       action: PayloadAction<PAYLOAD_GET_GAME | PAYLOAD_GET_RECONNECT>
@@ -95,7 +89,7 @@ const bingoSlice = createSlice({
       state.game.gameBoard = action.payload.payload.gameBoard;
       state.game.gameId = action.payload.payload.gameId;
       state.game.players = action.payload.payload.players;
-      state.game.tossWinnerId = action.payload.payload.tossWinnerId;
+      state.game.tossWinner = action.payload.payload.tossWinner;
     },
     setUpdatedGame: (
       state,
@@ -114,17 +108,13 @@ const bingoSlice = createSlice({
     ) => {
       state.playerRecord.wins = action.payload.wins;
       state.playerRecord.loss = action.payload.loss;
-      console.log(
-        "this is the state ",
-        state.playerRecord.wins,
-        state.playerRecord.loss
-      );
+      console.log("this is the state ", state.playerRecord.wins, state.playerRecord.loss);
     },
   },
 });
 
 // Export actions and reducer
-export const { initialGameboard, setUpdatedGame, setPlayerRecord, startGame } =
+export const { initialGameboard, setUpdatedGame, setPlayerRecord } =
   bingoSlice.actions;
 
 export default bingoSlice.reducer;

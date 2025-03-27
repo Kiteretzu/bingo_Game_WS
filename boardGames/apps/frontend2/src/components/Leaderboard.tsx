@@ -16,7 +16,7 @@ export default function Leaderboard() {
     variables: { limit: 10 }
   });
 
-  console.log('people', data?.leaderboard[0].id)
+  console.log('people', data)
 
   const getRankIcon = (rank: number) => {
     switch (rank) {

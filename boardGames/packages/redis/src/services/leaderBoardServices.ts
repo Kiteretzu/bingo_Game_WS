@@ -38,7 +38,11 @@ class LeaderboardService {
   //    * Check if cache needs refresh.
 
   private async shouldRefreshCache(): Promise<boolean> {
+    // console.log("Redis ready state:", this.redis.isReady());
+    // console.log("Redis status:", this.redis.status);
+    console.log("dagger1");
     const lastUpdate = await this.redis.get(this.cacheTimeKey);
+    console.log("dagger2");
     if (!lastUpdate) return true;
 
     const timeSinceUpdate =
@@ -50,6 +54,7 @@ class LeaderboardService {
 
   private async refreshLeaderboardCache(): Promise<void> {
     try {
+      console.log("kammer1");
       const users = await this.prisma.bingoProfile.findMany({
         where: {
           mmr: {
@@ -64,6 +69,7 @@ class LeaderboardService {
         },
       });
 
+      console.log("kammer2");
       const multi = this.redis.multi();
 
       // Clear existing leaderboard and add updated data.
@@ -95,9 +101,11 @@ class LeaderboardService {
 
   async getLeaderboard(limit = 10): Promise<Array<LeaderboardEntry>> {
     try {
+      console.log("checker1");
       if (await this.shouldRefreshCache()) {
         await this.refreshLeaderboardCache();
       }
+      console.log("checker2");
 
       const topPlayers = await this.redis.zRangeWithScores(
         this.leaderboardKey,

@@ -40,7 +40,6 @@ export const resolvers: Resolvers<CustomContext> = {
         },
       })) as User;
 
-
       if (!user) {
         return null;
       }
@@ -67,9 +66,11 @@ export const resolvers: Resolvers<CustomContext> = {
     // leaderboard
     leaderboard: async (parent, args, context) => {
       const { limit } = args;
-
       // Implement the logic to fetch leaderboard entries
+
+      console.log("leaderCheck1")
       const leaderboardEntries = await leaderboardService.getLeaderboard(limit);
+      console.log("leaderCheck2")
       return leaderboardEntries;
     },
 

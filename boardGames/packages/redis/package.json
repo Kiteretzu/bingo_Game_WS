@@ -4,7 +4,8 @@
   "main": "index.js",
   "exports": {
     "./helper": "./src/helper/index.ts",
-    "./services": "./src/services/index.ts"
+    "./services": "./src/services/index.ts",
+    "./config": "./src/config.ts"
   },
   "scripts": {
     "build": "npx esbuild src/index.ts --bundle --outfile=dist/index.js --platform=node --tsconfig=tsconfig.json",

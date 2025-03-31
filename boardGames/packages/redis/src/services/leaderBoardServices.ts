@@ -1,27 +1,26 @@
 import { client, PrismaClient } from "@repo/db/client";
 import { LeaderboardEntry } from "@repo/graphql/types/server";
+import { getRedisClient } from "../config";
 import { createClient, RedisClientType } from "redis";
 
 class LeaderboardService {
   private static instance: LeaderboardService;
-  private redis: RedisClientType;
+  private redis: RedisClientType | null = null;
   private prisma: PrismaClient;
   private readonly leaderboardKey: string = "game:bingo:leaderboard";
   private readonly cacheTimeKey: string = "game:bingo:leaderboard:lastUpdate";
   private readonly cacheDuration: number = 30 * 60; // 30 minutes in seconds
 
   constructor() {
-    this.redis = createClient();
     this.prisma = client;
-
     this.initialize();
   }
 
   // initialze redis connect
   private async initialize(): Promise<void> {
     try {
-      await this.redis.connect();
-      console.log("Connected to Redis.");
+      this.redis = await getRedisClient();
+      console.log("Connected to Redis in leaderBoardServices.");
     } catch (err) {
       console.error("Failed to connect to Redis:", err);
       // Allow the application to continue running
@@ -35,13 +34,29 @@ class LeaderboardService {
     return LeaderboardService.instance;
   }
 
+  /**
+   * Ensures Redis connection is open before performing operations
+   */
+
+  private async ensureConnection(): Promise<RedisClientType> {
+    if (!this.redis) {
+      this.redis = await getRedisClient();
+    }
+
+    if (!this.redis.isOpen) {
+      this.redis = await getRedisClient(); // Get a fresh connection from the singleton
+    }
+
+    return this.redis;
+  }
   //    * Check if cache needs refresh.
 
   private async shouldRefreshCache(): Promise<boolean> {
     // console.log("Redis ready state:", this.redis.isReady());
     // console.log("Redis status:", this.redis.status);
+    const redis = await this.ensureConnection();
     console.log("dagger1");
-    const lastUpdate = await this.redis.get(this.cacheTimeKey);
+    const lastUpdate = await redis.get(this.cacheTimeKey);
     console.log("dagger2");
     if (!lastUpdate) return true;
 
@@ -54,7 +69,9 @@ class LeaderboardService {
 
   private async refreshLeaderboardCache(): Promise<void> {
     try {
-      console.log("kammer1");
+      // check if redisClient alive
+      const redis = await this.ensureConnection();
+
       const users = await this.prisma.bingoProfile.findMany({
         where: {
           mmr: {
@@ -70,13 +87,13 @@ class LeaderboardService {
       });
 
       console.log("kammer2");
-      const multi = this.redis.multi();
+      const multi = redis.multi();
 
       // Clear existing leaderboard and add updated data.
       multi.del(this.leaderboardKey);
       users.forEach((user) => {
         if (user.mmr !== null) {
-          multi.zAdd(this.leaderboardKey, {
+          multi?.zAdd(this.leaderboardKey, {
             score: user.mmr,
             value: JSON.stringify({
               id: user.User.googleId,
@@ -106,21 +123,22 @@ class LeaderboardService {
         await this.refreshLeaderboardCache();
       }
       console.log("checker2");
+      const redis = await this.ensureConnection();
 
-      const topPlayers = await this.redis.zRangeWithScores(
+      const topPlayers = await redis.zRangeWithScores(
         this.leaderboardKey,
         0, // Start from the first element
         limit - 1, // End at the (limit - 1)th element
         { REV: true } // Retrieve in descending order
       );
 
-      return topPlayers.map((player, index) => {
+      return topPlayers?.map((player, index) => {
         const userData = JSON.parse(player.value);
         return {
           ...userData,
           rank: index + 1,
         };
-      });
+      })!;
     } catch (err) {
       console.error("Failed to fetch leaderboard:", err);
       return [];

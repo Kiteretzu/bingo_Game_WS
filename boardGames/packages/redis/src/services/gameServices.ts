@@ -1,25 +1,24 @@
 import { PlayerData } from "@repo/messages/message";
 import { client } from "@repo/db/client";
-import { redisClient } from "../index";
-import { createClient, RedisClientType } from "redis";
+import { getRedisClient } from "../index";
+import { RedisClientType } from "redis";
 
 class GameServices {
   private static instance: GameServices;
-  private redis: RedisClientType;
+  private redis: RedisClientType | null = null;
   private readonly GAME_SET = "activeGames";
   private readonly USER_SET = "activeUsers";
 
   constructor() {
-    this.redis = createClient();
     this.initialize(); // Initialize the Redis connection
   }
 
   private async initialize(): Promise<void> {
     try {
-      await this.redis.connect();
-      console.log("Connected to Redis");
+      this.redis = await getRedisClient();
+      console.log("Connected to Redis in GameServices");
     } catch (err) {
-      console.error("Failed to connect to Redis:", err);
+      console.error("Failed to connect to Redis in GameServices:", err);
       process.exit(1); // Exit if the connection fails
     }
   }
@@ -32,14 +31,27 @@ class GameServices {
   }
 
   /**
+   * Ensures Redis connection is open before performing operations
+   */
+  private async ensureConnection(): Promise<RedisClientType> {
+    if (!this.redis) {
+      this.redis = await getRedisClient();
+    }
+
+    if (!this.redis.isOpen) {
+      this.redis = await getRedisClient(); // Get a fresh connection from the singleton
+    }
+
+    return this.redis;
+  }
+
+  /**
    * Add a gameId to the active games set.
    */
-
-
-
   async addGame(gameId: string) {
     try {
-      const response = await this.redis.sAdd(this.GAME_SET, gameId);
+      const redis = await this.ensureConnection();
+      const response = await redis.sAdd(this.GAME_SET, gameId);
 
       if (response === 0) {
         console.log("Game already exists in set");
@@ -54,11 +66,12 @@ class GameServices {
 
   async addUserToGame(userId: string, gameId: string) {
     try {
+      const redis = await this.ensureConnection();
       // Store simple userId -> gameId mapping
-      await this.redis.set(`${this.USER_SET}:${userId}`, gameId);
+      await redis.set(`${this.USER_SET}:${userId}`, gameId);
 
       // If you need to verify the mapping
-      const test = await this.redis.get(`${this.USER_SET}:${userId}`);
+      const test = await redis.get(`${this.USER_SET}:${userId}`);
       // console.log("test", test);
     } catch (error) {
       console.error("Error in addUserToGame:", error);
@@ -68,12 +81,13 @@ class GameServices {
 
   async getAllUsersToGames() {
     try {
+      const redis = await this.ensureConnection();
       // Get all keys matching the pattern
-      console.log('working inside GETALL USER TO GAMES',)
-      const keys = await this.redis.keys(`${this.USER_SET}:*`);
+      console.log("working inside GETALL USER TO GAMES");
+      const keys = await redis.keys(`${this.USER_SET}:*`);
 
       // Multi is used instead of pipeline for redis package
-      const multi = this.redis.multi();
+      const multi = redis.multi();
       keys.forEach((key) => multi.get(key));
 
       // Execute and get results
@@ -97,12 +111,8 @@ class GameServices {
    */
   async getGame(gameId: string) {
     try {
-      // Ensure Redis is connected
-      if (!this.redis.isOpen) {
-        await this.redis.connect();
-      }
-
-      const isActive = await this.redis.sIsMember(this.GAME_SET, gameId);
+      const redis = await this.ensureConnection();
+      const isActive = await redis.sIsMember(this.GAME_SET, gameId);
       if (!isActive) {
         return null; // Game not found in active games
       }
@@ -120,7 +130,7 @@ class GameServices {
 
       return game;
     } catch (error) {
-      console.error("Error in getGame:", error);
+      console.error("Error in getGame for gameId:", gameId, error);
       throw error;
     }
   }
@@ -129,15 +139,11 @@ class GameServices {
    * Get all active game IDs from the set and their states from the database.
    */
   async getAllGames() {
-    console.log('whats GOING ON!!!!',)
+    console.log("whats GOING ON!!!!");
     try {
       console.log("IN HERER!!!");
-      // Ensure Redis is connected
-      if (!this.redis.isOpen) {
-        await this.redis.connect();
-      }
-
-      const gameIds = await this.redis.sMembers(this.GAME_SET);
+      const redis = await this.ensureConnection();
+      const gameIds = await redis.sMembers(this.GAME_SET);
       const games = [];
 
       for (const gameId of gameIds) {
@@ -167,7 +173,8 @@ class GameServices {
    */
   async removeGame(gameId: string) {
     try {
-      const response = await this.redis.sRem(this.GAME_SET, gameId);
+      const redis = await this.ensureConnection();
+      const response = await redis.sRem(this.GAME_SET, gameId);
 
       if (response === 0) {
         console.log("Game not found in set");
@@ -175,14 +182,15 @@ class GameServices {
         console.log("Game removed from set:", response);
       }
     } catch (error) {
-      console.error("Error in removeGame:", error);
+      console.error("Error in removeGame for gameId:", gameId, error);
       throw error;
     }
   }
 
   async removeUserFromGame(userId: string) {
     try {
-      const response = await this.redis.del(`${this.USER_SET}:${userId}`);
+      const redis = await this.ensureConnection();
+      const response = await redis.del(`${this.USER_SET}:${userId}`);
 
       if (response === 0) {
         console.log("User not found in set");
@@ -190,11 +198,10 @@ class GameServices {
         console.log("User removed from set:", response);
       }
     } catch (error) {
-      console.error("Error in removeUserFromGame:", error);
+      console.error("Error in removeUserFromGame for userId:", userId, error);
       throw error;
     }
   }
-
 }
 
-export const gameServices = GameServices.getInstance();
+export const gameServices = GameServices;

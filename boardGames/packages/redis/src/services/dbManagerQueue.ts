@@ -6,7 +6,7 @@ import {
   PlayerData,
   PlayerGameboardData,
 } from "@repo/messages/message";
-import { redisClient } from "../index";
+import { getRedisClient } from "../index";
 import { RedisClientType } from "redis";
 import {
   QUEUE_NAME,
@@ -15,7 +15,7 @@ import {
   REDIS_PAYLOAD_NewGame,
   REDIS_PAYLOAD_SentFriendRequest,
   REDIS_PAYLOAD_TossUpdate,
-} from "types";
+} from "../types";
 import { SendFriendRequestDocument } from "@repo/graphql/types/client";
 import { GraphQLError } from "graphql";
 import { GraphQLClient } from "graphql-request"; // ignore this warning
@@ -31,12 +31,36 @@ interface GameRequest {
 }
 
 export class DbManagerQueue {
-  private client: RedisClientType = redisClient;
+  private client: RedisClientType | null = null;
   private queueName = QUEUE_NAME;
   private gqlClient: GraphQLClient;
+
   constructor() {
     console.log("this graphql endpoint", process.env.GRAPHQL_ENDPOINT);
     this.gqlClient = new GraphQLClient(process.env.GRAPHQL_ENDPOINT!);
+    this.initialize();
+  }
+
+  async initialize() {
+    try {
+      console.log('queue name bug? ', this.queueName)
+      this.client = await getRedisClient();
+      console.log("Connected to Redis Queue");
+    } catch (err) {
+      console.error("Redis connection error:", err);
+    }
+  }
+
+  private async ensureConnection(): Promise<RedisClientType> {
+    if (!this.client || !this.client.isOpen) {
+      try {
+        this.client = await getRedisClient();
+      } catch (error) {
+        console.error("Failed to connect to Redis in DbManagerQueue:", error);
+        throw new Error("Redis connection failed");
+      }
+    }
+    return this.client;
   }
 
   async processRequests() {
@@ -46,7 +70,10 @@ export class DbManagerQueue {
 
     while (retryCount < MAX_RETRIES) {
       try {
-        const response = await this.client.brPop(this.queueName, 0);
+        // Ensure we have a valid connection before processing
+        const redisClient = await this.ensureConnection();
+
+        const response = await redisClient.brPop(this.queueName, 0);
         if (response?.key === this.queueName) {
           const requestData = this.safeParseJSON<GameRequest>(response.element);
           if (!requestData) continue;
@@ -84,6 +111,7 @@ export class DbManagerQueue {
         await this.handleFriendRequests(requestData.payload);
     }
   }
+
   private countGoals(goals: any[], goalType: GoalType) {
     if (!Array.isArray(goals)) {
       console.error("countGoals received an invalid goals value:", goals);
@@ -196,7 +224,6 @@ export class DbManagerQueue {
           });
 
           // 5. Update player records
-
           const existingRecord = await tx.bingoPlayerRecords.findFirst({
             where: {
               OR: [
@@ -299,7 +326,6 @@ export class DbManagerQueue {
           });
 
           // Initialize player records if needed
-
           const existingRecord = await tx.bingoPlayerRecords.findFirst({
             where: {
               OR: [
@@ -374,6 +400,7 @@ export class DbManagerQueue {
       }
     }
   }
+
   private safeParseJSON<T>(json: string | undefined): T | null {
     try {
       return json ? JSON.parse(json) : null;
@@ -382,6 +409,7 @@ export class DbManagerQueue {
       return null;
     }
   }
+
   private delay(ms: number): Promise<void> {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }

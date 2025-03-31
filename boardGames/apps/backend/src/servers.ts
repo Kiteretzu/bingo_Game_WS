@@ -22,6 +22,8 @@ import { createClient } from "redis";
 import { parse } from "path";
 import { gameManager } from "ws/GameManager";
 import { REDIS_PlayerFindingMatch } from "../../../packages/redis/src/types";
+import { getRedisClient } from "@repo/redis/config";
+
 
 // Initialize Apollo Server
 export const setupApolloServer = async (httpServer: http.Server) => {
@@ -87,25 +89,44 @@ export const setupExpressApp = async (
 };
 
 export const setupRedisPubSub = async () => {
-  const subscriber = createClient({
-    url: "redis://localhost:6379",
-  });
+  console.log("Redis Pub/Sub initialized");
 
-  subscriber.on("error", (err) => console.log("Redis Subscriber Error", err));
+  try {
+    const subscriber = await getRedisClient();
 
-  await subscriber.connect().catch((err) => {
-    console.error("Error connecting to Redis:", err);
-    process.exit(1);
-  });
+    subscriber.on("error", (err) =>
+      console.error("Redis Subscriber Error:", err)
+    );
 
-  subscriber.subscribe("matchmakingChannel", (message) => {
-    const parsedMessage = JSON.parse(message) as REDIS_PlayerFindingMatch;
+    await subscriber.subscribe("matchmakingChannel", (message) => {
+      try {
+        const parsedMessage = JSON.parse(message) as REDIS_PlayerFindingMatch;
 
-    const playersId =
-      parsedMessage.players as unknown as REDIS_PlayerFindingMatch[];
-    console.log("yo the playersIds is ", playersId);
-    gameManager.createMatch(playersId[0].id, playersId[1].id);
-  });
+        const playersId =
+          parsedMessage.players as unknown as REDIS_PlayerFindingMatch[];
+        if (playersId.length < 2) {
+          console.warn("Not enough players to start a match.");
+          return;
+        }
+
+        console.log(
+          "Players found:",
+          playersId.map((p) => p.id)
+        );
+        gameManager.createMatch(playersId[0].id, playersId[1].id);
+      } catch (err) {
+        console.error("Error parsing matchmaking message:", err);
+      }
+    });
+
+    process.on("SIGINT", async () => {
+      await subscriber.quit();
+      console.log("Redis Pub/Sub subscriber disconnected.");
+      process.exit(0);
+    });
+  } catch (err) {
+    console.error("Error setting up Redis Pub/Sub:", err);
+  }
 };
 
 // Export the WebSocket setup for use in index.ts

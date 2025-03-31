@@ -1,7 +1,7 @@
 import { RedisClientType } from "redis";
 import { REDIS_PlayerFindingMatch } from "types";
 import "../config";
-import { redisClient } from "../config";
+import { getRedisClient } from "../config";
 
 export class MatchmakingService {
   private static instance: MatchmakingService;
@@ -29,7 +29,7 @@ export class MatchmakingService {
         process.env.REDIS_PORT,
         process.env.REDIS_HOST
       );
-      this.redisClient = await redisClient;
+      this.redisClient = await getRedisClient();
       this.initialized = true;
       console.log("MatchmakingService initialized successfully");
     } catch (err) {

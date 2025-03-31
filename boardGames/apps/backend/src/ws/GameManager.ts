@@ -94,20 +94,20 @@ export class GameManager {
 
   removeGame(gameId: string) {
     this.games.delete(gameId);
-    gameServices.removeGame(gameId);
+    gameServices.getInstance().removeGame(gameId);
   }
   removeUserToGame(gameId: string) {
     for (const [userId, game_Id] of this.usersToGames.entries()) {
       if (game_Id === gameId) {
         this.usersToGames.delete(userId);
-        gameServices.removeUserFromGame(userId);
+        gameServices.getInstance().removeUserFromGame(userId);
       }
     }
   }
   async setUpDataFromRedis() {
     // fetch all active games (coming in form of all gameIDs)
-    const activeGames = await gameServices.getAllGames();
-    const activeUsers = await gameServices.getAllUsersToGames();
+    const activeGames = await gameServices.getInstance().getAllGames();
+    const activeUsers = await gameServices.getInstance().getAllUsersToGames();
 
     console.log("Active Games came", activeGames.length, activeGames);
     console.log("Active Users came", activeUsers);
@@ -219,10 +219,10 @@ export class GameManager {
     this.usersToGames.set(player1_ID, newGameId);
     this.usersToGames.set(player2_ID, newGameId);
     // store in redis
-    gameServices.addGame(newGameId);
+    gameServices.getInstance().addGame(newGameId);
 
-    gameServices.addUserToGame(player1_ID, newGameId);
-    gameServices.addUserToGame(player2_ID, newGameId);
+    gameServices.getInstance().addUserToGame(player1_ID, newGameId);
+    gameServices.getInstance().addUserToGame(player2_ID, newGameId);
   }
 
   private addHandler(socket: WebSocket) {

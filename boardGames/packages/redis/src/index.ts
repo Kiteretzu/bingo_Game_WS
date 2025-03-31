@@ -1,28 +1,17 @@
 import { client } from "@repo/db/client";
-import { createClient, RedisClientType } from "redis";
 import { DbManagerQueue } from "./services/dbManagerQueue";
 import { MatchmakingService } from "./services/matchMakingServices";
-import { redisClient } from "./config"; // Use the singleton instance
+import { getRedisClient } from "./config"; // Import the function from config
+import { QUEUE_NAME } from "./types";
 
-
-console.log("this is process env index3131", process.env.REDIS_PORT, process.env.REDIS_HOST);
-
-async function connectToRedis() {
-  try {
-    console.log("Connected to Redis.");
-  } catch (err) {
-    console.error("Failed to connect to Redis:", err);
-    process.exit(1);
-  }
-}
 
 // Graceful shutdown handler
 process.on("SIGINT", async () => {
   try {
-      console.log("Shutting down services...");
-      const redisInstance = await redisClient; // Await the singleton
-      await redisInstance.disconnect(); // Disconnect properly
-      console.log("Redis disconnected.");
+    console.log("Shutting down services...");
+    const redisInstance = await getRedisClient(); // Get the Redis client instance
+    await redisInstance.disconnect(); // Disconnect properly
+    console.log("Redis disconnected.");
 
     // Stop the matchmaking interval if it's running
     if (global.matchmakingInterval) {
@@ -56,13 +45,15 @@ async function startMatchmaking() {
 }
 
 async function startApp() {
-  await connectToRedis(); // Ensure Redis is ready
+  console.log("before startApp", QUEUE_NAME);
+  const redisClient = await getRedisClient(); // Ensure Redis is ready and get the client
 
   const dbManagerQueue = new DbManagerQueue();
 
   try {
     // Start both services
     await Promise.all([dbManagerQueue.processRequests(), startMatchmaking()]);
+    console.log('working index REDIS',)
   } catch (err) {
     console.error("Unexpected error:", err);
     process.exit(1);
@@ -76,4 +67,5 @@ declare global {
 
 startApp();
 
-export { redisClient };
+// Export the getRedisClient function rather than a client instance
+export { getRedisClient };

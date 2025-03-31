@@ -2,17 +2,13 @@ import { client } from "@repo/db/client";
 import { createClient, RedisClientType } from "redis";
 import { DbManagerQueue } from "./services/dbManagerQueue";
 import { MatchmakingService } from "./services/matchMakingServices";
-import dotenv from "dotenv";
+import { redisClient } from "./config"; // Use the singleton instance
 
-dotenv.config({ path: "../../.env" });
 
-const redisClient: RedisClientType = createClient({
-  url: process.env.REDIS_URL || "redis://localhost:6379",
-});
+console.log("this is process env index3131", process.env.REDIS_PORT, process.env.REDIS_HOST);
 
 async function connectToRedis() {
   try {
-    await redisClient.connect();
     console.log("Connected to Redis.");
   } catch (err) {
     console.error("Failed to connect to Redis:", err);
@@ -23,9 +19,10 @@ async function connectToRedis() {
 // Graceful shutdown handler
 process.on("SIGINT", async () => {
   try {
-    console.log("Shutting down services...");
-    await redisClient.disconnect();
-    console.log("Redis disconnected.");
+      console.log("Shutting down services...");
+      const redisInstance = await redisClient; // Await the singleton
+      await redisInstance.disconnect(); // Disconnect properly
+      console.log("Redis disconnected.");
 
     // Stop the matchmaking interval if it's running
     if (global.matchmakingInterval) {
@@ -57,7 +54,7 @@ async function startMatchmaking() {
 
   console.log("Matchmaking service started.");
 }
- 
+
 async function startApp() {
   await connectToRedis(); // Ensure Redis is ready
 
@@ -66,7 +63,6 @@ async function startApp() {
   try {
     // Start both services
     await Promise.all([dbManagerQueue.processRequests(), startMatchmaking()]);
-    
   } catch (err) {
     console.error("Unexpected error:", err);
     process.exit(1);

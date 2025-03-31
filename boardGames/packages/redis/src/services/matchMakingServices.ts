@@ -1,11 +1,14 @@
-import { createClient, RedisClientType } from "redis";
+import { RedisClientType } from "redis";
 import { REDIS_PlayerFindingMatch } from "types";
+import "../config";
+import { redisClient } from "../config";
 
 export class MatchmakingService {
   private static instance: MatchmakingService;
-  private publisher: RedisClientType;
+  private redisClient: RedisClientType | null = null;
   private queueName = "matchmakingQueue";
   private channelName = "matchmakingChannel";
+  private initialized = false;
 
   public static getInstance(): MatchmakingService {
     if (!MatchmakingService.instance) {
@@ -14,18 +17,45 @@ export class MatchmakingService {
     return MatchmakingService.instance;
   }
 
-  constructor() {
-    this.publisher = createClient({ url: process.env.REDIS_URL });
-    this.publisher
-      .connect()
-      .catch((err) => console.error("Publisher connection error:", err));
-    console.log("MatchmakingService Publisher initialized");
+  private constructor() {
+    this.initialize();
+  }
+
+  private async initialize() {
+    try {
+      console.log("Initializing MatchmakingService with Redis client");
+      console.log(
+        "Redis config:",
+        process.env.REDIS_PORT,
+        process.env.REDIS_HOST
+      );
+      this.redisClient = await redisClient;
+      this.initialized = true;
+      console.log("MatchmakingService initialized successfully");
+    } catch (err) {
+      console.error("Error initializing MatchmakingService:", err);
+    }
+  }
+
+  private async ensureInitialized(): Promise<boolean> {
+    if (!this.initialized) {
+      try {
+        await this.initialize();
+        return this.initialized;
+      } catch (err) {
+        console.error("Failed to initialize MatchmakingService:", err);
+        return false;
+      }
+    }
+    return true;
   }
 
   async publishMatchCreated(
     player1: REDIS_PlayerFindingMatch,
     player2: REDIS_PlayerFindingMatch
   ) {
+    if (!(await this.ensureInitialized())) return;
+
     try {
       const message = JSON.stringify({
         event: "matchCreated",
@@ -33,7 +63,7 @@ export class MatchmakingService {
         timestamp: Date.now(),
       });
 
-      await this.publisher.publish(this.channelName, message);
+      await this.redisClient!.publish(this.channelName, message);
       console.log(
         `Published matchCreated event for players ${player1.id} and ${player2.id}.`
       );
@@ -43,8 +73,10 @@ export class MatchmakingService {
   }
 
   async addPlayerToQueue(player: REDIS_PlayerFindingMatch) {
+    if (!(await this.ensureInitialized())) return;
+
     try {
-      await this.publisher.lPush(this.queueName, JSON.stringify(player));
+      await this.redisClient!.lPush(this.queueName, JSON.stringify(player));
       console.log(`Player ${player.id} added to the matchmaking queue.`);
     } catch (error) {
       console.error("Error adding player to queue:", error);
@@ -52,6 +84,8 @@ export class MatchmakingService {
   }
 
   async findMatch() {
+    if (!(await this.ensureInitialized())) return;
+
     const MAX_RETRIES = 5;
     const MAX_DELAY = 10000; // 10 seconds
     let retryCount = 0;
@@ -59,7 +93,7 @@ export class MatchmakingService {
     while (retryCount < MAX_RETRIES) {
       try {
         // Fetch all players from the queue
-        const players = await this.publisher.lRange(this.queueName, 0, -1);
+        const players = await this.redisClient!.lRange(this.queueName, 0, -1);
         if (players.length < 2) {
           console.log("Not enough players in the queue to find a match.");
           return;
@@ -112,7 +146,7 @@ export class MatchmakingService {
             const [player1, player2] = bestMatch;
 
             // Remove matched players in a single Redis transaction
-            const multi = this.publisher.multi();
+            const multi = this.redisClient!.multi();
             multi.lRem(this.queueName, 1, JSON.stringify(player1));
             multi.lRem(this.queueName, 1, JSON.stringify(player2));
             await multi.exec();

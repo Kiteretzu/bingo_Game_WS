@@ -5,16 +5,11 @@ import {
   Goals,
   GoalType,
   MatchHistory,
-  MessageType,
-  PAYLOAD_GET_CHECKBOXES,
   PAYLOAD_GET_GAME,
   PAYLOAD_GET_RECONNECT,
   PAYLOAD_GET_UPDATED_GAME,
-  PlayerData,
+  PlayerData
 } from "@repo/messages/message";
-import { GetBingoPlayerRecordsQuery } from "@repo/graphql/types/client";
-import { Goal } from "lucide-react";
-import { useNavigate } from "react-router-dom";
 
 // Define the initial state type
 interface BingoState {
@@ -89,7 +84,7 @@ const bingoSlice = createSlice({
       state.game.gameBoard = action.payload.payload.gameBoard;
       state.game.gameId = action.payload.payload.gameId;
       state.game.players = action.payload.payload.players;
-      state.game.tossWinner = action.payload.payload.tossWinner;
+      state.game.tossWinner = action.payload.payload.tossWinnerId;
     },
     setUpdatedGame: (
       state,

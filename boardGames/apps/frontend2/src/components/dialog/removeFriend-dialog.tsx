@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Trash } from "lucide-react";
 
-export function RemoveFriendDialog() {
+export function RemoveFriendDialog({ friendId }: { friendId: string }) {
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
@@ -35,9 +35,7 @@ export function RemoveFriendDialog() {
           <AlertDialogCancel className="bg-gray-700 text-white hover:bg-gray-600">
             Cancel
           </AlertDialogCancel>
-          <AlertDialogAction
-            className="bg-red-5 00 text-white hover:bg-red-600"
-          >
+          <AlertDialogAction className="bg-red-5 00 text-white hover:bg-red-600">
             Remove
           </AlertDialogAction>
         </AlertDialogFooter>

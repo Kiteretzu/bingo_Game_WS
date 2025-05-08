@@ -145,16 +145,24 @@ export default function FriendList() {
   });
 
   const friends = data?.friends || [];
-  const onlineFriends = friends.filter((friend) => friend.status === "online");
-  const offlineFriends = friends.filter(
-    (friend) => friend.status === "offline"
-  );
+  // Map FUser (possibly nullable) to Friend
+  const mappedFriends: Friend[] = friends
+    .filter((f): f is NonNullable<typeof f> => f !== null)
+    .map((f) => ({
+      googleId: f.googleId,
+      displayName: f.displayName ?? "",
+      avatar: f.avatar ?? undefined,
+      status: "offline", // default or determine actual status if available
+    }));
 
-  useEffect(() => {
-    if (data?.friends.length > 0) {
-      setIsOnlineExpanded(true);
-    }
-  }, [data]);
+  const onlineFriends = mappedFriends.filter((friend) => friend.status === "online");
+  const offlineFriends = mappedFriends.filter((friend) => friend.status === "offline");
+
+useEffect(() => {
+  if (data?.friends && data.friends.length > 0) {
+    setIsOnlineExpanded(true);
+  }
+}, [data]);
 
   const handleChallengePopup = (friendId: string) => {
     setIsOpenChallenge(true);
@@ -201,7 +209,22 @@ export default function FriendList() {
         />
       )}
 
-      {isOpenChallenge && <ChallengeModal friend={friends[0]} />}
+      {/* TODO: Find better way to deel with this */}
+
+      {isOpenChallenge && (
+        <ChallengeModal
+          friend={
+            friends[0]
+              ? {
+                  id: friends[0].googleId,
+                  name: friends[0].displayName ?? "",
+                  avatar: friends[0].avatar ?? undefined,
+                  status: "offline", // or set real status if available
+                }
+              : null
+          }
+        />
+      )}
     </Card>
   );
 }

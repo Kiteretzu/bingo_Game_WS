@@ -31,7 +31,7 @@ const GameModeDropdown = ({
   showModes,
   setShowModes,
 }) => {
-  const dropdownRef = useRef(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleClickOutside = (event) => {

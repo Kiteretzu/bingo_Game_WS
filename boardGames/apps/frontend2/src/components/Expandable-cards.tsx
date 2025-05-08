@@ -1,4 +1,3 @@
-"use client"
 import type React from "react"
 import { useEffect, useId, useRef, useState } from "react"
 import { AnimatePresence, motion } from "framer-motion"

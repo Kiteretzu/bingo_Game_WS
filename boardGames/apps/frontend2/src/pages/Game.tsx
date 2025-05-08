@@ -1,4 +1,3 @@
-'use client'
 
 import GameBoard from '@/components/BingoBoard'
 import PlayerDashBoard from '@/components/PlayerDashBoard'

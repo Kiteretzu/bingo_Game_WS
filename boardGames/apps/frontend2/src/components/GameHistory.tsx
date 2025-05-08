@@ -1,4 +1,3 @@
-"use client";
 
 import { Clock, TrendingUp, TrendingDown, LogIn } from "lucide-react";
 import { motion } from "framer-motion";

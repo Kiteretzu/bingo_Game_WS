@@ -362,12 +362,13 @@ export class GameManager {
             const data = message as PAYLOAD_PUT_ADD_FRIEND;
             const fromGoogleId = this.getUserId(socket); // this will def come
             console.log("this is fromUserGoogleId", fromGoogleId);
-            console.log(`Thi is payload data`, data.payload.to);
+            console.log(`Thi is payload dataaaa`, data.payload.to);
             // save to DB
             redis_sentFriendRequest({
               from: fromGoogleId!,
               to: data.payload.to,
             });
+
 
             const receiverSocket = this.users.get(data.payload.to);
             // tell redis to sent request in db
@@ -375,7 +376,8 @@ export class GameManager {
               socket.send("User not online");
               return;
             }
-            sendPayload(receiverSocket, GET_ADD_FRIEND, data.payload);
+            console.log("## REACHING HERER a", data);
+            sendPayload(receiverSocket, GET_ADD_FRIEND, fromGoogleId);
             break;
           }
           default:

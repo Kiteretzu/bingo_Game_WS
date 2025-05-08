@@ -25,9 +25,8 @@ export function sendPayload(
   data?: any
 ): void {
   switch (type) {
-    
     case GET_RESPONSE: {
-      console.log('called ?', data);
+      console.log("called ?", data);
       to.send(
         JSON.stringify({
           type,
@@ -96,7 +95,14 @@ export function sendPayload(
     }
 
     case GET_ADD_FRIEND: {
-      to.send(JSON.stringify(data as PAYLOAD_GET_ADD_FRIEND));
+      console.log("Sending add friend request", data);
+      to.send(
+        JSON.stringify({
+          type,
+          payload: { fromId: data } as PAYLOAD_GET_ADD_FRIEND["payload"],
+        })
+      );
+      break;
     }
   }
 }

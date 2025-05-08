@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table"
 import { Settings } from "lucide-react"
 
-// Sample match data
+// Sample match dataq
 const matches = [
     {
         date: "3/5/2021",

@@ -25,7 +25,7 @@ export const redis_newGame = async (
   players: PlayerData[],
   playerGameboardData: PlayerGameboardData[]
 ) => {
-  const client = getRedisClient();
+  const client = await getRedisClient();
 
   try {
     const newGameObj: REDIS_PAYLOAD_NewGame = {
@@ -45,7 +45,7 @@ export const redis_newGame = async (
 };
 
 export const redis_addMove = async (gameId: string, data: MatchHistory[0]) => {
-  const client = await redisClient;
+  const client = await getRedisClient();
 
   try {
     const obj: REDIS_PAYLOAD_AddMove = {
@@ -68,7 +68,7 @@ export const redis_tossGameUpdate = async (
   players: PlayerData[],
   playerGameBoardData: PlayerGameboardData[]
 ) => {
-  const client = await redisClient;
+  const client = await getRedisClient();
 
   try {
     const obj: REDIS_PAYLOAD_TossUpdate = {
@@ -93,7 +93,7 @@ export const redis_saveEndGame = async ({
   loser,
   gameEndMethod,
 }: REDIS_PAYLOAD_END_GAME["payload"]) => {
-  const client = await redisClient;
+  const client = await getRedisClient();
 
   try {
     const obj: REDIS_PAYLOAD_END_GAME = {
@@ -117,7 +117,7 @@ export const redis_sentFriendRequest = async ({
   from,
   to,
 }: REDIS_PAYLOAD_SentFriendRequest["payload"]) => {
-  const client = await redisClient;
+  const client = await getRedisClient();
 
   try {
     const obj = {

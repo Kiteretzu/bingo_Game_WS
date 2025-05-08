@@ -22,8 +22,7 @@ import { createClient } from "redis";
 import { parse } from "path";
 import { gameManager } from "ws/GameManager";
 import { REDIS_PlayerFindingMatch } from "../../../packages/redis/src/types";
-import { getRedisClient } from "@repo/redis/config";
-
+import { getRedisSubscriberClient } from "@repo/redis/config";
 
 // Initialize Apollo Server
 export const setupApolloServer = async (httpServer: http.Server) => {
@@ -92,7 +91,7 @@ export const setupRedisPubSub = async () => {
   console.log("Redis Pub/Sub initialized");
 
   try {
-    const subscriber = await getRedisClient();
+    const subscriber = await getRedisSubscriberClient();
 
     subscriber.on("error", (err) =>
       console.error("Redis Subscriber Error:", err)

@@ -47,24 +47,27 @@ const FriendSection = ({
         <h3 className="text-xl font-semibold text-gray-200">{title}</h3>
         <Badge
           variant="secondary"
-          className={`${isOnline
-            ? "bg-green-500/20 text-green-400"
-            : "bg-gray-500/20 text-gray-400"
-            } hover:bg-opacity-30 transition-colors duration-200`}
+          className={`${
+            isOnline
+              ? "bg-green-500/20 text-green-400"
+              : "bg-gray-500/20 text-gray-400"
+          } hover:bg-opacity-30 transition-colors duration-200`}
         >
           {friends.length}
         </Badge>
       </div>
       <ChevronDown
-        className={`text-gray-400 group-hover:text-gray-200 transition-transform duration-300 ease-in-out ${isExpanded ? "transform rotate-180" : ""
-          }`}
+        className={`text-gray-400 group-hover:text-gray-200 transition-transform duration-300 ease-in-out ${
+          isExpanded ? "transform rotate-180" : ""
+        }`}
         size={20}
       />
     </div>
 
     <div
-      className={`transform transition-all duration-300 ease-in-out origin-top ${isExpanded ? "scale-y-100 opacity-100" : "scale-y-0 opacity-0 h-0"
-        }`}
+      className={`transform transition-all duration-300 ease-in-out origin-top ${
+        isExpanded ? "scale-y-100 opacity-100" : "scale-y-0 opacity-0 h-0"
+      }`}
     >
       {loading ? (
         <div className="flex justify-center py-4">
@@ -80,10 +83,11 @@ const FriendSection = ({
             >
               <div className="flex items-center gap-3">
                 <div
-                  className={`w-2 h-2 rounded-full ${isOnline
-                    ? "bg-green-500 shadow-sm shadow-green-500/50"
-                    : "bg-gray-500"
-                    }`}
+                  className={`w-2 h-2 rounded-full ${
+                    isOnline
+                      ? "bg-green-500 shadow-sm shadow-green-500/50"
+                      : "bg-gray-500"
+                  }`}
                 />
                 {friend.avatar && (
                   <img
@@ -92,7 +96,9 @@ const FriendSection = ({
                     className="w-8 h-8 rounded-full object-cover"
                   />
                 )}
-                <span className={`${isOnline ? "text-gray-100" : "text-gray-400"} font-medium`}>
+                <span
+                  className={`${isOnline ? "text-gray-100" : "text-gray-400"} font-medium`}
+                >
                   {friend.displayName}
                 </span>
               </div>
@@ -104,10 +110,11 @@ const FriendSection = ({
                   size="icon"
                   disabled={!isOnline}
                   onClick={() => onChallenge(friend.googleId)}
-                  className={`${isOnline
-                    ? "text-red-500 opacity-0 group-hover:opacity-100 hover:scale-110"
-                    : "text-gray-500 opacity-0 group-hover:opacity-100 cursor-not-allowed"
-                    }`}
+                  className={`${
+                    isOnline
+                      ? "text-red-500 opacity-0 group-hover:opacity-100 hover:scale-110"
+                      : "text-gray-500 opacity-0 group-hover:opacity-100 cursor-not-allowed"
+                  }`}
                 >
                   <Swords size={20} />
                 </Button>
@@ -124,17 +131,24 @@ export default function FriendList() {
   const [isOnlineExpanded, setIsOnlineExpanded] = useState(true);
   const [isOfflineExpanded, setIsOfflineExpanded] = useState(false);
   const [isChallengeReceived, setIsChallengeReceived] = useState(false);
-  const { isOpenChallenge, setIsOpenChallenge, isOpenAddFriend, setIsOpenAddFriend } = useBingo();
+  const {
+    isOpenChallenge,
+    setIsOpenChallenge,
+    isOpenAddFriend,
+    setIsOpenAddFriend,
+  } = useBingo();
 
   const { data, loading } = useGetFriendsQuery({
     variables: {
-      googleId: "" // You might want to pass the actual googleId here
-    }
+      googleId: "", // You might want to pass the actual googleId here
+    },
   });
 
   const friends = data?.friends || [];
   const onlineFriends = friends.filter((friend) => friend.status === "online");
-  const offlineFriends = friends.filter((friend) => friend.status === "offline");
+  const offlineFriends = friends.filter(
+    (friend) => friend.status === "offline"
+  );
 
   useEffect(() => {
     if (data?.friends.length > 0) {
@@ -178,8 +192,6 @@ export default function FriendList() {
         />
         <PendingRequestsSection />
       </CardContent>
-
-
 
       {isChallengeReceived && (
         <GameChallengeDialog

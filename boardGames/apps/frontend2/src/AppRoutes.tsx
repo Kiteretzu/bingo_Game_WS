@@ -1,10 +1,10 @@
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
 import Game from '@/pages/Game';
-import Landing from './pages/Landing';
-import TokenPage from './pages/TokenPage';
-import Test from './pages/test';
-import ProfilePage from './pages/Profile';
-import Mobile from './pages/Mobile';
+import Landing from '@/pages/Landing';
+import TokenPage from '@/pages/TokenPage';
+import Test from '@/pages/test';
+import ProfilePage from '@/pages/Profile';
+import Mobile from '@/pages/Mobile';
 
 export function AppRoutes() {
   return (

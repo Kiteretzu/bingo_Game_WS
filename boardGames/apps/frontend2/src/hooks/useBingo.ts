@@ -39,6 +39,7 @@ import {
 import { useDialogContext } from "@/context/DialogContext";
 import { useApolloClient } from "@apollo/client";
 import {
+  GetAllFriendRequestsDocument,
   GetGameHistoryDocument,
   useGetBingoPlayerRecordsQuery,
 } from "@repo/graphql/types/client";
@@ -210,7 +211,18 @@ function useBingo() {
         }
         case GET_ADD_FRIEND: {
           // show at realTime of ui!
-          console.log("get add friend");
+          console.log("got add friend", parsedMessage);
+          setInterval(() => {
+            client
+              .refetchQueries({
+                include: [GetAllFriendRequestsDocument],
+              })
+              .then((res) => {
+                console.log("✅ Friend requests refetched!", res);
+                // do something after
+              });
+          }, 1000);
+          console.log("called AFTER REFETCH QUERIES");
           break;
         }
       }

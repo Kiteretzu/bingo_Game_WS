@@ -15,7 +15,7 @@ function FindMatchButton({
   const isAuth = useAppSelector(state => state.profile.isAuth)
 
   return (
-    <div className="flex items-center justify-center">
+    <div className="flex  items-center justify-center">
       {isFinding ? (
         <div
           className="flex items-center gap-3 justify-center"
@@ -36,7 +36,7 @@ function FindMatchButton({
       ) : (
         <ActionButton
           className={cn(
-            "px-24 py-2 font-jaro text-xl text-white rounded transition-colors disabled:bg-slate-600/50 disabled:hover:scale-100 "
+            "px-24 py-2 font-jaro shrink-0 text-xl text-white rounded transition-colors disabled:bg-slate-600/50 disabled:hover:scale-100 "
           )}
           onClick={findMatch}
           disabled={!isAuth}

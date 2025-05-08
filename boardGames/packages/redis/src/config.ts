@@ -4,68 +4,49 @@ import { createClient, RedisClientType } from "redis";
 dotenv.config({ path: "../../.env" });
 
 class RedisClientSingleton {
-  private static instance: RedisClientType | null = null;
-  private static connectionPromise: Promise<RedisClientType> | null = null;
+  private static commandClient: RedisClientType | null = null;
+  private static subscriberClient: RedisClientType | null = null;
 
-  private constructor() {} // Prevent instantiation
+  private static async createRedisClient(): Promise<RedisClientType> {
+    const client: RedisClientType = createClient({
+      username: "default",
+      password: process.env.REDIS_PASSWORD,
+      socket: {
+        host: process.env.REDIS_HOST,
+        port: Number(process.env.REDIS_PORT) || 6379,
+      },
+    });
 
-  public static async getInstance(): Promise<RedisClientType> {
-    // If we already have an instance, return it
-    if (RedisClientSingleton.instance && RedisClientSingleton.instance.isOpen) {
-      return RedisClientSingleton.instance;
+    client.on("error", (err) => {
+      console.error("Redis Client Error:", err);
+    });
+
+    await client.connect();
+    console.log("Connected to Redis");
+    return client;
+  }
+
+  // Get Redis client for general commands
+  public static async getCommandClient(): Promise<RedisClientType> {
+    if (!RedisClientSingleton.commandClient) {
+      RedisClientSingleton.commandClient =
+        await RedisClientSingleton.createRedisClient();
     }
+    return RedisClientSingleton.commandClient;
+  }
 
-    // If we're in the process of connecting, return the promise
-    if (RedisClientSingleton.connectionPromise) {
-      return RedisClientSingleton.connectionPromise;
+  // Get Redis client for pub/sub
+  public static async getSubscriberClient(): Promise<RedisClientType> {
+    if (!RedisClientSingleton.subscriberClient) {
+      RedisClientSingleton.subscriberClient =
+        await RedisClientSingleton.createRedisClient();
     }
-
-    // Create a new connection promise
-    RedisClientSingleton.connectionPromise = (async () => {
-      try {
-     
-        const client: RedisClientType = createClient({
-          username: "default",
-          password: process.env.REDIS_PASSWORD,
-          socket: {
-            host: process.env.REDIS_HOST,
-            port: Number(process.env.REDIS_PORT) || 6379,
-          },
-        });
-
-        client.on("error", (err) => {
-          console.error("Redis Client Error:", err);
-          // Reset the instance if there's an error so we can try to reconnect
-          if (RedisClientSingleton.instance === client) {
-            RedisClientSingleton.instance = null;
-          }
-        });
-
-        // Set up reconnection logic
-        client.on("end", () => {
-          console.log("Redis connection closed");
-          if (RedisClientSingleton.instance === client) {
-            RedisClientSingleton.instance = null;
-          }
-        });
-
-        await client.connect();
-        console.log("Connected to Redis Singleton");
-
-        RedisClientSingleton.instance = client;
-        return client;
-      } catch (err) {
-        console.error("Redis connection error:", err);
-        // Reset the connection promise so we can try again
-        RedisClientSingleton.connectionPromise = null;
-        throw err;
-      }
-    })();
-
-    return RedisClientSingleton.connectionPromise;
+    return RedisClientSingleton.subscriberClient;
   }
 }
 
-// Export a function that returns the promise instead of using top-level await
-export const getRedisClient: () => Promise<RedisClientType> = () =>
-  RedisClientSingleton.getInstance();
+// Export functions to get Redis clients
+export const getRedisClient = () =>
+  RedisClientSingleton.getCommandClient();
+export const getRedisSubscriberClient = () =>
+  RedisClientSingleton.getSubscriberClient(); // only for subscribing

@@ -83,6 +83,18 @@ export class MatchmakingService {
     }
   }
 
+  async removePlayerFromQueue(player: REDIS_PlayerFindingMatch) {
+    if (!(await this.ensureInitialized())) return;
+
+    try {
+      console.log("point of failure", player);
+      await this.redisClient!.lRem(this.queueName, 1, JSON.stringify(player));
+      console.log(`Player ${player.id} removed from the matchmaking queue.`);
+    } catch (error) {
+      console.error("Error removing player from queue:", error);
+    }
+  }
+
   async findMatch() {
     if (!(await this.ensureInitialized())) return;
 
@@ -134,6 +146,10 @@ export class MatchmakingService {
           for (let i = 0; i < tierPlayers.length - 1; i++) {
             const player1 = tierPlayers[i];
             const player2 = tierPlayers[i + 1];
+
+            // Prevent matching the same player
+            if (player1.id === player2.id) continue;
+
             const mmrDifference = Math.abs(player1.mmr - player2.mmr);
 
             if (mmrDifference < smallestMMRDifference) {
@@ -152,7 +168,7 @@ export class MatchmakingService {
             await multi.exec();
 
             console.log(
-              `Matched players in tier ${tier}: ${player1.id} (MMR: ${player1.mmr}) and ${player2.id} (MMR: ${player2.mmr})`
+              `Matched players in tier ${tier}: ${player1.id} (MMR: ${player2.mmr}) and ${player2.id} (MMR: ${player2.mmr})`
             );
 
             // Notify GameManager

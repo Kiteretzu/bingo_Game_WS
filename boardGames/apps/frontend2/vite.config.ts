@@ -7,12 +7,14 @@ export default defineConfig({
       "@": path.resolve(__dirname, "./src"),
     },
   },
+  define: {
+    "process.env": {}, // Prevents crashing if shared packages access process.env
+  },
   server: {
     proxy: {
-      // Proxy API requests
       "/api": {
-        target: "http://localhost:8080", // Your backend server URL
+        target: "http://localhost:8080",
       },
     },
-  },
+},
 });

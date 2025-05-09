@@ -263,12 +263,21 @@ export class GameManager {
 
           case PUT_CANCEL_GAME_INIT: {
             console.log("working 🤨");
-            const user = this.users.get(this.pendingPlayerData!.user.googleId);
+            const userSocket = this.users.get(this.pendingPlayerData!.user.googleId);
+            this.usersToPlayerData.delete(this.pendingPlayerData!.user.googleId);
+
+            matchmakingService.removePlayerFromQueue({
+              id: user,
+              mmr: this.pendingPlayerData!.user.bingoProfile.mmr,
+              matchTier: this.pendingPlayerData!.user.matchTier,
+            });
             if (user) {
               this.pendingPlayer = null;
               this.pendingPlayerData = null;
             }
+
             socket.send("Cancel match find");
+            // remove from redis
             break; // Add break here
           }
 
@@ -368,7 +377,6 @@ export class GameManager {
               from: fromGoogleId!,
               to: data.payload.to,
             });
-
 
             const receiverSocket = this.users.get(data.payload.to);
             // tell redis to sent request in db

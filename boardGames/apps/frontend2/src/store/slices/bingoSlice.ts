@@ -99,6 +99,7 @@ const bingoSlice = createSlice({
       state.checks.checkedLines = action.payload.payload.checks.checkedLines;
       state.goals = action.payload.payload.goals;
       state.matchHistory = action.payload.payload.matchHistory;
+      state.game.isGameStarted = action.payload.payload.isGameStarted;
 
       console.log("this is match History", state.matchHistory);
     },

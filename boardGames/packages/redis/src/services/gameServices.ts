@@ -1,5 +1,5 @@
 import { PlayerData } from "@repo/messages/message";
-import { client } from "@repo/db/client";
+import { BingoGame, client } from "@repo/db/client";
 import { getRedisClient } from "../index";
 import { RedisClientType } from "redis";
 
@@ -157,6 +157,8 @@ class GameServices {
             },
           },
         });
+
+        console.log("this is the gameStarted in redis", game?.isGameStarted); // dont know why ts issue
 
         if (game) games.push(game);
       }

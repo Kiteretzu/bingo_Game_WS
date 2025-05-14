@@ -35,6 +35,9 @@ import {
   PAYLOAD_PUT_GET_CHECK_MARK,
   PAYLOAD_GET_VICTORY,
   PAYLOAD_GET_LOST,
+  PAYLOAD_PUT_TOSS_DECISION,
+  PUT_TOSS_DECISION,
+  TossDecision,
 } from "@repo/messages/message";
 import { useDialogContext } from "@/context/DialogContext";
 import { useApolloClient } from "@apollo/client";
@@ -278,6 +281,16 @@ function useBingo() {
     sendData(PUT_ADD_FRIEND, data);
   };
 
+  const handleTossDecision = (decision: "FIRST" | "SECOND") => {
+    const data: PAYLOAD_PUT_TOSS_DECISION["payload"] = {
+      decision:
+        decision === "FIRST"
+          ? TossDecision.TOSS_GO_FIRST
+          : TossDecision.TOSS_GO_SECOND,
+    };
+    sendData(PUT_TOSS_DECISION, data);
+  };
+
   return {
     gameBoard,
     bingoProfileId,
@@ -312,6 +325,7 @@ function useBingo() {
     isTossWinner,
     setIsConfirmedMatch,
     handleAddFriend,
+    handleTossDecision,
     setIsReconnectGame,
     setIsVictory, // for dialog
     setIsLost, // for dialog

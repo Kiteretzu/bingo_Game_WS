@@ -64,11 +64,13 @@ export class Game {
     p2_data: PlayerData,
     playerBoards?: PlayerGameboardData[],
     matchHistory?: MatchHistory,
-    tossWinnerId?: string | null
+    tossWinnerId?: string | null,
+    gameStarted?: boolean
   ) {
     this.gameId = gameId; // need
 
-    if (arguments.length === 8) {
+    if (arguments.length === 9) {
+      this.gameStarted = gameStarted ?? false; // need to send
       this.p1_socket = p1_socket!;
       this.p2_socket = p2_socket!;
       this.playerSockets = [p1_socket!, p2_socket!];
@@ -496,6 +498,7 @@ export class Game {
             checkedLines: this.playerBoards[index].getLineCheckBoxes(),
           },
           matchHistory: this.matchHistory,
+          isGameStarted: this.gameStarted,
         },
       };
 
@@ -591,10 +594,19 @@ export class Game {
   }
 
   tossDecision(currentPlayerSocket: WebSocket, decision: TossDecision) {
-    const { isFirstPlayer, isSecondPlayer } =
+    const { isFirstPlayer, isSecondPlayer, currentPlayer } =
       this.getPlayerContext(currentPlayerSocket);
+    console.log("❤️ Before toss decision:", currentPlayer.user.displayName);
+    console.log("also the ids", this.tossWinnerId, currentPlayer.user.googleId);
+    console.log(
+      "he is winner but",
+      this.tossWinnerId == currentPlayer.user.bingoProfile.id
+    );
+    const shouldSwap =
+      (isFirstPlayer && decision === TossDecision.TOSS_GO_SECOND) ||
+      (isSecondPlayer && decision === TossDecision.TOSS_GO_FIRST);
 
-    if (isFirstPlayer && decision === TossDecision.TOSS_GO_SECOND) {
+    if (shouldSwap) {
       [this.p1_socket, this.p2_socket] = [this.p2_socket, this.p1_socket];
       [this.playerData[0], this.playerData[1]] = [
         this.playerData[1],
@@ -604,24 +616,21 @@ export class Game {
         this.playerGameboardData[1],
         this.playerGameboardData[0],
       ];
-    } else if (isSecondPlayer && decision === TossDecision.TOSS_GO_FIRST) {
-      [this.p1_socket, this.p2_socket] = [this.p2_socket, this.p1_socket];
-      [this.playerData[0], this.playerData[1]] = [
-        this.playerData[1],
-        this.playerData[0],
-      ];
-      [this.playerGameboardData[0], this.playerGameboardData[1]] = [
-        this.playerGameboardData[1],
-        this.playerGameboardData[0],
-      ];
-    } else return;
+    }
+
+    console.log("✅ After toss decision:", this.playerData[0].user.displayName);
 
     this.gameStarted = true;
-    redis_tossGameUpdate(
-      this.gameId,
-      this.playerData,
-      this.playerGameboardData
-    );
+
+    redis_tossGameUpdate({
+      gameId: this.gameId,
+      players: this.playerData,
+      playerGameBoardData: this.playerGameboardData,
+      gameStarted: this.gameStarted,
+    });
+
+    // send updatedGame to all players
+    this.broadcastUpdatedGame();
   }
 
   resign(currentPlayerSocket: WebSocket) {
@@ -667,6 +676,7 @@ export class Game {
         gameBoard,
         players: this.playerData,
         tossWinnerId: this.tossWinnerId,
+        isGameStarted: this.gameStarted,
       },
     };
 

@@ -26,6 +26,7 @@ export interface REDIS_PAYLOAD_TossUpdate {
     gameId: string;
     players: PlayerData[];
     playerGameBoardData: PlayerGameboardData[];
+    gameStarted: boolean;
   };
 }
 

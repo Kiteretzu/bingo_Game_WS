@@ -212,6 +212,7 @@ export interface PAYLOAD_GET_UPDATED_GAME {
     checks: PAYLOAD_GET_CHECKBOXES["payload"];
     goals: Goals[];
     matchHistory: MatchHistory;
+    
   };
 }
 

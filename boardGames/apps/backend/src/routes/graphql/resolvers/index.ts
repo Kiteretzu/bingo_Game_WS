@@ -45,7 +45,6 @@ export const resolvers: Resolvers<CustomContext> = {
       }
       return user;
     },
-
     gameHistory: async (parent, args, context) => {
       let { bingoProfileId, limit } = args;
       if (!bingoProfileId) {

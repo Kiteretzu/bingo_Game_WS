@@ -17,6 +17,7 @@ import { TossWaitingDialog } from "@/components/dialog/toss-wating-dialog";
 export default function Game() {
   const { isVictory, isLost, isGameStarted, isTossWinner } = useBingo();
   const navigate = useNavigate();
+  console.log("this is gameStarted", isGameStarted);
 
   return (
     <div

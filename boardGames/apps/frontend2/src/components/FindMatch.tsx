@@ -88,7 +88,8 @@ const FindMatch = () => {
   const [selectedMode, setSelectedMode] = useState("Classic");
   const [selectedTier, setSelectedTier] = useState("TIER F");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
+  console.log("allStates 🫂 ", isFinding, isReconnectGame, isMatchFound)
+  
   const gameModes = [
     {
       mode: "Classic",

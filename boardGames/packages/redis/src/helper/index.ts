@@ -63,11 +63,12 @@ export const redis_addMove = async (gameId: string, data: MatchHistory[0]) => {
   }
 };
 
-export const redis_tossGameUpdate = async (
-  gameId: string,
-  players: PlayerData[],
-  playerGameBoardData: PlayerGameboardData[]
-) => {
+export const redis_tossGameUpdate = async ({
+  gameId,
+  players,
+  playerGameBoardData,
+  gameStarted = true,
+}: REDIS_PAYLOAD_TossUpdate["payload"]) => {
   const client = await getRedisClient();
 
   try {
@@ -77,6 +78,7 @@ export const redis_tossGameUpdate = async (
         gameId,
         players,
         playerGameBoardData,
+        gameStarted,
       },
     };
 

@@ -12,6 +12,7 @@ const connectToDb = () => {
   client.$connect();
   console.log("dbConnected");
   return client;
+  
 };
 
 const client = connectToDb();

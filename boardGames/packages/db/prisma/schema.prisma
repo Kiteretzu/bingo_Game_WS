@@ -39,6 +39,7 @@ model FriendRequest {
 }
 
 
+
 model Friendship {
   id        String   @id @default(cuid())
   user1Id   String
@@ -112,6 +113,7 @@ model BingoGame {
   winMethod    Win_method?
   gameWinnerId String?
   tossWinnerId String?
+  isGameStarted Boolean       @default(false)
   gameLoserId  String?
   winMMR     Int?
   loserMMR Int?

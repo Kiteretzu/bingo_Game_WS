@@ -26,6 +26,8 @@ import {
   GET_ADD_FRIEND,
   PlayerGameboardData,
   MatchHistory,
+  PUT_TOSS_DECISION,
+  PAYLOAD_PUT_TOSS_DECISION,
 } from "@repo/messages/message";
 import { amazing, getPlayerData, verifyToken } from "../helper/";
 import { redis_newGame, redis_sentFriendRequest } from "@repo/redis/helper";
@@ -121,8 +123,9 @@ export class GameManager {
         const tossWinnerId = game.tossWinnerId;
         const matchHistory = game.matchHistory as unknown as MatchHistory;
         const moveCount = game.matchHistory.length;
+        const gameStarted = game.isGameStarted;
         const playerData = this.getPlayerData(game.players);
-        console.log("this is the moveCOUNT", moveCount);
+        console.log("this is the gameStarted", gameStarted);
         const newGame = new Game(
           gameId,
           null,
@@ -131,7 +134,8 @@ export class GameManager {
           playerData[1],
           playerGameBoardData,
           matchHistory,
-          tossWinnerId
+          tossWinnerId,
+          gameStarted
         );
         this.games.set(gameId, newGame);
       });
@@ -263,8 +267,12 @@ export class GameManager {
 
           case PUT_CANCEL_GAME_INIT: {
             console.log("working 🤨");
-            const userSocket = this.users.get(this.pendingPlayerData!.user.googleId);
-            this.usersToPlayerData.delete(this.pendingPlayerData!.user.googleId);
+            const userSocket = this.users.get(
+              this.pendingPlayerData!.user.googleId
+            );
+            this.usersToPlayerData.delete(
+              this.pendingPlayerData!.user.googleId
+            );
 
             matchmakingService.removePlayerFromQueue({
               id: user,
@@ -386,6 +394,23 @@ export class GameManager {
             }
             console.log("## REACHING HERER a", data);
             sendPayload(receiverSocket, GET_ADD_FRIEND, fromGoogleId);
+            break;
+          }
+
+          case PUT_TOSS_DECISION: {
+            const data = message as PAYLOAD_PUT_TOSS_DECISION;
+            const gameId = this.usersToGames.get(
+              this.getUserId(socket) as string
+            ) as string;
+            console.log("this is gameId 🥲", gameId);
+            const game: Game | undefined = this.games.get(gameId);
+            if (game) {
+              console.log("game is found ");
+              game.tossDecision(socket, data.payload.decision);
+            } else {
+              console.error("Error finding the game ID");
+              socket.send("Game ID not found");
+            }
             break;
           }
           default:

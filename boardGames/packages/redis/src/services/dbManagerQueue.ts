@@ -43,7 +43,7 @@ export class DbManagerQueue {
 
   async initialize() {
     try {
-      console.log('queue name bug? ', this.queueName)
+      console.log("queue name bug? ", this.queueName);
       this.client = await getRedisClient();
       console.log("Connected to Redis Queue");
     } catch (err) {
@@ -265,6 +265,7 @@ export class DbManagerQueue {
       await client.bingoGame.update({
         where: { gameId: payload.gameId },
         data: {
+          isGameStarted: payload.gameStarted,
           players: {
             connect: payload.players.map((player) => ({
               id: player.user.bingoProfile.id,

@@ -102,7 +102,7 @@ export const setupRedisPubSub = async () => {
         const parsedMessage = JSON.parse(message) as REDIS_PlayerFindingMatch;
 
         const playersId =
-          parsedMessage.players as unknown as REDIS_PlayerFindingMatch[];
+          parsedMessage.players as unknown as REDIS_PlayerFindingMatch[]; // fix types
         if (playersId.length < 2) {
           console.warn("Not enough players to start a match.");
           return;

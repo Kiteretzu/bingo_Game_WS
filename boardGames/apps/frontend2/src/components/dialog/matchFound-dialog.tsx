@@ -19,7 +19,11 @@ export default function MatchFoundScreen() {
     const { matchFoundData: data, setIsMatchFound, bingoProfileId, setIsConfirmedMatch } = useBingo();
 
 
-    const [player1, player2] = data;
+    // Determine display order so the local player appears first
+    let [player1, player2] = data;
+    if (player2.user.bingoProfile.id === bingoProfileId) {
+      [player1, player2] = [player2, player1];
+    }
     const navigate = useNavigate();
     const bingoId = useAppSelector((state) => state.bingo.game.gameId);
     console.log({ player1 });

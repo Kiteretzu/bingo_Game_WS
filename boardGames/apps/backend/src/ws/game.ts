@@ -54,6 +54,7 @@ export class Game {
   public tossWinnerId: string;
   public gotFirstBlood: boolean = false;
   public matchHistory: MatchHistory = [];
+  public gameStarted: boolean = false;
 
   constructor(
     gameId: string,
@@ -117,6 +118,7 @@ export class Game {
             tossWinnerId: this.tossWinnerId,
             players: this.playerData,
             gameBoard: this.playerBoards[index].getGameBoard(),
+            isGameStarted: this.gameStarted,
           },
         };
         sendPayload(socket!, GET_GAME, gameData);
@@ -614,6 +616,7 @@ export class Game {
       ];
     } else return;
 
+    this.gameStarted = true;
     redis_tossGameUpdate(
       this.gameId,
       this.playerData,
@@ -637,7 +640,7 @@ export class Game {
 
   reconnectPlayer(newSocket: WebSocket, userId: string) {
     const { gameBoard, oldSocket } = this.getPlayerContextByUserId(userId);
-    console.log('game-Reconnecting',)
+    console.log("game-Reconnecting");
     const playerIndex = this.playerData.findIndex(
       (player) => player.user.googleId === userId
     );
@@ -668,7 +671,7 @@ export class Game {
     };
 
     sendPayload(newSocket, GET_RECONNECT, reconnectData);
-    this.broadcastUpdatedGame(); 
+    this.broadcastUpdatedGame();
 
     // Optionally, you can close the old socket connection
     if (oldSocket) {

@@ -8,7 +8,7 @@ import {
   PAYLOAD_GET_GAME,
   PAYLOAD_GET_RECONNECT,
   PAYLOAD_GET_UPDATED_GAME,
-  PlayerData
+  PlayerData,
 } from "@repo/messages/message";
 
 // Define the initial state type
@@ -18,6 +18,7 @@ interface BingoState {
     gameBoard: Box[] | null;
     players: PlayerData[];
     tossWinner: string;
+    isGameStarted: boolean;
   };
   checks: {
     checkedBoxes: BoxesName[] | null;
@@ -38,6 +39,7 @@ const initialState: BingoState = {
     gameBoard: [],
     players: [],
     tossWinner: "",
+    isGameStarted: false,
   },
   checks: {
     checkedBoxes: [],
@@ -85,6 +87,9 @@ const bingoSlice = createSlice({
       state.game.gameId = action.payload.payload.gameId;
       state.game.players = action.payload.payload.players;
       state.game.tossWinner = action.payload.payload.tossWinnerId;
+      state.game.isGameStarted = action.payload.payload.isGameStarted;
+
+      console.log("this is the state right now 😬", state.game);
     },
     setUpdatedGame: (
       state,
@@ -103,7 +108,11 @@ const bingoSlice = createSlice({
     ) => {
       state.playerRecord.wins = action.payload.wins;
       state.playerRecord.loss = action.payload.loss;
-      console.log("this is the state ", state.playerRecord.wins, state.playerRecord.loss);
+      console.log(
+        "this is the state ",
+        state.playerRecord.wins,
+        state.playerRecord.loss
+      );
     },
   },
 });

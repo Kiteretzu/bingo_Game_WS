@@ -7,11 +7,11 @@ export const useSocket = () => {
   useEffect(() => {
     // Get the JWT token from localStorage (or wherever it is stored)
 
-    const token = localStorage.getItem("auth-token"); // Ensure this token is available 
-    
+    const token = localStorage.getItem("auth-token"); // Ensure this token is available
+    console.log("is this useSocket working? 🥹", token);
     if (!token) {
       console.error("No token found!");
-      setSocket(null)
+      setSocket(null);
       return;
     }
 
@@ -23,9 +23,9 @@ export const useSocket = () => {
     };
 
     ws.onclose = (event) => {
-      if(event.code === 1008){
-        console.log(event.reason)
-        console.log('this is socket', socket)
+      if (event.code === 1008) {
+        console.log(event.reason);
+        console.log("this is socket", socket);
       }
       console.log(`WebSocket connection closed`);
       setSocket(null);

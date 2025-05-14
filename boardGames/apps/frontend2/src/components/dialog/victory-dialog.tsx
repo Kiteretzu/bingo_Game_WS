@@ -38,7 +38,7 @@ export function VictoryDialog({ isOpen }: { isOpen: boolean }) {
 
         setWinMethod(victoryData.method);
         console.log('in here the Bingo', victoryData)
-        const timer = setTimeout(() => setAnimatedMMR(victoryData.goals?.totalWinningPoints ?? 0), 100);
+        const timer = setTimeout(() => setAnimatedMMR(victoryData.data?.totalWinningPoints ?? 0), 100);
         return () => clearTimeout(timer);
     }, [isOpen, victoryData]);
 

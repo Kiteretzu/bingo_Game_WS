@@ -141,6 +141,7 @@ export interface PAYLOAD_GET_GAME {
     tossWinnerId: string;
     players: PlayerData[]; // send playersId only
     gameBoard: Box[];
+    isGameStarted: boolean;
   };
 }
 

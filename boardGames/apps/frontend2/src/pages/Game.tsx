@@ -16,7 +16,6 @@ import { useNavigate } from 'react-router-dom'
 export default function Game() {
     const { isVictory, isLost, gameBoard } = useBingo()
     const navigate = useNavigate()
-    console.log({ isVictory, isLost })
 
 
     return (

@@ -54,6 +54,7 @@ function useBingo() {
     goals: state.bingo.goals,
     matchHistory: state.bingo.matchHistory,
     tossWinner: state.bingo.game.tossWinner,
+    isGameStarted: state.bingo.game.isGameStarted,
   }));
 
   const profileState = useAppSelector((state) => ({
@@ -100,9 +101,11 @@ function useBingo() {
   const goals = bingoState.goals;
   const matchHistory = bingoState.matchHistory;
   const tossWinner = bingoState.tossWinner;
+  const isGameStarted = bingoState.isGameStarted;
   const bingoProfileId = profileState.bingoProfileId;
   const gameHistory = profileState.gameHistory;
   const isAuth = profileState.isAuth;
+
   let lastValue = ""; // i think bug state here
   const [response, setResponse] = useState<string>("");
   const [gameLoading, setGameLoading] = useState<boolean>(true);
@@ -148,6 +151,7 @@ function useBingo() {
         }
         case GET_GAME: {
           const data = parsedMessage as PAYLOAD_GET_GAME;
+          console.log("this the get game DATA", data);
           setIsFinding(false); // removing -> ui
           dispatch(initialGameboard(data));
           setIsMatchFound(true); // giving ui -> CONFIRMING MATCH
@@ -303,6 +307,7 @@ function useBingo() {
     isOpenAddFriend,
     isConfirmedMatch,
     isAuth,
+    isGameStarted,
     setIsConfirmedMatch,
     handleAddFriend,
     setIsReconnectGame,

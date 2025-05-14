@@ -101,6 +101,7 @@ function useBingo() {
   const goals = bingoState.goals;
   const matchHistory = bingoState.matchHistory;
   const tossWinner = bingoState.tossWinner;
+  const isTossWinner = tossWinner === profileState.bingoProfileId;
   const isGameStarted = bingoState.isGameStarted;
   const bingoProfileId = profileState.bingoProfileId;
   const gameHistory = profileState.gameHistory;
@@ -308,6 +309,7 @@ function useBingo() {
     isConfirmedMatch,
     isAuth,
     isGameStarted,
+    isTossWinner,
     setIsConfirmedMatch,
     handleAddFriend,
     setIsReconnectGame,

@@ -95,6 +95,10 @@ query getFriends($googleId: String!) {
   }
 }
 
+query validGameId($gameId: String!) {
+  validGameId(gameId: $gameId)
+}
+
 mutation acceptFriendRequest($requestId: String!) {
   acceptFriendRequest(requestId: $requestId) {
     id
@@ -109,7 +113,7 @@ mutation declineFriendRequest($requestId: String!) {
   }
 }
 
-mutation SendFriendRequest($from: String!, $to: String!) {
+mutation sendFriendRequest($from: String!, $to: String!) {
   sendFriendRequest(from: $from, to: $to) {
     id
     status

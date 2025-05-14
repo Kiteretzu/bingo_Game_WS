@@ -161,6 +161,7 @@ export type Query = {
   getFriendRequest: Array<Maybe<FriendRequest>>;
   leaderboard: Array<LeaderboardEntry>;
   user?: Maybe<User>;
+  validGameId: Scalars['Boolean']['output'];
 };
 
 
@@ -187,6 +188,11 @@ export type QueryLeaderboardArgs = {
 
 export type QueryUserArgs = {
   googleId: Scalars['String']['input'];
+};
+
+
+export type QueryValidGameIdArgs = {
+  gameId: Scalars['String']['input'];
 };
 
 export type User = {
@@ -420,6 +426,7 @@ export type QueryResolvers<ContextType = any, ParentType extends ResolversParent
   getFriendRequest?: Resolver<Array<Maybe<ResolversTypes['FriendRequest']>>, ParentType, ContextType>;
   leaderboard?: Resolver<Array<ResolversTypes['LeaderboardEntry']>, ParentType, ContextType, RequireFields<QueryLeaderboardArgs, 'limit'>>;
   user?: Resolver<Maybe<ResolversTypes['User']>, ParentType, ContextType, RequireFields<QueryUserArgs, 'googleId'>>;
+  validGameId?: Resolver<ResolversTypes['Boolean'], ParentType, ContextType, RequireFields<QueryValidGameIdArgs, 'gameId'>>;
 };
 
 export type UserResolvers<ContextType = any, ParentType extends ResolversParentTypes['User'] = ResolversParentTypes['User']> = {

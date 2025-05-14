@@ -19,6 +19,7 @@ interface BingoState {
     players: PlayerData[];
     tossWinner: string;
     isGameStarted: boolean;
+    isGameOver?: boolean;
   };
   checks: {
     checkedBoxes: BoxesName[] | null;

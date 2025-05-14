@@ -162,6 +162,7 @@ export type Query = {
   getFriendRequest: Array<Maybe<FriendRequest>>;
   leaderboard: Array<LeaderboardEntry>;
   user?: Maybe<User>;
+  validGameId: Scalars['Boolean']['output'];
 };
 
 
@@ -188,6 +189,11 @@ export type QueryLeaderboardArgs = {
 
 export type QueryUserArgs = {
   googleId: Scalars['String']['input'];
+};
+
+
+export type QueryValidGameIdArgs = {
+  gameId: Scalars['String']['input'];
 };
 
 export type User = {
@@ -254,6 +260,13 @@ export type GetFriendsQueryVariables = Exact<{
 
 
 export type GetFriendsQuery = { __typename?: 'Query', friends: Array<{ __typename?: 'FUser', googleId: string, displayName?: string | null, avatar?: string | null } | null> };
+
+export type ValidGameIdQueryVariables = Exact<{
+  gameId: Scalars['String']['input'];
+}>;
+
+
+export type ValidGameIdQuery = { __typename?: 'Query', validGameId: boolean };
 
 export type AcceptFriendRequestMutationVariables = Exact<{
   requestId: Scalars['String']['input'];
@@ -612,6 +625,44 @@ export type GetFriendsQueryHookResult = ReturnType<typeof useGetFriendsQuery>;
 export type GetFriendsLazyQueryHookResult = ReturnType<typeof useGetFriendsLazyQuery>;
 export type GetFriendsSuspenseQueryHookResult = ReturnType<typeof useGetFriendsSuspenseQuery>;
 export type GetFriendsQueryResult = Apollo.QueryResult<GetFriendsQuery, GetFriendsQueryVariables>;
+export const ValidGameIdDocument = gql`
+    query validGameId($gameId: String!) {
+  validGameId(gameId: $gameId)
+}
+    `;
+
+/**
+ * __useValidGameIdQuery__
+ *
+ * To run a query within a React component, call `useValidGameIdQuery` and pass it any options that fit your needs.
+ * When your component renders, `useValidGameIdQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useValidGameIdQuery({
+ *   variables: {
+ *      gameId: // value for 'gameId'
+ *   },
+ * });
+ */
+export function useValidGameIdQuery(baseOptions: Apollo.QueryHookOptions<ValidGameIdQuery, ValidGameIdQueryVariables> & ({ variables: ValidGameIdQueryVariables; skip?: boolean; } | { skip: boolean; }) ) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useQuery<ValidGameIdQuery, ValidGameIdQueryVariables>(ValidGameIdDocument, options);
+      }
+export function useValidGameIdLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<ValidGameIdQuery, ValidGameIdQueryVariables>) {
+          const options = {...defaultOptions, ...baseOptions}
+          return Apollo.useLazyQuery<ValidGameIdQuery, ValidGameIdQueryVariables>(ValidGameIdDocument, options);
+        }
+export function useValidGameIdSuspenseQuery(baseOptions?: Apollo.SkipToken | Apollo.SuspenseQueryHookOptions<ValidGameIdQuery, ValidGameIdQueryVariables>) {
+          const options = baseOptions === Apollo.skipToken ? baseOptions : {...defaultOptions, ...baseOptions}
+          return Apollo.useSuspenseQuery<ValidGameIdQuery, ValidGameIdQueryVariables>(ValidGameIdDocument, options);
+        }
+export type ValidGameIdQueryHookResult = ReturnType<typeof useValidGameIdQuery>;
+export type ValidGameIdLazyQueryHookResult = ReturnType<typeof useValidGameIdLazyQuery>;
+export type ValidGameIdSuspenseQueryHookResult = ReturnType<typeof useValidGameIdSuspenseQuery>;
+export type ValidGameIdQueryResult = Apollo.QueryResult<ValidGameIdQuery, ValidGameIdQueryVariables>;
 export const AcceptFriendRequestDocument = gql`
     mutation acceptFriendRequest($requestId: String!) {
   acceptFriendRequest(requestId: $requestId) {
@@ -681,7 +732,7 @@ export type DeclineFriendRequestMutationHookResult = ReturnType<typeof useDeclin
 export type DeclineFriendRequestMutationResult = Apollo.MutationResult<DeclineFriendRequestMutation>;
 export type DeclineFriendRequestMutationOptions = Apollo.BaseMutationOptions<DeclineFriendRequestMutation, DeclineFriendRequestMutationVariables>;
 export const SendFriendRequestDocument = gql`
-    mutation SendFriendRequest($from: String!, $to: String!) {
+    mutation sendFriendRequest($from: String!, $to: String!) {
   sendFriendRequest(from: $from, to: $to) {
     id
     status

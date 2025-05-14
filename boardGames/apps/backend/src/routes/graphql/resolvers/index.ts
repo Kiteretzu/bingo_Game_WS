@@ -61,15 +61,14 @@ export const resolvers: Resolvers<CustomContext> = {
 
       return history || [];
     },
-
     // leaderboard
     leaderboard: async (parent, args, context) => {
       const { limit } = args;
       // Implement the logic to fetch leaderboard entries
 
-      console.log("leaderCheck1")
+      console.log("leaderCheck1");
       const leaderboardEntries = await leaderboardService.getLeaderboard(limit);
-      console.log("leaderCheck2")
+      console.log("leaderCheck2");
       return leaderboardEntries;
     },
 
@@ -116,6 +115,34 @@ export const resolvers: Resolvers<CustomContext> = {
       });
 
       return friendRequests as unknown as FriendRequest[]; // dont know why this is needed
+    },
+
+    validGameId: async (parent, args, context) => {
+      const user = await context.getUser();
+      if (!user) {
+        throw new GraphQLError("User not authenticated");
+      }
+      const { gameId } = args;
+      if (!gameId) {
+        throw new GraphQLError("Game ID not provided");
+      }
+
+      const game = await client.bingoGame.findUnique({
+        where: {
+          gameId: gameId,
+          players: {
+            some: {
+              id: user.bingoProfile.id,
+            },
+          },
+        },
+      });
+
+      if (!game) {
+        return false; // Return a boolean indicating the game ID is invalid
+      }
+
+      return true; // Return a boolean indicating the game ID is valid
     },
   },
   Mutation: {

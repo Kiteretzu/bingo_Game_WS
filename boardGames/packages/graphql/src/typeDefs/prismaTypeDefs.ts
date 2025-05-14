@@ -79,6 +79,7 @@ export const prismaTypeDefs = gql`
     createdAt: String
     gameEndedAt: String
     tossWinnerId: String
+    isGameStarted: Boolean
     gameWinnerId: String
     gameLoserId: String
     winMMR: Int

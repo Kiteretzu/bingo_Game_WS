@@ -291,13 +291,6 @@ function useBingo() {
     sendData(PUT_TOSS_DECISION, data);
   };
 
-  const getMatchData = (gameId:) => {
-    useGetBingoPlayerRecordsQuery({
-      variables: {
-        profileId: gameId,
-      },
-    });
-  };
 
   return {
     gameBoard,

@@ -3,9 +3,10 @@
   "version": "1.0.0",
   "main": "index.js",
   "exports": {
-    "./helper": "./src/helper/index.ts",
+    "./producers": "./src/producers/index.ts",
     "./services": "./src/services/index.ts",
-    "./config": "./src/config.ts"
+    "./config": "./src/config/index.ts",
+    "./infra": "./src/infra/index.ts"
   },
   "scripts": {
     "build": "npx esbuild src/index.ts --bundle --outfile=dist/index.js --platform=node --tsconfig=tsconfig.json",

@@ -36,7 +36,7 @@ import {
   redis_newGame,
   redis_saveEndGame,
   redis_tossGameUpdate,
-} from "@repo/redis/helper";
+} from "@repo/redis/producers";
 import { gameServices } from "@repo/redis/services";
 import { gameManager } from "backend/game-manager";
 

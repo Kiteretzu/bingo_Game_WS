@@ -10,9 +10,8 @@
     "outDir": "./dist",
     "baseUrl": "./src",
     "lib": ["es2020"],
-    "allowJs": true
+    "types": ["node"],
+    "resolveJsonModule": true
   },
-  "include": [
-    "src/**/*.ts"
-  ]
+  "include": ["src/**/*.ts"]
 }

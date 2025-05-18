@@ -8,7 +8,7 @@ import { CHANNELS } from "./channels";
 export async function publishToChannel(
   channel: keyof typeof CHANNELS,
   message: unknown
-): Promise<void> {
+): Promise<void> { 
   const client = await getRedisClient();
   await client.publish(CHANNELS[channel], JSON.stringify(message));
 }

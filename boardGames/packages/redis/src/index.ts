@@ -1,9 +1,7 @@
-import { client } from "@repo/db/client";
-import { DbManagerQueue } from "./services/dbManagerQueue";
+import { getRedisClient } from "./config/redisClient"; // Import the function from config
+import { DbManagerQueue } from "./services/";
 import { MatchmakingService } from "./services/matchMakingServices";
-import { getRedisClient } from "./config"; // Import the function from config
 import { QUEUE_NAME } from "./types";
-
 
 // Graceful shutdown handler
 process.on("SIGINT", async () => {
@@ -53,7 +51,7 @@ async function startApp() {
   try {
     // Start both services
     await Promise.all([dbManagerQueue.processRequests(), startMatchmaking()]);
-    console.log('working index REDIS',)
+    console.log("working index REDIS");
   } catch (err) {
     console.error("Unexpected error:", err);
     process.exit(1);

@@ -1,7 +1,7 @@
 import { client, PrismaClient } from "@repo/db/client";
 import { LeaderboardEntry } from "@repo/graphql/types/server";
-import { getRedisClient } from "../config";
-import { createClient, RedisClientType } from "redis";
+import { RedisClientType } from "redis";
+import { getRedisClient } from "../config/redisClient";
 
 class LeaderboardService {
   private static instance: LeaderboardService;

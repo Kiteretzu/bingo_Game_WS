@@ -1,7 +1,6 @@
-import { PlayerData } from "@repo/messages/message";
-import { BingoGame, client } from "@repo/db/client";
-import { getRedisClient } from "../index";
+import { client } from "@repo/db/client";
 import { RedisClientType } from "redis";
+import { getRedisClient } from "../index";
 
 class GameServices {
   private static instance: GameServices;

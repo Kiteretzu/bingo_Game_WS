@@ -1,7 +1,7 @@
 import { RedisClientType } from "redis";
 import { REDIS_PlayerFindingMatch } from "types";
-import "../config";
-import { getRedisClient } from "../config";
+import "../config/redisClient";
+import { getRedisClient } from "../config/redisClient";
 
 export class MatchmakingService {
   private static instance: MatchmakingService;

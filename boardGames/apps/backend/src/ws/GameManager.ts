@@ -1,40 +1,36 @@
-import { WebSocket } from "ws";
-import { v4 as uuidv4 } from "uuid";
-import { sendPayload } from "../helper/wsSend";
 import {
-  GET_RESPONSE,
+  ChallengeSchema,
+  GET_ADD_FRIEND,
+  GET_CHALLENGE,
+  MatchHistory,
   Message,
   MessageType,
-  PAYLOAD_PUT_GET_CHECK_MARK,
+  PAYLOAD_PUT_ADD_FRIEND,
+  PAYLOAD_PUT_CHALLENGE,
   PAYLOAD_PUT_GAME_INIT,
+  PAYLOAD_PUT_GET_CHECK_MARK,
+  PAYLOAD_PUT_RESIGN,
+  PAYLOAD_PUT_SEND_EMOTE,
+  PAYLOAD_PUT_TOSS_DECISION,
+  PlayerData,
+  PlayerGameboardData,
+  PUT_ADD_FRIEND,
   PUT_CANCEL_GAME_INIT,
+  PUT_CHALLENGE,
   PUT_CHECK_MARK,
   PUT_GAME_INIT,
-  RESPONSE_WAITING_PLAYER,
   PUT_RESIGN,
-  PAYLOAD_PUT_RESIGN,
-  PlayerData,
   PUT_SEND_EMOTE,
-  PAYLOAD_PUT_SEND_EMOTE,
-  GameBoard,
-  PAYLOAD_PUT_CHALLENGE,
-  ChallengeSchema,
-  PUT_CHALLENGE,
-  GET_CHALLENGE,
-  PUT_ADD_FRIEND,
-  PAYLOAD_PUT_ADD_FRIEND,
-  GET_ADD_FRIEND,
-  PlayerGameboardData,
-  MatchHistory,
   PUT_TOSS_DECISION,
-  PAYLOAD_PUT_TOSS_DECISION,
 } from "@repo/messages/message";
-import { amazing, getPlayerData, verifyToken } from "../helper/";
-import { redis_newGame, redis_sentFriendRequest } from "@repo/redis/helper";
+import { redis_sentFriendRequest } from "@repo/redis/producers";
 import { gameServices, matchmakingService } from "@repo/redis/services";
-import { Game } from "./game";
-import { get } from "http";
+import { v4 as uuidv4 } from "uuid";
+import { WebSocket } from "ws";
 import { REDIS_PlayerFindingMatch } from "../../../../packages/redis/src/types";
+import { getPlayerData, verifyToken } from "../helper/";
+import { sendPayload } from "../helper/wsSend";
+import { Game } from "./game";
 
 type GameId = string;
 type UserId = string;

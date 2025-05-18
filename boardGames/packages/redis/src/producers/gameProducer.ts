@@ -1,14 +1,10 @@
-import { client } from "@repo/db/client";
 import {
-  BoxesValue,
-  GET_GAME,
-  Goals,
   MatchHistory,
   PlayerData,
   PlayerGameboardData,
 } from "@repo/messages/message";
-import { createClient } from "redis";
 
+import { getRedisClient } from "../config/redisClient";
 import {
   QUEUE_NAME,
   REDIS_PAYLOAD_AddMove,
@@ -17,7 +13,6 @@ import {
   REDIS_PAYLOAD_SentFriendRequest,
   REDIS_PAYLOAD_TossUpdate,
 } from "../types";
-import { getRedisClient } from "../config";
 
 export const redis_newGame = async (
   gameId: string,

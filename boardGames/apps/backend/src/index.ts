@@ -3,8 +3,6 @@ import http from "http";
 import dotenv from "dotenv";
 import { setupApolloServer, setupExpressApp, setupWebSocket } from "./servers";
 import { initSubscriptions } from "./ws/initPubSub";
-import { ApolloServer } from "@apollo/server";
-// import redis, { createClient } from "redis";
 
 dotenv.config({ path: "../../.env" });
 

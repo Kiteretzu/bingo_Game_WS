@@ -7,7 +7,7 @@ import { gameManager } from "../ws/GameManager";
  */
 export function handleMatchmaking(payload: REDIS_PlayerFindingMatch): void {
   const { players } = payload;
-
+  console.log('👍🏾 ahiusdhuias',)
   if (!Array.isArray(players) || players.length < 2) {
     console.warn("Not enough players to create a match:", players);
     return;

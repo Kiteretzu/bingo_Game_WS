@@ -1,11 +1,9 @@
 import {
   ChallengeSchema,
-  GET_ADD_FRIEND,
   GET_CHALLENGE,
   MatchHistory,
   Message,
   MessageType,
-  PAYLOAD_PUT_ADD_FRIEND,
   PAYLOAD_PUT_CHALLENGE,
   PAYLOAD_PUT_GAME_INIT,
   PAYLOAD_PUT_GET_CHECK_MARK,
@@ -14,7 +12,6 @@ import {
   PAYLOAD_PUT_TOSS_DECISION,
   PlayerData,
   PlayerGameboardData,
-  PUT_ADD_FRIEND,
   PUT_CANCEL_GAME_INIT,
   PUT_CHALLENGE,
   PUT_CHECK_MARK,
@@ -23,7 +20,6 @@ import {
   PUT_SEND_EMOTE,
   PUT_TOSS_DECISION,
 } from "@repo/messages/message";
-import { redis_sentFriendRequest } from "@repo/redis/producers";
 import { gameServices, matchmakingService } from "@repo/redis/services";
 import { v4 as uuidv4 } from "uuid";
 import { WebSocket } from "ws";
@@ -34,6 +30,7 @@ import { Game } from "./game";
 
 type GameId = string;
 type UserId = string;
+import { getRedisClient } from "@repo/redis/config";
 
 export class GameManager {
   private games: Map<GameId, Game>; // Number of games going on
@@ -44,6 +41,9 @@ export class GameManager {
   private users: Map<UserId, WebSocket>; // Use Map for better performance
   private socketToUserId: Map<WebSocket, UserId>;
   private usersToPlayerData: Map<UserId, PlayerData>;
+  private readonly redisClientPromise: Promise<
+    Awaited<ReturnType<typeof getRedisClient>>
+  >;
   private static instance: GameManager | null = null;
 
   public static getInstance(): GameManager {
@@ -62,6 +62,9 @@ export class GameManager {
     this.users = new Map();
     this.usersToPlayerData = new Map();
     this.socketToUserId = new Map();
+
+    this.redisClientPromise = getRedisClient();
+
     this.setUpDataFromRedis();
     //
   }
@@ -71,8 +74,16 @@ export class GameManager {
     this.users.set(googleId, socket);
     this.socketToUserId.set(socket, googleId);
     const playerData = await getPlayerData(token);
+    const redisClient = await this.redisClientPromise;
+
     if (playerData) {
       this.usersToPlayerData.set(googleId, playerData);
+
+      // Store in Redis as well
+      await redisClient.set(
+        `playerData:${googleId}`,
+        JSON.stringify(playerData)
+      );
     }
     this.addHandler(socket);
   }
@@ -104,6 +115,7 @@ export class GameManager {
   }
   async setUpDataFromRedis() {
     // fetch all active games (coming in form of all gameIDs)
+
     const activeGames = await gameServices.getInstance().getAllGames();
     const activeUsers = await gameServices.getInstance().getAllUsersToGames();
 
@@ -198,9 +210,25 @@ export class GameManager {
     return this.users.get(userId);
   }
 
-  createMatch(player1_ID: string, player2_ID: string) {
-    const player1Data = this.usersToPlayerData.get(player1_ID);
-    const player2Data = this.usersToPlayerData.get(player2_ID);
+  public async createMatch(player1_ID: string, player2_ID: string) {
+    const redisClient = await this.redisClientPromise;
+
+    let player1Data = this.usersToPlayerData.get(player1_ID);
+    if (!player1Data) {
+      const cached1 = await redisClient.get(`playerData:${player1_ID}`);
+      if (cached1) {
+        player1Data = JSON.parse(cached1) as PlayerData;
+        this.usersToPlayerData.set(player1_ID, player1Data);
+      }
+    }
+    let player2Data = this.usersToPlayerData.get(player2_ID);
+    if (!player2Data) {
+      const cached2 = await redisClient.get(`playerData:${player2_ID}`);
+      if (cached2) {
+        player2Data = JSON.parse(cached2) as PlayerData;
+        this.usersToPlayerData.set(player2_ID, player2Data);
+      }
+    }
     console.log("this is player1Data", player1Data);
     console.log("this is player2Data", player2Data);
 
@@ -293,39 +321,6 @@ export class GameManager {
             // first check in server memory
             game = this.games.get(gameId);
 
-            // if not found in server memory, check in redis
-            // if (!game) {
-            //   // Find the reasonm
-            //   const response = await gameServices.getGame(gameId);
-            //   const wao; // figure out socket
-            //   const wao2; // figure out socket
-            //   const playerData: PlayerData = {
-            //     user: {
-            //       googleId: response?.players[0].User.googleId!,
-            //       displayName: response?.players[0].User.displayName!,
-            //       avatar: response?.players[0].User.avatar!,
-            //       bingoProfile: {
-            //         id: response?.players[0].id!,
-            //         mmr: response?.players[0].mmr!,
-            //         league: response?.players[0].league!,
-            //         wins: response?.players[0].wins!,
-            //         losses: response?.players[0].losses!,
-            //         totalMatches: response?.players[0].totalMatches!,
-            //       },
-            //     },
-            //   };
-            //   this.games.set(
-            //     gameId,
-            //     new Game(
-            //       gameId,
-            //       wao as WebSocket,
-            //       wao2 as WebSocket,
-            //       playerData,
-            //       playerData
-            //     )
-            //   );
-            // }
-
             if (game) {
               console.log("markingCheck in manager");
               game.addCheck(socket, value);
@@ -368,28 +363,6 @@ export class GameManager {
               return;
             }
             sendPayload(receiverSocket, GET_CHALLENGE, data.payload);
-            break;
-          }
-
-          case PUT_ADD_FRIEND: {
-            const data = message as PAYLOAD_PUT_ADD_FRIEND;
-            const fromGoogleId = this.getUserId(socket); // this will def come
-            console.log("this is fromUserGoogleId", fromGoogleId);
-            console.log(`Thi is payload dataaaa`, data.payload.to);
-            // save to DB
-            redis_sentFriendRequest({
-              from: fromGoogleId!,
-              to: data.payload.to,
-            });
-
-            const receiverSocket = this.users.get(data.payload.to);
-            // tell redis to sent request in db
-            if (!receiverSocket) {
-              socket.send("User not online");
-              return;
-            }
-            console.log("## REACHING HERER a", data);
-            sendPayload(receiverSocket, GET_ADD_FRIEND, fromGoogleId);
             break;
           }
 

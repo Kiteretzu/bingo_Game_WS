@@ -95,7 +95,7 @@ export function sendPayload(
     }
 
     case GET_ADD_FRIEND: {
-      console.log("Sending add friend request", data);
+      console.log("Sending add friend request");
       to.send(
         JSON.stringify({
           type,

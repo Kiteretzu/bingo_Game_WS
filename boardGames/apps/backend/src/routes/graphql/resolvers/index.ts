@@ -11,6 +11,8 @@ import {
   getFriendsByUserId,
   getGameHistoryByProfileId,
 } from "../dbServices";
+import { GameManager } from "ws/GameManager";
+import { publishFriendRequest } from "@repo/redis/infra";
 
 export const resolvers: Resolvers<CustomContext> = {
   JSON: GraphQLJSON,
@@ -182,6 +184,9 @@ export const resolvers: Resolvers<CustomContext> = {
       });
 
       console.log("Friend request created:", friendRequest);
+      // send notification to the receiver (if reciver online)
+      await publishFriendRequest({ to, from });
+
       return friendRequest as unknown as FriendRequest; // Type assertion if needed
     },
     acceptFriendRequest: async (parent, args, context) => {

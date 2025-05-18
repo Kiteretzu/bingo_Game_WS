@@ -1,7 +1,8 @@
 import express from "express";
 import http from "http";
 import dotenv from "dotenv";
-import { setupApolloServer, setupExpressApp,  setupRedisPubSub,  setupWebSocket } from "./servers";
+import { setupApolloServer, setupExpressApp, setupWebSocket } from "./servers";
+import { initSubscriptions } from "./ws/initPubSub";
 import { ApolloServer } from "@apollo/server";
 // import redis, { createClient } from "redis";
 
@@ -23,7 +24,7 @@ const startServer = async () => {
     const apolloServer = await setupApolloServer(httpServer);
     setupExpressApp(app, apolloServer);
     setupWebSocket(httpServer);
-    await setupRedisPubSub();
+    await initSubscriptions();
 
     httpServer.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}/graphql`);

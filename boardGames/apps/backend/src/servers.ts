@@ -1,28 +1,22 @@
-import express from "express";
-import http from "http";
-import cors from "cors";
 import { ApolloServer } from "@apollo/server";
 import { ApolloServerPluginDrainHttpServer } from "@apollo/server/plugin/drainHttpServer";
+import cors from "cors";
+import express from "express";
+import http from "http";
 import protect from "overload-protection";
 
 // Ensure `typeDefs` and `resolvers` are correctly imported
 import { schema } from "./routes/graphql/schema";
 
-import { setupWebSocket } from "./ws/websocket";
 import { expressMiddleware } from "@apollo/server/express4";
-import { ERROR_CODES, STATUS_CODES } from "./errors";
-import { CustomError } from "./helper/customError"; // Assuming CustomError class is defined as discussed
+import customContext from "helper/customContext";
 import passport from "passport";
 import { configurePassport } from "passport/config";
 import authRouter from "routes/auth";
-import { buildContext } from "graphql-passport";
-import customContext from "helper/customContext";
 import adminRouter from "routes/auth/adminAuth";
-import { createClient } from "redis";
-import { parse } from "path";
-import { gameManager } from "ws/GameManager";
-import { REDIS_PlayerFindingMatch } from "../../../packages/redis/src/types";
-import { getRedisSubscriberClient } from "@repo/redis/config";
+import { ERROR_CODES, STATUS_CODES } from "./errors";
+import { CustomError } from "./helper/customError"; // Assuming CustomError class is defined as discussed
+import { setupWebSocket } from "./ws/websocket";
 
 // Initialize Apollo Server
 export const setupApolloServer = async (httpServer: http.Server) => {
@@ -87,46 +81,6 @@ export const setupExpressApp = async (
   }
 };
 
-export const setupRedisPubSub = async () => {
-  console.log("Redis Pub/Sub initialized");
-
-  try {
-    const subscriber = await getRedisSubscriberClient();
-
-    subscriber.on("error", (err) =>
-      console.error("Redis Subscriber Error:", err)
-    );
-
-    await subscriber.subscribe("matchmakingChannel", (message) => {
-      try {
-        const parsedMessage = JSON.parse(message) as REDIS_PlayerFindingMatch;
-
-        const playersId =
-          parsedMessage.players as unknown as REDIS_PlayerFindingMatch[]; // fix types
-        if (playersId.length < 2) {
-          console.warn("Not enough players to start a match.");
-          return;
-        }
-
-        console.log(
-          "Players found:",
-          playersId.map((p) => p.id)
-        );
-        gameManager.createMatch(playersId[0].id, playersId[1].id);
-      } catch (err) {
-        console.error("Error parsing matchmaking message:", err);
-      }
-    });
-
-    process.on("SIGINT", async () => {
-      await subscriber.quit();
-      console.log("Redis Pub/Sub subscriber disconnected.");
-      process.exit(0);
-    });
-  } catch (err) {
-    console.error("Error setting up Redis Pub/Sub:", err);
-  }
-};
 
 // Export the WebSocket setup for use in index.ts
 export { setupWebSocket }; // Ensure WebSocket setup can be imported elsewhere

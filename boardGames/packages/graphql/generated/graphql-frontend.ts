@@ -26,6 +26,7 @@ export type BingoGame = {
   gameLoserId?: Maybe<Scalars['String']['output']>;
   gameWinnerId?: Maybe<Scalars['String']['output']>;
   gameboards: Array<Maybe<Scalars['JSON']['output']>>;
+  isGameStarted?: Maybe<Scalars['Boolean']['output']>;
   loserMMR?: Maybe<Scalars['Int']['output']>;
   matchHistory: Array<Maybe<Scalars['JSON']['output']>>;
   players: Array<Maybe<BingoProfile>>;

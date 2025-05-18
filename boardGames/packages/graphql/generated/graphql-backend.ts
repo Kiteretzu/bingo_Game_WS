@@ -25,6 +25,7 @@ export type BingoGame = {
   gameLoserId?: Maybe<Scalars['String']['output']>;
   gameWinnerId?: Maybe<Scalars['String']['output']>;
   gameboards: Array<Maybe<Scalars['JSON']['output']>>;
+  isGameStarted?: Maybe<Scalars['Boolean']['output']>;
   loserMMR?: Maybe<Scalars['Int']['output']>;
   matchHistory: Array<Maybe<Scalars['JSON']['output']>>;
   players: Array<Maybe<BingoProfile>>;
@@ -332,6 +333,7 @@ export type BingoGameResolvers<ContextType = any, ParentType extends ResolversPa
   gameLoserId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   gameWinnerId?: Resolver<Maybe<ResolversTypes['String']>, ParentType, ContextType>;
   gameboards?: Resolver<Array<Maybe<ResolversTypes['JSON']>>, ParentType, ContextType>;
+  isGameStarted?: Resolver<Maybe<ResolversTypes['Boolean']>, ParentType, ContextType>;
   loserMMR?: Resolver<Maybe<ResolversTypes['Int']>, ParentType, ContextType>;
   matchHistory?: Resolver<Array<Maybe<ResolversTypes['JSON']>>, ParentType, ContextType>;
   players?: Resolver<Array<Maybe<ResolversTypes['BingoProfile']>>, ParentType, ContextType>;

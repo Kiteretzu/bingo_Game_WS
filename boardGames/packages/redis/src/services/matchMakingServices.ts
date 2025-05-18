@@ -7,7 +7,7 @@ export class MatchmakingService {
   private static instance: MatchmakingService;
   private redisClient: RedisClientType | null = null;
   private queueName = "matchmakingQueue";
-  private channelName = "matchmakingChannel";
+  private channelName = "matchmaking";
   private initialized = false;
 
   public static getInstance(): MatchmakingService {

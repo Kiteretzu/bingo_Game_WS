@@ -6,6 +6,8 @@ dotenv.config({ path: "../../.env" });
 class RedisClientSingleton {
   private static commandClient: RedisClientType | null = null;
   private static subscriberClient: RedisClientType | null = null;
+  // Redis client for queue workers
+  private static queueClient: RedisClientType | null = null;
 
   private static async createRedisClient(): Promise<RedisClientType> {
     const client: RedisClientType = createClient({
@@ -43,6 +45,14 @@ class RedisClientSingleton {
     }
     return RedisClientSingleton.subscriberClient;
   }
+
+  // Get Redis client for task queue consumption
+  public static async getQueueClient(): Promise<RedisClientType> {
+    if (!RedisClientSingleton.queueClient) {
+      RedisClientSingleton.queueClient = await RedisClientSingleton.createRedisClient();
+    }
+    return RedisClientSingleton.queueClient;
+  }
 }
 
 // Export functions to get Redis clients
@@ -50,3 +60,6 @@ export const getRedisClient = () =>
   RedisClientSingleton.getCommandClient();
 export const getRedisSubscriberClient = () =>
   RedisClientSingleton.getSubscriberClient(); // only for subscribing
+
+export const getRedisQueueClient = () =>
+  RedisClientSingleton.getQueueClient();

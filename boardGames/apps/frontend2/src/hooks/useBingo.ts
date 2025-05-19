@@ -63,7 +63,6 @@ function useBingo() {
   const profileState = useAppSelector((state) => ({
     isAuth: state.profile.isAuth,
     bingoProfileId: state.profile.bingoProfile?.id,
-    gameHistory: state.profile.gameHistory,
   }));
 
   const dispatch = useAppDispatch();
@@ -107,7 +106,6 @@ function useBingo() {
   const isTossWinner = tossWinner === profileState.bingoProfileId;
   const isGameStarted = bingoState.isGameStarted;
   const bingoProfileId = profileState.bingoProfileId;
-  const gameHistory = profileState.gameHistory;
   const isAuth = profileState.isAuth;
 
   let lastValue = ""; // i think bug state here
@@ -173,6 +171,7 @@ function useBingo() {
           setVictoryData(data.payload);
           setIsVictory(true);
           setIsReconnectGame(false);
+
           client.refetchQueries({ include: [GetGameHistoryDocument] });
           break;
         }
@@ -219,18 +218,15 @@ function useBingo() {
         }
         case GET_ADD_FRIEND: {
           // show at realTime of ui!
-          console.log("got add friend", parsedMessage);
-          setInterval(() => {
-            client
-              .refetchQueries({
-                include: [GetAllFriendRequestsDocument],
-              })
-              .then((res) => {
-                console.log("✅ Friend requests refetched!", res);
-                // do something after
-              });
-          }, 1000);
-          console.log("called AFTER REFETCH QUERIES");
+
+          client
+            .refetchQueries({
+              include: [GetAllFriendRequestsDocument],
+            })
+            .then((res) => {
+              console.log("✅ Friend requests refetched!", res);
+              // do something after
+            });
           break;
         }
       }
@@ -291,7 +287,6 @@ function useBingo() {
     sendData(PUT_TOSS_DECISION, data);
   };
 
-
   return {
     gameBoard,
     bingoProfileId,
@@ -317,7 +312,6 @@ function useBingo() {
     lostData,
     socket,
     isReconnectGame,
-    gameHistory,
     isOpenChallenge,
     isOpenAddFriend,
     isConfirmedMatch,

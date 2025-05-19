@@ -1,5 +1,6 @@
 export const CHANNELS = {
-  FRIEND_REQUEST: "friend-request",
-  MATCHMAKING: "matchmaking",
-  CHALLENGE: "challenge",
+  FRIEND_REQUEST: "FRIEND_REQUEST",
+  MATCHMAKING: "MATCHMAKING",
+  CHALLENGE: "CHALLENGE",
+  CHECK_MARK: "CHECK_MARK",
 };

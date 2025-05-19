@@ -10,17 +10,6 @@ query getAuthProfile {
       wins
       losses
       league
-      gameHistory {
-        gameId
-        gameWinnerId
-        createdAt
-        gameEndedAt
-        winMethod
-        tier
-        gameLoserId
-        winMMR
-        loserMMR
-      }
     }
   }
 }
@@ -119,4 +108,8 @@ mutation sendFriendRequest($from: String!, $to: String!) {
     status
     createdAt
   }
+}
+
+mutation removeFriend($googleId: String!) {
+  removeFriend(googleId: $googleId)
 }

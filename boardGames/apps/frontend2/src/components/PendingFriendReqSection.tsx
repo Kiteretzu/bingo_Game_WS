@@ -1,6 +1,5 @@
-import { ChevronDown, Clock, UserPlus, Users } from "lucide-react";
+import { ChevronDown, Clock, UserPlus, Users, Check, X } from "lucide-react";
 import { useState } from "react";
-import { Button } from "./ui/button";
 import { Badge } from "@/components/ui/badge";
 import {
   GetAllFriendRequestsDocument,
@@ -11,34 +10,18 @@ import {
 } from "@repo/graphql/types/client";
 import { getRelativeTime } from "@/lib/getRelativeTime";
 
-interface PendingRequest {
-  id: string;
-  name: string;
-  timestamp: string;
-}
-
 const PendingRequestsSection = () => {
   const [isPendingExpanded, setIsPendingExpanded] = useState(true);
 
-  const { data, loading, } = useGetAllFriendRequestsQuery();
+  const { data, loading } = useGetAllFriendRequestsQuery();
 
-  // console.log('FriendsRequest: ', data, loading)
-
-  const [
-    handleAcceptRequest,
-    { data: acceptReqData, loading: acceptReqLoading },
-  ] = useAcceptFriendRequestMutation({
+  const [handleAcceptRequest] = useAcceptFriendRequestMutation({
     refetchQueries: [GetFriendsDocument, GetAllFriendRequestsDocument],
   });
-  const [
-    handleDeclineRequest,
-    { data: declineReqData, loading: declineReqLoading },
-  ] = useDeclineFriendRequestMutation({
+  const [handleDeclineRequest] = useDeclineFriendRequestMutation({
     refetchQueries: [GetAllFriendRequestsDocument],
   });
 
-  // console.log('AcceptData: ', acceptReqLoading, acceptReqData)
-  // console.log('DeclineData: ', declineReqLoading, declineReqData)
   return (
     <div className="mb-6">
       <div
@@ -97,27 +80,31 @@ const PendingRequestsSection = () => {
                     {getRelativeTime(request?.createdAt!)}
                   </span>
                 </div>
-                <div className="flex gap-2">
-                  <Button
-                    onClick={() =>
+                <div className="flex gap-3">
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
                       handleAcceptRequest({
                         variables: { requestId: request?.id! },
-                      })
-                    }
-                    className="bg-green-600 hover:bg-green-700 px-3 py-1 text-sm"
+                      });
+                    }}
+                    className="p-2 rounded-full opacity-30 bg-gray-600 hover:bg-green-600 hover:opacity-100 text-gray-200 hover:text-white transition-colors duration-200"
+                    aria-label="Accept request"
                   >
-                    Accept
-                  </Button>
-                  <Button
-                    onClick={() =>
+                    <Check size={14} />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
                       handleDeclineRequest({
                         variables: { requestId: request?.id! },
-                      })
-                    }
-                    className="bg-red-600 hover:bg-red-700 px-3 py-1 text-sm"
+                      });
+                    }}
+                    className="p-2 rounded-full opacity-30 bg-gray-600 hover:bg-red-600 hover:opacity-100 text-gray-200 hover:text-white transition-colors duration-200"
+                    aria-label="Decline request"
                   >
-                    Decline
-                  </Button>
+                    <X size={14} />
+                  </button>
                 </div>
               </li>
             ))}

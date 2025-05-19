@@ -10,6 +10,8 @@ import GameChallengeDialog from "./dialog/challangeReceived-dialog";
 import PendingRequestsSection from "./PendingFriendReqSection";
 import { useGetFriendsQuery } from "@repo/graphql/types/client";
 import { RemoveFriendDialog } from "./dialog/removeFriend-dialog";
+import { usePresence } from "@/hooks/usePresence";
+import { useSocket } from "@/hooks/useSocket";
 
 interface Friend {
   googleId: string;
@@ -142,6 +144,10 @@ export default function FriendList() {
       googleId: "", // You might want to pass the actual googleId here
     },
   });
+  const { socket } = useBingo();
+
+  const friendsStatusData = usePresence(socket);
+  console.log("friendsStatusData", friendsStatusData);
 
   const friends = data?.friends || [];
   // Map FUser (possibly nullable) to Friend
@@ -151,17 +157,21 @@ export default function FriendList() {
       googleId: f.googleId,
       displayName: f.displayName ?? "",
       avatar: f.avatar ?? undefined,
-      status: "offline", // default or determine actual status if available
+      status: friendsStatusData[f.googleId] ? "online" : "offline",
     }));
 
-  const onlineFriends = mappedFriends.filter((friend) => friend.status === "online");
-  const offlineFriends = mappedFriends.filter((friend) => friend.status === "offline");
+  const onlineFriends = mappedFriends.filter(
+    (friend) => friend.status === "online"
+  );
+  const offlineFriends = mappedFriends.filter(
+    (friend) => friend.status === "offline"
+  );
 
-useEffect(() => {
-  if (data?.friends && data.friends.length > 0) {
-    setIsOnlineExpanded(true);
-  }
-}, [data]);
+  useEffect(() => {
+    if (data?.friends && data.friends.length > 0) {
+      setIsOnlineExpanded(true);
+    }
+  }, [data]);
 
   const handleChallengePopup = (friendId: string) => {
     setIsOpenChallenge(true);

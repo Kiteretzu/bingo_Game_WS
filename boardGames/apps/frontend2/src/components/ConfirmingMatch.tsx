@@ -20,12 +20,10 @@ function ConfirmingMatch() {
     variables: {
       profileId: againstPlayerId || "", // fallback to an empty string or any default value
     },
+    fetchPolicy: "network-only",
   });
 
-  console.log("in confirming query 🥹", againstPlayerId, bingoProfileId, {
-    data,
-    loading,
-  });
+
 
   useEffect(() => {
     if (loading || !data) return;
@@ -33,8 +31,12 @@ function ConfirmingMatch() {
     const records = data.bingoPlayerRecords; // can be null if first time matching
     const isPlayer1 = bingoProfileId === records?.player1Id;
 
-    const wins = isPlayer1 ? records?.player1Wins ?? 0 : records?.player2Wins ?? 0;
-    const losses = isPlayer1 ? records?.player2Wins ?? 0 : records?.player1Wins ?? 0;
+    const wins = isPlayer1
+      ? (records?.player1Wins ?? 0)
+      : (records?.player2Wins ?? 0);
+    const losses = isPlayer1
+      ? (records?.player2Wins ?? 0)
+      : (records?.player1Wins ?? 0);
 
     dispatch(setPlayerRecord({ wins, loss: losses }));
     setIsMatchFound(false);

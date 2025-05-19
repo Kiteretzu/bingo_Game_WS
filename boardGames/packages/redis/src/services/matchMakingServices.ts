@@ -2,12 +2,13 @@ import { RedisClientType } from "redis";
 import { REDIS_PlayerFindingMatch } from "types";
 import "../config/redisClient";
 import { getRedisClient } from "../config/redisClient";
+import { CHANNELS } from "../infra/channels";
 
 export class MatchmakingService {
   private static instance: MatchmakingService;
   private redisClient: RedisClientType | null = null;
   private queueName = "matchmakingQueue";
-  private channelName = "matchmaking";
+  private channelName = CHANNELS.MATCHMAKING;
   private initialized = false;
 
   public static getInstance(): MatchmakingService {

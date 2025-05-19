@@ -6,14 +6,36 @@ import { CustomError } from "../helper/customError"; // Assuming CustomError cla
 import { STATUS_CODES } from "../errors";
 import jwt from "jsonwebtoken";
 import { verifyToken } from "helper";
+import {
+  getRedisClient,
+  getRedisSubscriberClient,
+} from "../../../../packages/redis/src/config/redisClient";
 
 let wss: WebSocketServer;
 
 // Create WebSocket Server Logic
-export function setupWebSocket(server: Server): void {
+export async function setupWebSocket(server: Server): Promise<void> {
   wss = new WebSocketServer({ server });
 
-  wss.on("connection", (ws: WebSocket, req) => {
+  // Initialize Redis clients for presence tracking
+  const pub = await getRedisClient();
+  const sub = await getRedisSubscriberClient();
+  await sub.subscribe("presence", (message) => {
+    const { googleId, isOnline } = JSON.parse(message);
+    wss.clients.forEach((client) => {
+      if (client.readyState === WebSocket.OPEN) {
+        client.send(
+          JSON.stringify({
+            type: "presence-update",
+            googleId,
+            isOnline,
+          })
+        );
+      }
+    });
+  });
+
+  wss.on("connection", async (ws: WebSocket, req) => {
     const token = new URLSearchParams(req.url?.split("?")[1]).get("token");
 
     if (!token) {
@@ -38,13 +60,31 @@ export function setupWebSocket(server: Server): void {
       gameManager.addUser(googleId, token, ws);
       ws.send(`You have been successfully connected`);
 
+      const keys = await pub.keys("presence:*");
+      const onlineGoogleIds = keys.map((k) => k.replace("presence:", ""));
+  console.log('onlineGoogleIds', onlineGoogleIds)
+      ws.send(
+        JSON.stringify({
+          type: "presence-snapshot",
+          onlineUsers: onlineGoogleIds,
+        })
+      );
+
+      // Publish online presence
+      pub.publish("presence", JSON.stringify({ googleId, isOnline: true }));
+      await pub.set(`presence:${googleId}`, "true");
+
       ws.on("error", (error: Error) => {
         handleWebSocketError(error, googleId);
       });
 
-      ws.on("close", () => {
+      ws.on("close", async () => {
         gameManager.removeUser(googleId);
         console.log(`Client disconnected. ID: ${googleId}`);
+
+        // Publish offline presence
+        pub.publish("presence", JSON.stringify({ googleId, isOnline: false }));
+        await pub.del(`presence:${googleId}`);
       });
     } catch (error) {
       ws.close(1008, "Unauthorized: Invalid token or token expired");

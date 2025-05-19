@@ -219,7 +219,7 @@ export enum Win_Method {
 export type GetAuthProfileQueryVariables = Exact<{ [key: string]: never; }>;
 
 
-export type GetAuthProfileQuery = { __typename?: 'Query', authUser?: { __typename?: 'User', googleId: string, displayName?: string | null, email?: string | null, avatar?: string | null, bingoProfile?: { __typename?: 'BingoProfile', id: string, totalMatches: number, wins: number, losses: number, league: Leagues, gameHistory: Array<{ __typename?: 'BingoGame', gameId: string, gameWinnerId?: string | null, createdAt?: string | null, gameEndedAt?: string | null, winMethod?: Win_Method | null, tier: BingoGameTier, gameLoserId?: string | null, winMMR?: number | null, loserMMR?: number | null } | null> } | null } | null };
+export type GetAuthProfileQuery = { __typename?: 'Query', authUser?: { __typename?: 'User', googleId: string, displayName?: string | null, email?: string | null, avatar?: string | null, bingoProfile?: { __typename?: 'BingoProfile', id: string, totalMatches: number, wins: number, losses: number, league: Leagues } | null } | null };
 
 export type GetServerPlayerProfileQueryVariables = Exact<{
   googleId: Scalars['String']['input'];
@@ -291,6 +291,13 @@ export type SendFriendRequestMutationVariables = Exact<{
 
 export type SendFriendRequestMutation = { __typename?: 'Mutation', sendFriendRequest?: { __typename?: 'FriendRequest', id: string, status: string, createdAt: string } | null };
 
+export type RemoveFriendMutationVariables = Exact<{
+  googleId: Scalars['String']['input'];
+}>;
+
+
+export type RemoveFriendMutation = { __typename?: 'Mutation', removeFriend?: boolean | null };
+
 
 export const GetAuthProfileDocument = gql`
     query getAuthProfile {
@@ -305,17 +312,6 @@ export const GetAuthProfileDocument = gql`
       wins
       losses
       league
-      gameHistory {
-        gameId
-        gameWinnerId
-        createdAt
-        gameEndedAt
-        winMethod
-        tier
-        gameLoserId
-        winMMR
-        loserMMR
-      }
     }
   }
 }
@@ -768,3 +764,34 @@ export function useSendFriendRequestMutation(baseOptions?: Apollo.MutationHookOp
 export type SendFriendRequestMutationHookResult = ReturnType<typeof useSendFriendRequestMutation>;
 export type SendFriendRequestMutationResult = Apollo.MutationResult<SendFriendRequestMutation>;
 export type SendFriendRequestMutationOptions = Apollo.BaseMutationOptions<SendFriendRequestMutation, SendFriendRequestMutationVariables>;
+export const RemoveFriendDocument = gql`
+    mutation removeFriend($googleId: String!) {
+  removeFriend(googleId: $googleId)
+}
+    `;
+export type RemoveFriendMutationFn = Apollo.MutationFunction<RemoveFriendMutation, RemoveFriendMutationVariables>;
+
+/**
+ * __useRemoveFriendMutation__
+ *
+ * To run a mutation, you first call `useRemoveFriendMutation` within a React component and pass it any options that fit your needs.
+ * When your component renders, `useRemoveFriendMutation` returns a tuple that includes:
+ * - A mutate function that you can call at any time to execute the mutation
+ * - An object with fields that represent the current status of the mutation's execution
+ *
+ * @param baseOptions options that will be passed into the mutation, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options-2;
+ *
+ * @example
+ * const [removeFriendMutation, { data, loading, error }] = useRemoveFriendMutation({
+ *   variables: {
+ *      googleId: // value for 'googleId'
+ *   },
+ * });
+ */
+export function useRemoveFriendMutation(baseOptions?: Apollo.MutationHookOptions<RemoveFriendMutation, RemoveFriendMutationVariables>) {
+        const options = {...defaultOptions, ...baseOptions}
+        return Apollo.useMutation<RemoveFriendMutation, RemoveFriendMutationVariables>(RemoveFriendDocument, options);
+      }
+export type RemoveFriendMutationHookResult = ReturnType<typeof useRemoveFriendMutation>;
+export type RemoveFriendMutationResult = Apollo.MutationResult<RemoveFriendMutation>;
+export type RemoveFriendMutationOptions = Apollo.BaseMutationOptions<RemoveFriendMutation, RemoveFriendMutationVariables>;

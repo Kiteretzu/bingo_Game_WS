@@ -263,7 +263,6 @@ export class GameManager {
           case PUT_GAME_INIT: {
             const data = message as PAYLOAD_PUT_GAME_INIT;
 
-            console.log("This is the data in gameINIT", data.payload);
             const token = data.payload.token;
 
             const decodedToken = verifyToken(token);

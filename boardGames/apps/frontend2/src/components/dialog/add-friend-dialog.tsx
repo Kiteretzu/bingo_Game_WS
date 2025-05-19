@@ -13,23 +13,33 @@ import useBingo from "@/hooks/useBingo";
 import { useSendFriendRequestMutation } from "@repo/graphql/types/client";
 import { defaultToastConfig } from "@/utils/toastConfig";
 import { toast } from "react-toastify";
+import { useAppSelector } from "@/store/hooks";
 
 export default function AddFriendDialog() {
   const [friendId, setFriendId] = useState("");
   const { isOpenAddFriend, setIsOpenAddFriend, handleAddFriend, isAuth } =
     useBingo();
 
-  const [handleSendFriendRequest, { data }] = useSendFriendRequestMutation();
+  const googleId = useAppSelector((state) => state.profile.googleId);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [handleSendFriendRequest, { data, loading }] =
+    useSendFriendRequestMutation();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (friendId.trim()) {
-      handleAddFriend({ to: friendId.trim() });
+      await handleSendFriendRequest({
+        variables: {
+          from: googleId,
+          to: friendId,
+        },
+      });
       setIsOpenAddFriend(false);
       setFriendId("");
       toast.success("Requst sent!", defaultToastConfig);
     }
   };
+
 
   return (
     <Dialog open={isOpenAddFriend} onOpenChange={setIsOpenAddFriend}>
@@ -61,11 +71,13 @@ export default function AddFriendDialog() {
             type="text"
             placeholder="Enter friend's ID"
             value={friendId}
+            autoFocus
+            disabled={loading}
             onChange={(e) => setFriendId(e.target.value)}
             className="w-full bg-gray-800 text-white border-gray-700 focus:border-gray-600"
           />
           <Button
-            disabled={!isAuth}
+            disabled={!isAuth || loading}
             type="submit"
             className="w-full  bg-[#3f6d44] hover:bg-[#3b603f] text-white disabled:bg-gray-700 disabled:cursor-not-allowed"
           >

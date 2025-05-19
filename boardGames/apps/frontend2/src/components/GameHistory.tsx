@@ -1,7 +1,7 @@
-
-import { Clock, TrendingUp, TrendingDown, LogIn } from "lucide-react";
+import { Clock, TrendingUp, TrendingDown, LogIn, Loader } from "lucide-react";
 import { motion } from "framer-motion";
 import useBingo from "@/hooks/useBingo";
+import { useGetGameHistoryQuery } from "@repo/graphql/types/client";
 
 type GameResult = {
   id: string;
@@ -94,7 +94,7 @@ const EmptyState = () => (
 );
 
 export default function GameHistory() {
-  const { bingoProfileId, gameHistory, isAuth } = useBingo();
+  const { bingoProfileId, isAuth } = useBingo();
 
   // Dummy data for when the user is not authenticated
   const dummyGameResults: GameResult[] = [
@@ -163,8 +163,17 @@ export default function GameHistory() {
     },
   ];
 
+  const { data: gameHistory, loading } = useGetGameHistoryQuery({
+    variables: {
+      bingoProfileId: bingoProfileId,
+      limit: 10,
+    },
+    skip: !isAuth,
+    fetchPolicy: "cache-and-network",
+  });
+
   const gameResults: GameResult[] =
-    gameHistory?.map((game: any) => {
+    gameHistory?.gameHistory.map((game: any) => {
       if (game.gameEndedAt === "NAN" || game.gameWinnerId === "NAN") {
         return {
           id: game.gameId,
@@ -221,7 +230,11 @@ export default function GameHistory() {
         transition={{ duration: 0.5, delay: 0.4 }}
         style={{ filter: !isAuth ? "blur(4px) brightness(0.5)" : "none" }}
       >
-        {isAuth && gameResults.length === 0 ? (
+        {loading ? (
+          <div className="flex items-center justify-center h-full">
+            <Loader className="animate-spin w-8 h-8 text-gray-400" />
+          </div>
+        ) : isAuth && gameResults.length === 0 ? (
           <EmptyState />
         ) : (
           (isAuth ? gameResults : dummyGameResults).map((game, index) => (

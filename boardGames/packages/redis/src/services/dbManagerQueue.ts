@@ -8,9 +8,7 @@ import {
   handleTossUpdate,
 } from "../consumers/gameConsumer";
 import { getRedisClient } from "../index";
-import {
-  QUEUE_NAME
-} from "../types";
+import { QUEUE_NAME } from "../types";
 
 interface GameRequest {
   type:

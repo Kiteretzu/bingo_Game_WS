@@ -6,7 +6,8 @@
     "./client": "./src/index.ts"
   },
   "scripts": {
-    "dev": "prisma generate && ts-node src/index.ts"
+    "generate": " pnpm install && prisma generate",
+    "dev": "pnpm run generate"
   },
   "keywords": [],
   "author": "",

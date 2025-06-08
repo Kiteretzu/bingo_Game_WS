@@ -1,0 +1,28 @@
+
+
+FROM node:22-alpine
+
+WORKDIR /usr/src/app
+
+RUN npm install -g pnpm
+
+# Copy workspace config files for dependency installation (to leverage Docker caching)
+COPY pnpm-workspace.yaml ./
+COPY turbo.json ./
+COPY package.json ./
+COPY pnpm-lock.yaml ./
+
+# Copy only frontend2 package.json to resolve its dependencies
+COPY apps/frontend2/package.json ./apps/frontend2/package.json
+
+# Pre-fetch dependencies for frontend2 only
+RUN pnpm fetch --filter ./apps/frontend2...
+
+# Copy the entire repo AFTER fetching to avoid invalidating cache
+COPY . .
+
+# Install and build frontend2
+RUN pnpm install --frozen-lockfile --filter ./apps/frontend2...
+RUN pnpm run --filter ./apps/frontend2 build
+
+CMD ["pnpm", "start:frontend2"]

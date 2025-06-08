@@ -1,0 +1,28 @@
+FROM node:22-alpine
+
+WORKDIR /usr/src/app
+
+RUN npm install -g pnpm
+
+# Copy workspace config files for dependency installation (to leverage Docker caching)
+COPY pnpm-workspace.yaml ./
+COPY turbo.json ./
+COPY package.json ./
+COPY pnpm-lock.yaml ./
+
+# Copy only backend package.json to resolve its dependencies
+COPY apps/backend/package.json ./apps/backend/package.json
+
+# Pre-fetch dependencies for backend only
+RUN pnpm fetch --filter ./apps/backend...
+
+# Copy the entire repo AFTER fetching to avoid invalidating cache
+# After copying all files
+COPY . .
+RUN pnpm run prisma:generate
+
+# Now install backend dependencies and build backend
+RUN pnpm install --frozen-lockfile --filter ./apps/backend...
+RUN pnpm run --filter ./apps/backend build
+
+CMD ["pnpm", "start:backend"]

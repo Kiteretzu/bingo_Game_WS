@@ -128,7 +128,7 @@ export const resolvers: Resolvers<CustomContext> = {
       if (!gameId) {
         throw new GraphQLError("Game ID not provided");
       }
-
+      console.log('validator id check',)
       const game = await client.bingoGame.findUnique({
         where: {
           gameId: gameId,
@@ -139,6 +139,8 @@ export const resolvers: Resolvers<CustomContext> = {
           },
         },
       });
+
+      console.log('validator game check', game);
 
       if (!game) {
         return false; // Return a boolean indicating the game ID is invalid

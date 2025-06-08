@@ -40,6 +40,8 @@ function GameValidator({ children }) {
     },
   });
 
+  console.log('whats going on in data', data, id);
+
   useEffect(() => {
     if (data && !data.validGameId) {
       navigate("/");

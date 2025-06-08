@@ -5,7 +5,12 @@
     "build": "turbo build",
     "dev": "turbo dev",
     "lint": "turbo lint",
-    "format": "prettier --write \"**/*.{ts,tsx,md}\""
+    "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "prisma:generate": "pnpm --filter @repo/db generate",
+    "graphql:codegen": "pnpm --filter @repo/graphql run codegen",
+    "start:backend": " pnpm run graphql:codegen && pnpm --filter backend start",
+    "start:redis": "pnpm --filter @repo/redis start",
+    "start:frontend2": "pnpm --filter frontend2 start"
   },
   "devDependencies": {
     "prettier": "^3.2.5",

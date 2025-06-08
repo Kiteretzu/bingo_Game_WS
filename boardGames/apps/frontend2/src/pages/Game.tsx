@@ -46,6 +46,8 @@ function GameValidator({ children }) {
     if (data && !data.validGameId) {
       navigate("/");
     }
+
+    
   }, [data, navigate]);
 
   if (data && !data.validGameId) return null;

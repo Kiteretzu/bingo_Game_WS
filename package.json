@@ -6,6 +6,7 @@
     "dev": "turbo dev",
     "lint": "turbo lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\"",
+    "prisma:migrate": "pnpm --filter @repo/db migrate",
     "prisma:generate": "pnpm --filter @repo/db generate",
     "graphql:codegen": "pnpm --filter @repo/graphql run codegen",
     "start:backend": " pnpm run graphql:codegen && pnpm --filter backend start",

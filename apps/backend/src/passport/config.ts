@@ -12,11 +12,11 @@ export const configurePassport = () => {
       {
         clientID: process.env.GOOGLE_CLIENT_ID!,
         clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-        callbackURL: process.env.CALLBACK_URL!,
+        callbackURL: process.env.GOOGLE_CALLBACK_URL!,
       },
       async (accessToken, refreshToken, profile, done) => {
         const { id, displayName } = profile;
-        console.log('IN PASSPORT!!!!',)
+        console.log("IN PASSPORT!!!!");
         try {
           // Check if the user exists in the database
           let user = await client.user.findUnique({

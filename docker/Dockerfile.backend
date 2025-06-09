@@ -25,4 +25,4 @@ RUN pnpm run prisma:generate
 RUN pnpm install --frozen-lockfile --filter ./apps/backend...
 RUN pnpm run --filter ./apps/backend build
 
-CMD ["pnpm", "start:backend"]
+CMD ["sh", "-c", "pnpm run prisma:migrate && pnpm start:backend"]

@@ -16,4 +16,4 @@
     RUN npm install -g pnpm
     COPY --from=builder /app/packages/redis/dist ./dist
     COPY --from=builder /app/packages/redis/package.json ./package.json
-    CMD ["pnpm", "start:redis"]
+    CMD ["pnpm", "start"]

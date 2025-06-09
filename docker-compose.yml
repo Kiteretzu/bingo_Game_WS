@@ -1,0 +1,19 @@
+version: "3.8"
+
+services:
+  # backend:
+  #   image: ${{ secrets.DOCKER_USERNAME }}/backend:${{ github.sha }}
+  #   ports:
+  #     - "5000:5000"
+  #   environment:
+  #     - DATABASE_URL=${{ secrets.DATABASE_URL }}
+  frontend:
+    build:
+      context: .
+      dockerfile: ./docker/Dockerfile.frontend
+    ports:
+      - "3000:3000"
+  # redis:
+  #   image: ${{ secrets.DOCKER_USERNAME }}/redis:${{ github.sha }}
+  #   ports:
+  #     - "6379:6379"

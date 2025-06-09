@@ -1,4 +1,4 @@
-name: CD Backend
+name: CD
 on:
   push:
     branches:
@@ -36,6 +36,6 @@ jobs:
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./docker/Dockerfile.redis
+          file: ./docker/Dockerfile.redis-workers
           push: true
           tags: ${{ secrets.DOCKER_USERNAME }}/redis:${{ github.sha }}

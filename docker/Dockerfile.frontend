@@ -6,7 +6,7 @@ WORKDIR /usr/src/app
 
 RUN npm install -g pnpm
 
-# Copy workspace config files for dependency installation (to leverage Docker caching)
+# Copy workspace con fig files for dependency installation (to leverage Docker caching)
 COPY pnpm-workspace.yaml ./
 COPY turbo.json ./
 COPY package.json ./

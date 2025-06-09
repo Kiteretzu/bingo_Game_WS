@@ -46,7 +46,7 @@ export function RemoveFriendDialog({ friendId }: { friendId: string }) {
             Cancel
           </AlertDialogCancel>
           <AlertDialogAction
-            onClick={removeFriend}
+            onClick={() => removeFriend()}
             className="bg-red-5 00 text-white hover:bg-red-600"
           >
             Remove

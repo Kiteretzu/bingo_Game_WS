@@ -19,6 +19,8 @@ RUN pnpm fetch --filter ./apps/backend...
 # Copy the entire repo AFTER fetching to avoid invalidating cache
 # After copying all files
 COPY . .
+
+RUN pnpm install --frozen-lockfile --filter ./packages/db...
 RUN pnpm run prisma:generate
 
 # Now install backend dependencies and build backend

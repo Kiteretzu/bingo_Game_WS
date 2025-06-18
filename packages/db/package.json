@@ -6,7 +6,7 @@
     "./client": "./src/index.ts"
   },
   "scripts": {
-    "generate": " pnpm install && prisma generate",
+    "generate": " prisma generate",
     "dev": "pnpm run generate",
     "migrate": "prisma migrate dev --name init"
   },

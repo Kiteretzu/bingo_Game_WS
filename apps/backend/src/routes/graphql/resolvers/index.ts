@@ -1,7 +1,7 @@
 import { GraphQLError } from "graphql";
 import { Context } from "graphql-passport/lib/buildContext";
 import GraphQLJSON from "graphql-type-json";
-import { CustomContext } from "helper/customContext";
+import { CustomContext } from "helpers/customContext";
 import { FriendRequest, FUser, Resolvers } from "@repo/graphql/types/server";
 import { BingoGame, BingoProfile, client, User } from "@repo/db/client";
 import { leaderboardService } from "@repo/redis/services";
@@ -128,7 +128,7 @@ export const resolvers: Resolvers<CustomContext> = {
       if (!gameId) {
         throw new GraphQLError("Game ID not provided");
       }
-      console.log('validator id check',)
+      console.log("validator id check");
       const game = await client.bingoGame.findUnique({
         where: {
           gameId: gameId,
@@ -140,7 +140,7 @@ export const resolvers: Resolvers<CustomContext> = {
         },
       });
 
-      console.log('validator game check', game);
+      console.log("validator game check", game);
 
       if (!game) {
         return false; // Return a boolean indicating the game ID is invalid

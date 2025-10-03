@@ -3,12 +3,12 @@ import { GraphQLError } from "graphql";
 import { DECODED_TOKEN } from "types";
 import { BingoProfile, client, User } from "@repo/db/client";
 import { ContextParams } from "graphql-passport/lib/buildContext";
-import { verifyToken } from "helper";
+import { verifyToken } from "../../../ws-server/src/helpers/helper";
 
 export interface CustomContext {
   req: Request;
   res: Response;
-  getUser: () => Promise<User &{bingoProfile: BingoProfile} | null>;
+  getUser: () => Promise<(User & { bingoProfile: BingoProfile }) | null>;
   isAuthenticated: () => Promise<boolean>;
   isUnauthenticated: () => Promise<boolean>;
   // authenticate?: <UserObjectType extends {}>(
@@ -50,7 +50,7 @@ export const customContext = ({ req, res }: ContextParams) => {
 
       // Extract the token
       const token = header.split(" ")[1];
-      
+
       if (!token) {
         throw new GraphQLError("Token is missing", {
           extensions: { code: "UNAUTHENTICATED" },
@@ -58,18 +58,17 @@ export const customContext = ({ req, res }: ContextParams) => {
       }
 
       // Verify the JWT token
-     const decodedToken = verifyToken(token) // always in tryCatch
+      const decodedToken = verifyToken(token); // always in tryCatch
 
       // Fetch the user from the database using the decoded token
       const user = await client.user.findUnique({
         where: {
-         googleId: decodedToken.googleId,
+          googleId: decodedToken.googleId,
         },
         include: {
           bingoProfile: true,
         },
       });
-     
 
       if (!user) {
         throw new GraphQLError("User not found", {

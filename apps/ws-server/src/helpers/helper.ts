@@ -1,7 +1,5 @@
-import { BingoGame, BingoProfile } from "@repo/db/client";
-import { PlayerData, PlayerGameboardData } from "@repo/games/mechanics";
 import { GetServerPlayerProfileDocument } from "@repo/graphql/types/client";
-import { gameServices } from "@repo/redis/services";
+import { PlayerData } from "@repo/messages/message";
 import jwt from "jsonwebtoken";
 import { DECODED_TOKEN } from "types";
 const { request } = require("graphql-request");
@@ -81,74 +79,3 @@ export const verifyToken = (token: string): DECODED_TOKEN => {
 
 //   return [playerData1, playerData2];
 // };
-
-export const amazing = async () => {
-  const games = await gameServices.getAllGames();
-  // Use for...of to properly handle async operations within the loop
-  const results = [];
-  for (const game of games) {
-    const player1 = game.players[0];
-    const player2 = game.players[1];
-
-    const playerData1: PlayerData = {
-      user: {
-        googleId: player1.User.googleId!,
-        displayName: player1.User.displayName!,
-        avatar: player1.User.avatar!,
-        bingoProfile: {
-          id: player1.id!,
-          mmr: player1.mmr!,
-          league: player1.league!,
-          wins: player1.wins!,
-          losses: player1.losses!,
-          totalMatches: player1.totalMatches!,
-        },
-      },
-    };
-
-    const playerData2: PlayerData = {
-      user: {
-        googleId: player2.User.googleId!,
-        displayName: player2.User.displayName!,
-        avatar: player2.User.avatar!,
-        bingoProfile: {
-          id: player2.id!,
-          mmr: player2.mmr!,
-          league: player2.league!,
-          wins: player2.wins!,
-          losses: player2.losses!,
-          totalMatches: player2.totalMatches!,
-        },
-      },
-    };
-
-    const moveCount = game.matchHistory.length;
-    let player1_gameBoard: PlayerGameboardData | undefined;
-    let player2_gameBoard: PlayerGameboardData | undefined;
-
-    // Loop through the game boards to find the relevant game boards
-    for (const board of game.gameboards as unknown as PlayerGameboardData[]) {
-      if (board.playerId === player1.id) {
-        player1_gameBoard = board;
-      } else if (board.playerId === player2.id) {
-        player2_gameBoard = board;
-      }
-    }
-
-    // Ensure player game boards are found before proceeding
-    if (player1_gameBoard && player2_gameBoard) {
-      results.push([
-        game.gameId,
-        playerData1,
-        playerData2,
-        player1_gameBoard.gameBoard,
-        player2_gameBoard.gameBoard,
-        moveCount,
-      ]);
-    } else {
-      console.error("Game boards for players not found");
-    }
-  }
-
-  return results; // Return the collected results after processing all games
-};

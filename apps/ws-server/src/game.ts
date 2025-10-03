@@ -1,44 +1,38 @@
-import { WebSocket } from "ws";
+import { Bingo } from "@repo/games/bingo";
 import {
-  Box,
   BoxesValue,
-  GET_RESPONSE,
-  GET_GAME,
-  PAYLOAD_GET_GAME,
-  GET_CHECKBOXES,
-  PAYLOAD_PUT_GET_CHECK_MARK,
+  EndGame,
   GET_CHECK_MARK,
-  PAYLOAD_GET_CHECKBOXES,
+  GET_GAME,
   GET_LOST,
+  GET_RECONNECT,
+  GET_RESPONSE,
+  GET_UPDATED_GAME,
   GET_VICTORY,
+  GameEndMethod,
+  GoalType,
+  MatchHistory,
+  MessageType,
+  PAYLOAD_GET_GAME,
+  PAYLOAD_GET_LOST,
+  PAYLOAD_GET_RECIEVE_EMOTE,
+  PAYLOAD_GET_RECONNECT,
+  PAYLOAD_GET_UPDATED_GAME,
+  PAYLOAD_GET_VICTORY,
+  PAYLOAD_PUT_GET_CHECK_MARK,
   PlayerData,
   PlayerGameboardData,
   TossDecision,
-  BINGO,
-  GameEndMethod,
-  PAYLOAD_GET_VICTORY,
-  PAYLOAD_GET_LOST,
-  MessageType,
-  PAYLOAD_GET_RECIEVE_EMOTE,
-  PAYLOAD_GET_UPDATED_GAME,
-  GET_UPDATED_GAME,
-  MatchHistory,
-  GoalType,
-  EndGame,
-  PAYLOAD_GET_RECONNECT,
-  GET_RECONNECT,
-  GameBoard,
 } from "@repo/messages/message";
-import { Bingo } from "../../../../packages/games/src/bingo/bingo";
-import { sendPayload } from "../helper/wsSend";
 import {
   redis_addMove,
   redis_newGame,
   redis_saveEndGame,
   redis_tossGameUpdate,
 } from "@repo/redis/producers";
-import { gameServices } from "@repo/redis/services";
-import { gameManager } from "backend/game-manager";
+import { WebSocket } from "ws";
+import { gameManager } from "./GameManager";
+import { sendPayload } from "./helpers/wsSend";
 
 // assuming all the sockets are alive
 
@@ -618,7 +612,7 @@ export class Game {
       ];
     }
 
-    console.log("✅ After toss decision:", this.playerData[0].user.displayName);
+    console.log("✅ After toss decision:", this.playerData[0]?.user.displayName);
 
     this.gameStarted = true;
 

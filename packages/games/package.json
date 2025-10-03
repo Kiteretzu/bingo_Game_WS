@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "exports": {
-    "./bingo": "./src/games/bingo/game.ts",
+    "./bingo": "./src/bingo/index.ts",
     "./mechanics": "./src/mechanics/index.ts"
   },
   "scripts": {

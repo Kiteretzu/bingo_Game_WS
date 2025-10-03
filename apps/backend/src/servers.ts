@@ -9,14 +9,13 @@ import protect from "overload-protection";
 import { schema } from "./routes/graphql/schema";
 
 import { expressMiddleware } from "@apollo/server/express4";
-import customContext from "helper/customContext";
+import customContext from "helpers/customContext";
 import passport from "passport";
 import { configurePassport } from "passport/config";
 import authRouter from "routes/auth";
 import adminRouter from "routes/auth/adminAuth";
-import { ERROR_CODES, STATUS_CODES } from "./errors";
-import { CustomError } from "./helper/customError"; // Assuming CustomError class is defined as discussed
-import { setupWebSocket } from "./ws/websocket";
+import { ERROR_CODES, STATUS_CODES } from "./helpers/errors";
+import { CustomError } from "./helpers/customError"; // Assuming CustomError class is defined as discussed
 
 // Initialize Apollo Server
 export const setupApolloServer = async (httpServer: http.Server) => {
@@ -81,6 +80,4 @@ export const setupExpressApp = async (
   }
 };
 
-
 // Export the WebSocket setup for use in index.ts
-export { setupWebSocket }; // Ensure WebSocket setup can be imported elsewhere

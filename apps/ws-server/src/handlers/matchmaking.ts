@@ -1,5 +1,5 @@
-import { REDIS_PlayerFindingMatch } from "redis/types";
-import { gameManager } from "../../../backend/src/ws/GameManager";
+import { REDIS_PlayerFindingMatch } from "@repo/redis/types";
+import { gameManager } from "../GameManager";
 
 /**
  * Handler for matchmaking messages received via Redis Pub/Sub.

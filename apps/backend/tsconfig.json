@@ -12,5 +12,10 @@
     "lib": ["es2020"],
     "allowJs": true
   },
-  "include": ["src/**/*.ts", "src/ws/game.ts"]
+  "include": [
+    "src/**/*.ts",
+    "src/ws/game.ts",
+    "../ws-server/src/helpers/wsSend.ts",
+    "../ws-server/src/helpers/helper.ts"
+  ]
 }

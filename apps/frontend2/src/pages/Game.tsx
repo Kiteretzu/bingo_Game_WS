@@ -34,20 +34,19 @@ function GameValidator({ children }) {
   const { id } = useParams();
   const navigate = useNavigate();
 
-  const { data } = useValidGameIdSuspenseQuery({ // ne
+  const { data } = useValidGameIdSuspenseQuery({
+    // ne
     variables: {
       gameId: id || "",
     },
   });
 
-  console.log('whats going on in data', data, id);
+  console.log("whats going on in data", data, id);
 
   useEffect(() => {
     if (data && !data.validGameId) {
       navigate("/");
     }
-
-    
   }, [data, navigate]);
 
   if (data && !data.validGameId) return null;
@@ -66,8 +65,8 @@ export default function Game() {
           className="min-h-screen overflow-hidden bg-gradient-to-b from-gray-900/10 to-gray-800/55 text-gray-100 flex flex-col"
           style={{ backgroundImage: `url(${backgroundImg})` }}
         >
-          <div
-            onClick={() => navigate("/")}
+          <a
+            href="/"
             className="flex cursor-pointer justify-center items-center h-20 py-12 bg-gray-800/85 shadow-lg border-b border-gray-700"
           >
             <img
@@ -75,7 +74,7 @@ export default function Game() {
               className="h-40 object-contain pointer-events-none"
               alt="Bingo"
             />
-          </div>
+          </a>
           <div className="flex-grow p-6 lg:p-14 bg-gray-900/50 backdrop-blur-sm border-gray-700 mx-4 lg:mx-auto w-full overflow-y-auto">
             <CardContent className="min-h-fit p-4 flex flex-col lg:flex-row gap-6 justify-between">
               <div className="w-full flex flex-col rounded-xl overflow-hidden items-center bg-gray-800 border border-gray-700 shadow-lg">

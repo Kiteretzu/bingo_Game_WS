@@ -1,22 +1,22 @@
-import { WebSocketServer, WebSocket } from "ws";
+import { getRedisClient, getRedisSubscriberClient } from "@repo/redis/config";
+import { verifyToken } from "./helpers/helper";
+import http from "http";
+import { WebSocket, WebSocketServer } from "ws";
+// import { STATUS_CODES } from "backend/helpers";
 import { gameManager } from "./GameManager";
-import { v4 as uuidv4 } from "uuid";
-import { Server } from "http";
-import { CustomError } from "../helper/customError"; // Assuming CustomError class is defined
-import { STATUS_CODES } from "../errors";
-import jwt from "jsonwebtoken";
-import { verifyToken } from "helper";
-import {
-  getRedisClient,
-  getRedisSubscriberClient,
-} from "../../../../packages/redis/src/config/redisClient";
+import { initSubscriptions } from "initPubSub";
 
 let wss: WebSocketServer;
 
 // Create WebSocket Server Logic
-export async function setupWebSocket(server: Server): Promise<void> {
+async function setupdWebSocket(): Promise<void> {
+  const server = http.createServer();
   wss = new WebSocketServer({ server });
+  server.listen(4000, () => {
+    console.log("WebSocket server listening on port 4000");
+  });
 
+  await initSubscriptions();
   // Initialize Redis clients for presence tracking
   const pub = await getRedisClient();
   const sub = await getRedisSubscriberClient();
@@ -37,6 +37,8 @@ export async function setupWebSocket(server: Server): Promise<void> {
 
   wss.on("connection", async (ws: WebSocket, req) => {
     const token = new URLSearchParams(req.url?.split("?")[1]).get("token");
+
+    console.log("Trying to connect", token);
 
     if (!token) {
       ws.close(1008, "Unauthorized: No Token");
@@ -62,7 +64,7 @@ export async function setupWebSocket(server: Server): Promise<void> {
 
       const keys = await pub.keys("presence:*");
       const onlineGoogleIds = keys.map((k) => k.replace("presence:", ""));
-  console.log('onlineGoogleIds', onlineGoogleIds)
+      console.log("onlineGoogleIds", onlineGoogleIds);
       ws.send(
         JSON.stringify({
           type: "presence-snapshot",
@@ -99,7 +101,7 @@ function handleWebSocketError(error: Error, googleId: string): void {
 
   const customError = new CustomError(
     "Unable to initialize WebSocket connection",
-    STATUS_CODES.WEBSOCKET_SERVER_ERROR,
+    STATUS_CODES.WEBSOCKET_SERVER_ERROR || 400, // resolve this
     "WEBSOCKET_SERVER_ERROR"
   );
 
@@ -113,3 +115,5 @@ export function getWebSocketServer(): WebSocketServer {
   }
   return wss;
 }
+
+setupdWebSocket();

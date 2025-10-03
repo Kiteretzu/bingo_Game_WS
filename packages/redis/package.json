@@ -6,19 +6,20 @@
     "./producers": "./src/producers/index.ts",
     "./services": "./src/services/index.ts",
     "./config": "./src/index.ts",
-    "./infra": "./src/infra/index.ts"
+    "./infra": "./src/infra/index.ts",
+    "./types": "./src/types.ts"
   },
-"scripts": {
-  "build:dbworker": "esbuild src/workers/dbQueueWorker.ts --bundle --outfile=dist/dbQueueWorker.js --platform=node --tsconfig=tsconfig.json",
-  "start:dbworker": "node dist/dbQueueWorker.js",
-  "build:matchmaking": "esbuild src/workers/matchmakingWorkers.ts --bundle --outfile=dist/matchMakingWorkers.js --platform=node --tsconfig=tsconfig.json",
-  "start:matchmaking": "node dist/matchMakingWorkers.js",
-  "dev:dbworker": "npm run build:dbworker && npm run start:dbworker",
-  "dev:matchmaking": "npm run build:matchmaking && npm run start:matchmaking",
-  "build": "npm run build:matchmaking && npm run build:dbworker",
-  "dev": "npm run dev:dbworker && npm run dev:matchmaking",
-  "start": "npm run start:matchmaking && npm run start:dbworker"
-},
+  "scripts": {
+    "build:dbworker": "esbuild src/workers/dbQueueWorker.ts --bundle --outfile=dist/dbQueueWorker.js --platform=node --tsconfig=tsconfig.json",
+    "start:dbworker": "node dist/dbQueueWorker.js",
+    "build:matchmaking": "esbuild src/workers/matchmakingWorkers.ts --bundle --outfile=dist/matchMakingWorkers.js --platform=node --tsconfig=tsconfig.json",
+    "start:matchmaking": "node dist/matchMakingWorkers.js",
+    "dev:dbworker": "npm run build:dbworker && npm run start:dbworker",
+    "dev:matchmaking": "npm run build:matchmaking && npm run start:matchmaking",
+    "build": "npm run build:matchmaking && npm run build:dbworker",
+    "dev": "npm run dev:dbworker & npm run dev:matchmaking",
+    "start": "npm run start:matchmaking && npm run start:dbworker"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",

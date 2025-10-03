@@ -1,8 +1,7 @@
 import express from "express";
 import http from "http";
 import dotenv from "dotenv";
-import { setupApolloServer, setupExpressApp, setupWebSocket } from "./servers";
-import { initSubscriptions } from "./ws/initPubSub";
+import { setupApolloServer, setupExpressApp } from "./servers";
 
 dotenv.config({ path: "../../.env" });
 
@@ -21,8 +20,7 @@ const startServer = async () => {
 
     const apolloServer = await setupApolloServer(httpServer);
     setupExpressApp(app, apolloServer);
-    setupWebSocket(httpServer);
-    await initSubscriptions();
+    // setupWebSocket(httpServer);
 
     httpServer.listen(PORT, () => {
       console.log(`Server is running on http://localhost:${PORT}/graphql`);

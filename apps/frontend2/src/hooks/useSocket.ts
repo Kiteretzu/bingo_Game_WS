@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-const WS_URL = "ws://localhost:8080"; // Use wss:// for secure WebSocket connections
+const WS_URL = "ws://localhost:4000"; // Use wss:// for secure WebSocket connections
 
 export const useSocket = () => {
   const [socket, setSocket] = useState<WebSocket | null>(null);

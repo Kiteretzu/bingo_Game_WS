@@ -1,6 +1,6 @@
 import { MessageType } from "@repo/messages/message";
-import { sendPayload } from "helper/wsSend";
-import { GameManager } from "ws/GameManager";
+import { sendPayload } from "../helpers/wsSend";
+import { GameManager } from "../GameManager";
 
 export const handleFriendRequest = (msg: { to: string; from: string }) => {
   const socket = GameManager.getInstance().getSocket(msg.to);

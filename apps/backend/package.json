@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "main": "index.js",
   "exports": {
-    "./game-manager": "./src/ws/GameManager.ts"
+    "./game-manager": "./src/ws/GameManager.ts",
+    "./helpers": "./src/helpers/index.ts"
   },
   "scripts": {
     "build": "npx esbuild src/index.ts --bundle --outfile=dist/index.js --platform=node --tsconfig=tsconfig.json",

@@ -1,8 +1,8 @@
 //Initializes subscriptions using handlers
 import { subscribeToChannel } from "@repo/redis/infra";
-import { handleFriendRequest } from "../handlers/friendRequest";
+import { handleFriendRequest } from "./handlers/friendRequest";
 import { CHANNELS } from "@repo/redis/infra";
-import { handleMatchmaking } from "../handlers/matchmaking";
+import { handleMatchmaking } from "./handlers/matchmaking";
 import { handleCheckMark } from "handlers/checkMark";
 // import { handleChallenge } from "../handlers/challenge";
 

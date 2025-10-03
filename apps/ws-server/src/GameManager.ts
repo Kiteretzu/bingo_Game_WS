@@ -23,9 +23,9 @@ import {
 import { gameServices, matchmakingService } from "@repo/redis/services";
 import { v4 as uuidv4 } from "uuid";
 import { WebSocket } from "ws";
-import { REDIS_PlayerFindingMatch } from "../../../../packages/redis/src/types";
-import { getPlayerData, verifyToken } from "../helper/";
-import { sendPayload } from "../helper/wsSend";
+import { REDIS_PlayerFindingMatch } from "@repo/redis/types";
+import { getPlayerData, verifyToken } from "./helpers/helper";
+import { sendPayload } from "./helpers/wsSend";
 import { Game } from "./game";
 
 type GameId = string;
@@ -132,7 +132,7 @@ export class GameManager {
         const matchHistory = game.matchHistory as unknown as MatchHistory;
         const moveCount = game.matchHistory.length;
         const gameStarted = game.isGameStarted;
-        const playerData = this.getPlayerData(game.players);
+        const playerData = this.getPlayerData(game.players)!;
         console.log("this is the gameStarted", gameStarted);
         const newGame = new Game(
           gameId,

@@ -76,6 +76,7 @@ async function setupdWebSocket(): Promise<void> {
       pub.publish("presence", JSON.stringify({ googleId, isOnline: true }));
       await pub.set(`presence:${googleId}`, "true");
 
+
       ws.on("error", (error: Error) => {
         handleWebSocketError(error, googleId);
       });

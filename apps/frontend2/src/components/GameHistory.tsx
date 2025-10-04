@@ -83,6 +83,73 @@ const AuthOverlay = () => (
   </div>
 );
 
+// Dummy data for when the user is not authenticated
+const dummyGameResults: GameResult[] = [
+  {
+    id: "1",
+    outcome: "Win",
+    ranked: true,
+    duration: "5:30",
+    mmrChange: 25,
+    date: new Date().toISOString(),
+    startTime: new Date().toISOString(),
+  },
+  {
+    id: "2",
+    outcome: "Loss",
+    ranked: true,
+    duration: "4:45",
+    mmrChange: -15,
+    date: new Date().toISOString(),
+    startTime: new Date().toISOString(),
+  },
+  {
+    id: "3",
+    outcome: "Unscored",
+    ranked: false,
+    duration: "In Progress",
+    mmrChange: 0,
+    date: new Date().toISOString(),
+    startTime: new Date().toISOString(),
+  },
+  {
+    id: "4",
+    outcome: "Win",
+    ranked: true,
+    duration: "6:10",
+    mmrChange: 30,
+    date: new Date().toISOString(),
+    startTime: new Date().toISOString(),
+  },
+  {
+    id: "5",
+    outcome: "Loss",
+    ranked: false,
+    duration: "3:50",
+    mmrChange: 0,
+    date: new Date().toISOString(),
+    startTime: new Date().toISOString(),
+  },
+  {
+    id: "6",
+    outcome: "Loss",
+    ranked: true,
+    duration: "5:00",
+    mmrChange: 0,
+    date: new Date().toISOString(),
+    startTime: new Date().toISOString(),
+  },
+  {
+    id: "7",
+    outcome: "Win",
+    ranked: false,
+    duration: "7:20",
+    mmrChange: 10,
+    date: new Date().toISOString(),
+    startTime: new Date().toISOString(),
+  },
+];
+
 const EmptyState = () => (
   <div className="flex flex-col items-center justify-center h-64">
     <Clock className="w-12 h-12 text-gray-400 mb-4" />
@@ -95,73 +162,6 @@ const EmptyState = () => (
 
 export default function GameHistory() {
   const { bingoProfileId, isAuth } = useBingo();
-
-  // Dummy data for when the user is not authenticated
-  const dummyGameResults: GameResult[] = [
-    {
-      id: "1",
-      outcome: "Win",
-      ranked: true,
-      duration: "5:30",
-      mmrChange: 25,
-      date: new Date().toISOString(),
-      startTime: new Date().toISOString(),
-    },
-    {
-      id: "2",
-      outcome: "Loss",
-      ranked: true,
-      duration: "4:45",
-      mmrChange: -15,
-      date: new Date().toISOString(),
-      startTime: new Date().toISOString(),
-    },
-    {
-      id: "3",
-      outcome: "Unscored",
-      ranked: false,
-      duration: "In Progress",
-      mmrChange: 0,
-      date: new Date().toISOString(),
-      startTime: new Date().toISOString(),
-    },
-    {
-      id: "4",
-      outcome: "Win",
-      ranked: true,
-      duration: "6:10",
-      mmrChange: 30,
-      date: new Date().toISOString(),
-      startTime: new Date().toISOString(),
-    },
-    {
-      id: "5",
-      outcome: "Loss",
-      ranked: false,
-      duration: "3:50",
-      mmrChange: 0,
-      date: new Date().toISOString(),
-      startTime: new Date().toISOString(),
-    },
-    {
-      id: "6",
-      outcome: "Loss",
-      ranked: true,
-      duration: "5:00",
-      mmrChange: 0,
-      date: new Date().toISOString(),
-      startTime: new Date().toISOString(),
-    },
-    {
-      id: "7",
-      outcome: "Win",
-      ranked: false,
-      duration: "7:20",
-      mmrChange: 10,
-      date: new Date().toISOString(),
-      startTime: new Date().toISOString(),
-    },
-  ];
 
   const { data: gameHistory, loading } = useGetGameHistoryQuery({
     variables: {

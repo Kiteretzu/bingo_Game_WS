@@ -10,11 +10,13 @@ import {
 import { Copy as CopyIcon } from "lucide-react";
 import { toast } from "react-toastify";
 import { defaultToastConfig } from "@/utils/toastConfig";
+import { useNavigate } from "react-router-dom";
 
 export default function ProfileDashboard() {
   // State for tracking if the user is logged in
   const isLoggedIn = useAppSelector((state) => state.profile.isAuth);
   const profileData = useAppSelector((state) => state.profile);
+  const navigate = useNavigate();
 
   const handleGoogleLogin = () => {
     window.location.href = "http://localhost:8080/auth/google"; // backend url
@@ -30,6 +32,11 @@ export default function ProfileDashboard() {
 
   return (
     <div
+      onClick={() => {
+        if (isLoggedIn) {
+          navigate("/dashboard");
+        }
+      }}
       className={clsx(
         "bg-gray-800 w-full h-full flex flex-col border border-gray-500/25 p-1 px-3 py-4 rounded-lg  shadow-lg relative",
         {
@@ -60,7 +67,8 @@ export default function ProfileDashboard() {
                 <HoverCard>
                   <HoverCardTrigger asChild>
                     <button
-                      onClick={() => {
+                      onClick={(e) => {
+                        e.stopPropagation();
                         navigator.clipboard.writeText(
                           profileData?.googleId ?? "Guest"
                         );
@@ -113,7 +121,7 @@ export default function ProfileDashboard() {
                 </div>
               </div>
             </div>
-            <LogoutButton />
+            <LogoutButton onClick={(e) => e.stopPropagation()} />
           </div>
 
           {/* Badges Section mainly 2 BADGES! */}

@@ -132,6 +132,8 @@ export default function FriendList() {
   const [isOnlineExpanded, setIsOnlineExpanded] = useState(true);
   const [isOfflineExpanded, setIsOfflineExpanded] = useState(false);
   const [isChallengeReceived, setIsChallengeReceived] = useState(false);
+  const [selectedFriend, setSelectedFriend] = useState<Friend | null>(null);
+  
   const {
     isOpenChallenge,
     setIsOpenChallenge,
@@ -174,7 +176,16 @@ export default function FriendList() {
   }, [data]);
 
   const handleChallengePopup = (friendId: string) => {
-    setIsOpenChallenge(true);
+    const friend = mappedFriends.find(f => f.googleId === friendId);
+    if (friend) {
+      setSelectedFriend({
+        googleId: friend.googleId,
+        displayName: friend.displayName,
+        avatar: friend.avatar,
+        status: friend.status
+      });
+      setIsOpenChallenge(true);
+    }
   };
 
   return (
@@ -218,20 +229,14 @@ export default function FriendList() {
         />
       )}
 
-      {/* TODO: Find better way to deel with this */}
-
-      {isOpenChallenge && (
+      {isOpenChallenge && selectedFriend && (
         <ChallengeModal
-          friend={
-            friends[0]
-              ? {
-                  id: friends[0].googleId,
-                  name: friends[0].displayName ?? "",
-                  avatar: friends[0].avatar ?? undefined,
-                  status: "offline", // or set real status if available
-                }
-              : null
-          }
+          friend={{
+            id: selectedFriend.googleId,
+            name: selectedFriend.displayName,
+            avatar: selectedFriend.avatar,
+            status: selectedFriend.status,
+          }}
         />
       )}
     </Card>

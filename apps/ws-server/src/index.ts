@@ -62,6 +62,7 @@ async function setupdWebSocket(): Promise<void> {
       gameManager.addUser(googleId, token, ws);
       ws.send(`You have been successfully connected`);
 
+      // Gets keys like presence:googleId1, presence:googleId2 and send the snap shot to client
       const keys = await pub.keys("presence:*");
       const onlineGoogleIds = keys.map((k) => k.replace("presence:", ""));
       console.log("onlineGoogleIds", onlineGoogleIds);

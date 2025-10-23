@@ -1,5 +1,6 @@
 import { REDIS_PlayerFindingMatch } from "@repo/redis/types";
-import { gameManager } from "../GameManager";
+import { RootManager } from "core/RootManager";
+import { BingoManager } from "games/bingo/BingoManager";
 
 /**
  * Handler for matchmaking messages received via Redis Pub/Sub.
@@ -17,7 +18,7 @@ export function handleMatchmaking(payload: REDIS_PlayerFindingMatch): void {
   console.log("Matchmaking players:", player1.id, player2.id);
 
   try {
-    gameManager.createMatch(player1.id, player2.id);
+    RootManager.getInstance().createBingoGame(player1.id, player2.id);
   } catch (err) {
     console.error("Error creating match:", err);
   }

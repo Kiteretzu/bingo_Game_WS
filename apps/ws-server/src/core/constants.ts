@@ -1,0 +1,35 @@
+export enum GameTypeEnum {
+  BINGO = 'BINGO',
+  MONOPOLY = 'MONOPOLY',
+  CHESS = 'CHESS',
+  CARDS = 'CARDS'
+}
+
+export enum MessageType {
+  // Connection messages
+  CONNECT = 'CONNECT',
+  DISCONNECT = 'DISCONNECT',
+  RECONNECT = 'RECONNECT',
+  
+  // Matchmaking messages
+  START_MATCHMAKING = 'START_MATCHMAKING',
+  CANCEL_MATCHMAKING = 'CANCEL_MATCHMAKING',
+  MATCH_FOUND = 'MATCH_FOUND',
+  
+  // Game messages
+  GAME_ACTION = 'GAME_ACTION',
+  GAME_STATE_UPDATE = 'GAME_STATE_UPDATE',
+  GAME_END = 'GAME_END',
+  
+  // User messages
+  USER_JOIN = 'USER_JOIN',
+  USER_LEAVE = 'USER_LEAVE',
+  USER_RECONNECT = 'USER_RECONNECT'
+}
+
+export const GAME_CONFIG = {
+  RECONNECTION_TIMEOUT: 60000, // 60 seconds
+  HEARTBEAT_INTERVAL: 30000,   // 30 seconds
+  MAX_PLAYERS_PER_GAME: 2,
+  MIN_PLAYERS_TO_START: 2
+} as const;

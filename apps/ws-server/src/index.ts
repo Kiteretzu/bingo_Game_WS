@@ -2,24 +2,30 @@ import { getRedisClient, getRedisSubscriberClient } from "@repo/redis/config";
 import { verifyToken } from "./helpers/helper";
 import http from "http";
 import { WebSocket, WebSocketServer } from "ws";
-// import { STATUS_CODES } from "backend/helpers";
-import { gameManager } from "./GameManager";
+import { RootManager } from "./core/RootManager";
 import { initSubscriptions } from "initPubSub";
+import { Logger } from "./utils/logger";
+import { WebSocketUtils } from "./utils/websocket";
 
 let wss: WebSocketServer;
+let rootManager: RootManager;
 
 // Create WebSocket Server Logic
 async function setupdWebSocket(): Promise<void> {
   const server = http.createServer();
   wss = new WebSocketServer({ server });
+  rootManager = RootManager.getInstance();
+  
   server.listen(4000, () => {
-    console.log("WebSocket server listening on port 4000");
+    Logger.info("WebSocket server listening on port 4000");
   });
 
   await initSubscriptions();
+  
   // Initialize Redis clients for presence tracking
   const pub = await getRedisClient();
   const sub = await getRedisSubscriberClient();
+  
   await sub.subscribe("presence", (message) => {
     const { googleId, isOnline } = JSON.parse(message);
     wss.clients.forEach((client) => {
@@ -38,7 +44,7 @@ async function setupdWebSocket(): Promise<void> {
   wss.on("connection", async (ws: WebSocket, req) => {
     const token = new URLSearchParams(req.url?.split("?")[1]).get("token");
 
-    console.log("Trying to connect", token);
+    Logger.info("New connection attempt", { token: token ? "provided" : "missing" });
 
     if (!token) {
       ws.close(1008, "Unauthorized: No Token");
@@ -52,63 +58,63 @@ async function setupdWebSocket(): Promise<void> {
         ws.close(1008, "Unauthorized: Invalid token or token expired");
         return;
       }
+      
       const { googleId } = decoded;
 
-      if (gameManager.isUserReconnecting(googleId))
-        gameManager.reconnectToGame(googleId, ws);
+      // Check if user is reconnecting to an existing game
+      if (rootManager.isUserReconnecting(googleId)) {
+        Logger.info(`User ${googleId} is reconnecting to existing game`);
+        await rootManager.reconnectUser(googleId, ws, token);
+      } else {
+        // New connection
+        Logger.info(`New user connection: ${googleId}`);
+        await rootManager.addUser(googleId, ws, token);
+      }
 
-      // Add the client to the map and game manager
-      console.log(`Client connected. ID: ${googleId}`);
-      gameManager.addUser(googleId, token, ws);
-      ws.send(`You have been successfully connected`);
+      // Send connection confirmation
+      WebSocketUtils.sendSuccess(ws, "Successfully connected to game server");
 
-      // Gets keys like presence:googleId1, presence:googleId2 and send the snap shot to client
+      // Send presence snapshot
       const keys = await pub.keys("presence:*");
       const onlineGoogleIds = keys.map((k) => k.replace("presence:", ""));
-      console.log("onlineGoogleIds", onlineGoogleIds);
-      ws.send(
-        JSON.stringify({
-          type: "presence-snapshot",
-          onlineUsers: onlineGoogleIds,
-        })
-      );
+      
+      WebSocketUtils.sendMessage(ws, {
+        type: "presence-snapshot",
+        onlineUsers: onlineGoogleIds,
+      });
 
       // Publish online presence
       pub.publish("presence", JSON.stringify({ googleId, isOnline: true }));
       await pub.set(`presence:${googleId}`, "true");
-
 
       ws.on("error", (error: Error) => {
         handleWebSocketError(error, googleId);
       });
 
       ws.on("close", async () => {
-        gameManager.removeUser(googleId);
-        console.log(`Client disconnected. ID: ${googleId}`);
-
+        Logger.info(`Client disconnected: ${googleId}`);
+        
         // Publish offline presence
         pub.publish("presence", JSON.stringify({ googleId, isOnline: false }));
         await pub.del(`presence:${googleId}`);
+        
+        // Note: Don't immediately remove user - let RootManager handle reconnection timeout
       });
+      
     } catch (error) {
+      Logger.error("Connection error:", error);
       ws.close(1008, "Unauthorized: Invalid token or token expired");
     }
   });
 
-  console.log("WebSocket server is running!");
+  Logger.info("WebSocket server is running!");
 }
 
 function handleWebSocketError(error: Error, googleId: string): void {
-  console.error(`Error from client ${googleId}:`, error.message);
-
-  const customError = new CustomError(
-    "Unable to initialize WebSocket connection",
-    STATUS_CODES.WEBSOCKET_SERVER_ERROR || 400, // resolve this
-    "WEBSOCKET_SERVER_ERROR"
-  );
-
-  // Log the error or take further actions here
-  console.error(customError);
+  Logger.error(`Error from client ${googleId}:`, error.message);
+  
+  // You can add custom error handling here
+  // For now, just log the error
 }
 
 export function getWebSocketServer(): WebSocketServer {
@@ -116,6 +122,13 @@ export function getWebSocketServer(): WebSocketServer {
     throw new Error("WebSocket server is not initialized");
   }
   return wss;
+}
+
+export function getRootManager(): RootManager {
+  if (!rootManager) {
+    throw new Error("RootManager is not initialized");
+  }
+  return rootManager;
 }
 
 setupdWebSocket();

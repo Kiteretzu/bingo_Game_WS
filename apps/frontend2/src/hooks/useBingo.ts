@@ -120,6 +120,7 @@ function useBingo() {
 
   // Function to send data over socket
   const sendData = (type: string, payload: any) => {
+    console.log('Message sent ✉️', { type, payload });
     socket.send(JSON.stringify({ type, payload }));
   };
 

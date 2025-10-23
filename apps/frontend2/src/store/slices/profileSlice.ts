@@ -9,6 +9,11 @@ interface BingoProfile {
   league?: string;
 }
 
+interface GameSettings {
+  gameType: "BINGO" | "BINGO-6";
+  matchTier: "A" | "B" | "C" | "D" | "E" | "F";
+}
+
 // Define the profile state type
 interface ProfileState {
   isAuth: boolean;
@@ -16,6 +21,7 @@ interface ProfileState {
   displayName?: string;
   email?: string;
   avatar?: string;
+  gameSettings: GameSettings;
   bingoProfile?: BingoProfile;
 }
 
@@ -32,6 +38,11 @@ const initialState: ProfileState = {
     wins: 0,
     losses: 0,
     league: "",
+  },
+  
+  gameSettings: {
+    gameType: "BINGO",
+    matchTier: "A",
   },
 };
 
@@ -65,6 +76,9 @@ const profileSlice = createSlice({
         };
       }
     },
+    setGameSettings: (state, action: PayloadAction<GameSettings>) => {
+      state.gameSettings = action.payload;
+    },
     logout: () => {
       localStorage.removeItem("auth-token");
       return initialState;
@@ -73,5 +87,5 @@ const profileSlice = createSlice({
 });
 
 // Export actions and reducer
-export const { initialize, logout } = profileSlice.actions;
+export const { initialize, logout, setGameSettings } = profileSlice.actions;
 export default profileSlice.reducer;

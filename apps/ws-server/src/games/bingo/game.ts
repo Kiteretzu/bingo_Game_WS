@@ -32,7 +32,7 @@ import {
 } from "@repo/redis/producers";
 import { WebSocket } from "ws";
 import { gameManager } from "./GameManager";
-import { sendPayload } from "./helpers/wsSend";
+import { sendPayload } from "helpers/wsSend";
 
 // assuming all the sockets are alive
 
@@ -71,8 +71,8 @@ export class Game {
       this.moveCount = 1;
       this.playerData = [p1_data, p2_data];
       this.playerBoards = [
-        new Bingo(playerBoards![0].gameBoard), // need to send
-        new Bingo(playerBoards![1].gameBoard),
+        new Bingo(playerBoards![0]!.gameBoard), // need to send
+        new Bingo(playerBoards![1]!.gameBoard),
       ];
       this.playerGameboardData = [
         {
@@ -94,17 +94,17 @@ export class Game {
       this.playerData = [p1_data, p2_data];
       this.playerGameboardData = [
         {
-          gameBoard: this.playerBoards[0].getGameBoard(),
+          gameBoard: this.playerBoards[0]!.getGameBoard(),
         },
         {
-          gameBoard: this.playerBoards[1].getGameBoard(),
+          gameBoard: this.playerBoards[1]!.getGameBoard(),
         },
       ];
 
       this.tossWinnerId =
         Math.random() < 0.5
-          ? this.playerData[0].user.bingoProfile.id
-          : this.playerData[1].user.bingoProfile.id;
+          ? this.playerData[0]!.user.bingoProfile.id
+          : this.playerData[1]!.user.bingoProfile.id;
 
       this.playerSockets.forEach((socket, index) => {
         const gameData: PAYLOAD_GET_GAME = {
@@ -148,8 +148,8 @@ export class Game {
     const isFirstPlayer = currentPlayerSocket === this.p1_socket;
     return {
       isFirstPlayer,
-      firstPlayerId: this.playerData[0].user.bingoProfile.id,
-      secondPlayerId: this.playerData[1].user.bingoProfile.id,
+      firstPlayerId: this.playerData[0]!.user.bingoProfile.id,
+      secondPlayerId: this.playerData[1]!.user.bingoProfile.id,
       isSecondPlayer: !isFirstPlayer,
       isFirstPlayerTurn: this.moveCount % 2 === 1 && isFirstPlayer,
       isSecondPlayerTurn: this.moveCount % 2 === 0 && !isFirstPlayer,
@@ -167,11 +167,11 @@ export class Game {
   }
 
   private getPlayerContextByUserId(userId: string) {
-    const isFirstPlayer = this.playerData[0].user.googleId === userId;
+    const isFirstPlayer = this.playerData[0]!.user.googleId === userId;
     return {
       gameBoard: isFirstPlayer
-        ? this.playerBoards[0].getGameBoard()
-        : this.playerBoards[1].getGameBoard(),
+        ? this.playerBoards[0]!.getGameBoard()
+        : this.playerBoards[1]!.getGameBoard(),
       oldSocket: isFirstPlayer ? this.p1_socket : this.p2_socket,
     };
   }

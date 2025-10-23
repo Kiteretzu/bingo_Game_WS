@@ -1,80 +1,11 @@
-import React, { useState, useRef, useEffect } from "react";
-import FindMatchButton from "./buttons/FindMatchButton";
 import useBingo from "@/hooks/useBingo";
 import { ChevronDown } from "lucide-react";
-import ReconnectMatchButton from "./buttons/ReconnectButton";
-import ConfirmingMatch from "./ConfirmingMatch";
-
-const GameModeCard = ({ mode, description, selected, onClick }) => (
-  <div
-    className={`p-4 rounded-lg cursor-pointer transition-all ${selected ? "bg-blue-900 border-2 border-blue-500" : "bg-gray-800 border border-gray-700 hover:border-blue-500"}`}
-    onClick={onClick}
-  >
-    <img
-      src="/api/placeholder/200/150"
-      alt={`${mode} game mode`}
-      className="w-full h-32 object-cover rounded-md mb-3 bg-gray-700"
-    />
-    <h3
-      className={`font-semibold text-lg mb-2 ${selected ? "text-blue-300" : "text-gray-200"}`}
-    >
-      {mode}
-    </h3>
-    <p className="text-gray-400 text-sm">{description}</p>
-  </div>
-);
-
-const GameModeDropdown = ({
-  selectedMode,
-  setSelectedMode,
-  gameModes,
-  showModes,
-  setShowModes,
-}) => {
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (event) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-        setShowModes(false);
-      }
-    };
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [setShowModes]);
-
-  return (
-    <div className="w-full relative" ref={dropdownRef}>
-      {showModes && (
-        <div className="absolute bottom-full mb-2 w-full">
-          <div className="grid grid-cols-2 gap-4 relative p-4 min-w-96 bg-gray-900 rounded-lg border border-gray-700 shadow-xl">
-            {gameModes.map((gameMode) => (
-              <GameModeCard
-                key={gameMode.mode}
-                {...gameMode}
-                selected={selectedMode === gameMode.mode}
-                onClick={() => {
-                  setSelectedMode(gameMode.mode);
-                  setShowModes(false);
-                }}
-              />
-            ))}
-          </div>
-        </div>
-      )}
-      <button
-        onClick={() => setShowModes(!showModes)}
-        className="w-full flex items-center justify-between px-4 py-2 bg-gray-800 border border-gray-700 rounded-lg shadow-sm hover:bg-gray-700 transition-colors text-gray-200"
-      >
-        <span className="font-medium">{selectedMode} Mode</span>
-        <ChevronDown
-          className={`transform transition-transform ${showModes ? "rotate-180" : ""}`}
-          size={20}
-        />
-      </button>
-    </div>
-  );
-};
+import { useState } from "react";
+import FindMatchButton from "../../buttons/FindMatchButton";
+import ReconnectMatchButton from "../../buttons/ReconnectButton";
+import ConfirmingMatch from "../../ConfirmingMatch";
+import GameModeDropdown from "./components/GameModeDropdown";
+import { gameModes, tiers } from "./constants";
 
 const FindMatch = () => {
   const {
@@ -88,28 +19,9 @@ const FindMatch = () => {
   const [selectedMode, setSelectedMode] = useState("Classic");
   const [selectedTier, setSelectedTier] = useState("TIER F");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  console.log("allStates 🫂 ", isFinding, isReconnectGame, isMatchFound)
-  
-  const gameModes = [
-    {
-      mode: "Classic",
-      description:
-        "Traditional bingo gameplay with standard rules and patterns.",
-    },
-    {
-      mode: "Speed Run",
-      description:
-        "Fast-paced matches with shorter time limits and quick patterns.",
-    },
-    {
-      mode: "Power Up",
-      description: "Special power-ups and boosters to enhance your gameplay.",
-    },
-    {
-      mode: "Tournament",
-      description: "Compete in bracketed tournaments for greater rewards.",
-    },
-  ];
+  console.log("allStates 🫂 ", isFinding, isReconnectGame, isMatchFound);
+
+
 
   const handleFindMatch = () => {
     findMatch(selectedMode, selectedTier);
@@ -155,14 +67,7 @@ const FindMatch = () => {
             </button>
             {isDialogOpen && (
               <div className="absolute bottom-full mb-2 z-10 right-0 w-full bg-gray-900 border border-gray-700 rounded-lg shadow-lg">
-                {[
-                  "TIER A",
-                  "TIER B",
-                  "TIER C",
-                  "TIER D",
-                  "TIER E",
-                  "TIER F",
-                ].map((tier) => (
+                {tiers.map((tier) => (
                   <button
                     key={tier}
                     type="button"
@@ -211,14 +116,7 @@ const FindMatch = () => {
             </button>
             {isDialogOpen && (
               <div className="absolute bottom-full mb-2 w-full bg-gray-900 border border-gray-700 rounded-lg shadow-lg">
-                {[
-                  "TIER A",
-                  "TIER B",
-                  "TIER C",
-                  "TIER D",
-                  "TIER E",
-                  "TIER F",
-                ].map((tier) => (
+                {tiers.map((tier) => (
                   <button
                     key={tier}
                     type="button"

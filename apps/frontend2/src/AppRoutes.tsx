@@ -16,8 +16,9 @@ export function AppRoutes() {
         <Route path="/profile" element={<TokenPage />} />
         <Route path="/test" element={<Test />} />
         <Route path="/dashboard" element={<ProfilePage />} />
+        {/* NOT priortiy */}
         <Route path="/mobile" element={<Mobile />} />
-        <Route path="/monoply/game" element={<MonopolyGamePage />} />
+        <Route path="/monopoly/game" element={<MonopolyGamePage />} /> 
         <Route path="*" element={<div>404 Not Found</div>} />
       </Routes>
     </BrowserRouter>

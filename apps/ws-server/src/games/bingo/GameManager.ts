@@ -24,8 +24,8 @@ import { gameServices, matchmakingService } from "@repo/redis/services";
 import { v4 as uuidv4 } from "uuid";
 import { WebSocket } from "ws";
 import { REDIS_PlayerFindingMatch } from "@repo/redis/types";
-import { getPlayerData, verifyToken } from "./helpers/helper";
-import { sendPayload } from "./helpers/wsSend";
+import { getPlayerData, verifyToken } from "../../helpers/helper";
+import { sendPayload } from "../../helpers/wsSend";
 import { Game } from "./game";
 
 type GameId = string;

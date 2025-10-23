@@ -7,7 +7,7 @@ import "@/components/test.css";
 import useBingo from "@/hooks/useBingo";
 import MatchFoundScreen from "@/components/dialog/matchFound-dialog";
 import FriendList from "@/components/FriendList";
-import FindMatch from "@/components/FindMatch";
+import FindMatchSection from "@/components/globals/FindMatchSection/";
 import { ExpandableCard } from "@/components/Expandable-cards";
 import { useState, useEffect } from "react";
 
@@ -76,7 +76,7 @@ export default function Dashboard() {
 
         {/* Fixed FindMatch component */}
         <div className="fixed z-30 bottom-4 left-1/2 transform -translate-x-1/2 w-11/12 md:w-auto max-w-full">
-          <FindMatch />
+          <FindMatchSection />
         </div>
       </div>
     </div>

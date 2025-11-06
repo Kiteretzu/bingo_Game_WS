@@ -1,4 +1,4 @@
-import useBingo from "@/hooks/useBingo";
+import { useMatchmaking } from "@/hooks/useMatchmaking";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { setPlayerRecord } from "@/store/slices/bingoSlice";
 import { useGetBingoPlayerRecordsQuery } from "@repo/graphql/types/client";
@@ -10,7 +10,7 @@ function ConfirmingMatch() {
     matchFoundData,
     setIsConfirmedMatch,
     setIsMatchFound,
-  } = useBingo();
+  } = useMatchmaking();
   const againstPlayerId = matchFoundData.find(
     (player) => player.user.bingoProfile.id !== bingoProfileId
   )?.user.bingoProfile.id;

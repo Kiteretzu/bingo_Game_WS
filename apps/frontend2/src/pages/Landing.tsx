@@ -4,7 +4,7 @@ import Leaderboard from "../components/Leaderboard";
 import HowToPlay from "../components/HowToPlay";
 import DeveloperMessage from "../components/DeveloperMessage";
 import "@/components/test.css";
-import useBingo from "@/hooks/useBingo";
+import { useMatchmaking } from "@/hooks/useMatchmaking";
 import MatchFoundScreen from "@/components/dialog/matchFound-dialog";
 import FriendList from "@/components/FriendList";
 import FindMatchSection from "@/components/globals/FindMatchSection/";
@@ -12,7 +12,7 @@ import { ExpandableCard } from "@/components/Expandable-cards";
 import { useState, useEffect } from "react";
 
 export default function Dashboard() {
-  const { isConfirmedMatch } = useBingo();
+  const { isConfirmedMatch } = useMatchmaking();
   const [rowHeight, setRowHeight] = useState(0);
 
   // Calculate row height on client-side only

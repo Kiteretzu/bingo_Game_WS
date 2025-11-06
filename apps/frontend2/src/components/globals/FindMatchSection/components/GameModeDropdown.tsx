@@ -1,4 +1,5 @@
 import { ChevronDown } from "lucide-react";
+import { useEffect, useRef } from "react";
 import GameModeCard from "./GameModeCard";
 
 const GameModeDropdown = ({
@@ -52,13 +53,5 @@ const GameModeDropdown = ({
     </div>
   );
 };
-function useRef<T>(arg0: null) {
-    throw new Error("Function not implemented.");
-}
-
-function useEffect(arg0: () => () => void, arg1: any[]) {
-    throw new Error("Function not implemented.");
-}
-
 
 export default GameModeDropdown;

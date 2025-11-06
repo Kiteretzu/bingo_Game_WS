@@ -11,12 +11,12 @@ import {
 } from "@/components/ui/tooltip";
 import { useNavigate } from "react-router-dom";
 import { useAppSelector } from "@/store/hooks";
-import useBingo from "@/hooks/useBingo";
+import { useMatchmaking } from "@/hooks/useMatchmaking";
 import { PlayerData } from "@repo/messages/message";
 
 export default function MatchFoundScreen() {
     const [countdown, setCountdown] = useState(5);
-    const { matchFoundData: data, setIsMatchFound, bingoProfileId, setIsConfirmedMatch } = useBingo();
+    const { matchFoundData: data, setIsMatchFound, bingoProfileId, setIsConfirmedMatch } = useMatchmaking();
 
 
     // Determine display order so the local player appears first

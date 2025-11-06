@@ -1,4 +1,4 @@
-import useBingo from "@/hooks/useBingo";
+import { useMatchmaking } from "@/hooks/useMatchmaking";
 import { ChevronDown } from "lucide-react";
 import { useState } from "react";
 import FindMatchButton from "../../buttons/FindMatchButton";
@@ -14,17 +14,16 @@ const FindMatch = () => {
     isFinding,
     isReconnectGame,
     isMatchFound,
-  } = useBingo();
+  } = useMatchmaking();
   const [showModes, setShowModes] = useState(false);
   const [selectedMode, setSelectedMode] = useState("Classic");
   const [selectedTier, setSelectedTier] = useState("TIER F");
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  console.log("allStates 🫂 ", isFinding, isReconnectGame, isMatchFound);
 
 
 
   const handleFindMatch = () => {
-    findMatch(selectedMode, selectedTier);
+    findMatch();
   };
 
   return (

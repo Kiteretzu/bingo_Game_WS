@@ -5,13 +5,13 @@ import Leaderboard from "../components/Leaderboard";
 import HowToPlay from "../components/HowToPlay";
 import FriendList from "../components/FriendList";
 import FindMatch from "../components/globals/FindMatchSection/FindMatchSection";
-import useBingo from "@/hooks/useBingo";
+import { useMatchmaking } from "@/hooks/useMatchmaking";
 import MatchFoundScreen from "@/components/dialog/matchFound-dialog";
 import { ExpandableCard } from "@/components/Expandable-cards";
 import "@/components/test.css";
 
 export default function MobileDashboard() {
-  const { isConfirmedMatch } = useBingo();
+  const { isConfirmedMatch } = useMatchmaking();
   const [activeTab, setActiveTab] = useState("home");
 
   const renderContent = () => {

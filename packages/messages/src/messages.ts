@@ -369,3 +369,5 @@ export interface EndGame {
   };
   gameEndMethod: GameEndMethod;
 }
+
+

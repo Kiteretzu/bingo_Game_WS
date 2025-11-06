@@ -1,12 +1,10 @@
 import { useEffect, useState } from "react";
 import { useSocketContext } from "@/context/SocketContext";
+import { registerMessageHandler } from "./useSocket";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { initialGameboard, setUpdatedGame } from "@/store/slices/bingoSlice";
 import {
-  PUT_GAME_INIT,
-  PUT_CANCEL_GAME_INIT,
   PUT_CHECK_MARK,
-  GET_GAME,
   GET_RESPONSE,
   GET_CHECK_MARK,
   GET_VICTORY,
@@ -21,16 +19,13 @@ import {
   GET_RECONNECT,
   PAYLOAD_GET_RECONNECT,
   GET_REFRESH,
-  PUT_CHALLENGE,
   GET_CHALLENGE,
   PAYLOAD_PUT_ADD_FRIEND,
   PUT_ADD_FRIEND,
-  PAYLOAD_PUT_GAME_INIT,
   BoxesValue,
   PAYLOAD_PUT_SEND_EMOTE,
   GET_ADD_FRIEND,
   MessageType,
-  PAYLOAD_GET_GAME,
   PAYLOAD_GET_RESPONSE,
   PAYLOAD_PUT_GET_CHECK_MARK,
   PAYLOAD_GET_VICTORY,
@@ -44,7 +39,6 @@ import { useApolloClient } from "@apollo/client";
 import {
   GetAllFriendRequestsDocument,
   GetGameHistoryDocument,
-  useGetBingoPlayerRecordsQuery,
 } from "@repo/graphql/types/client";
 
 function useBingo() {
@@ -73,16 +67,12 @@ function useBingo() {
   const {
     setIsVictory,
     isLost,
-    isMatchFound,
     isReconnectGame,
     setIsReconnectGame,
     isVictory,
     lostData,
-    matchFoundData,
     setIsLost,
-    setIsMatchFound,
     setLostData,
-    setMatchFoundData,
     setVictoryData,
     victoryData,
     emote,
@@ -91,8 +81,6 @@ function useBingo() {
     setEmote,
     isOpenAddFriend,
     setIsOpenAddFriend,
-    isConfirmedMatch,
-    setIsConfirmedMatch,
   } = useDialogContext();
   // Sync Redux state for game-related logic
   const gameId = bingoState.gameId;
@@ -111,7 +99,6 @@ function useBingo() {
   let lastValue = ""; // i think bug state here
   const [response, setResponse] = useState<string>("");
   const [gameLoading, setGameLoading] = useState<boolean>(true);
-  const [isFinding, setIsFinding] = useState<boolean>(false);
 
   const client = useApolloClient();
 
@@ -119,7 +106,7 @@ function useBingo() {
   const displayName = useAppSelector((state) => state.profile.displayName);
 
   // Function to send data over socket
-  const sendData = (type: string, payload: any) => {
+  const sendData = (type: string, payload: Record<string, unknown>) => {
     console.log('Message sent ✉️', { type, payload });
     socket.send(JSON.stringify({ type, payload }));
   };
@@ -130,16 +117,16 @@ function useBingo() {
     }
   }, [gameBoard]);
 
-  // Handle receiving socket messages
+  // Handle receiving socket messages using centralized callback system
   useEffect(() => {
     if (!socket) return;
 
-    socket.onmessage = (message: MessageEvent) => {
-      const parsedMessage = JSON.parse(message.data);
-      console.log("this is parsed onMessage", parsedMessage);
-      switch (parsedMessage.type as MessageType) {
+    // Register message handler callback
+    const unsubscribe = registerMessageHandler((parsedMessage) => {
+      const message = parsedMessage as { type: MessageType; payload?: unknown };
+      switch (message.type as MessageType) {
         case GET_RESPONSE: {
-          const data = parsedMessage as PAYLOAD_GET_RESPONSE;
+          const data = parsedMessage as unknown as PAYLOAD_GET_RESPONSE;
           setResponse(data.payload.message);
           console.log("RESPONSE:", data.payload.message);
           if (data.payload.message === "Ping") {
@@ -152,23 +139,13 @@ function useBingo() {
           }
           break;
         }
-        case GET_GAME: {
-          const data = parsedMessage as PAYLOAD_GET_GAME;
-          console.log("this the get game DATA", data);
-          setIsFinding(false); // removing -> ui
-          dispatch(initialGameboard(data));
-          setIsMatchFound(true); // giving ui -> CONFIRMING MATCH
-          setMatchFoundData(data.payload.players); // contextApi
-          // setIsReconnectGame(true); // will be set in when confirmedMatch === true
-          break;
-        }
         case GET_CHECK_MARK: {
-          const data = parsedMessage as PAYLOAD_PUT_GET_CHECK_MARK;
+          const data = parsedMessage as unknown as PAYLOAD_PUT_GET_CHECK_MARK;
           lastValue = data.payload.value; // i think bug state here
           break;
         }
         case GET_VICTORY: {
-          const data = parsedMessage as PAYLOAD_GET_VICTORY;
+          const data = parsedMessage as unknown as PAYLOAD_GET_VICTORY;
           setVictoryData(data.payload);
           setIsVictory(true);
           setIsReconnectGame(false);
@@ -177,7 +154,7 @@ function useBingo() {
           break;
         }
         case GET_LOST: {
-          const data = parsedMessage as PAYLOAD_GET_LOST;
+          const data = parsedMessage as unknown as PAYLOAD_GET_LOST;
           setLostData(data.payload);
           setIsLost(true);
           setIsReconnectGame(false);
@@ -188,18 +165,18 @@ function useBingo() {
           break;
         }
         case GET_RECIEVE_EMOTE: {
-          const data = parsedMessage as PAYLOAD_GET_RECIEVE_EMOTE;
+          const data = parsedMessage as unknown as PAYLOAD_GET_RECIEVE_EMOTE;
           setEmote(data.payload.emote);
           break;
         }
         case GET_UPDATED_GAME: {
-          const data = parsedMessage as PAYLOAD_GET_UPDATED_GAME;
+          const data = parsedMessage as unknown as PAYLOAD_GET_UPDATED_GAME;
           dispatch(setUpdatedGame(data));
 
           break;
         }
         case GET_RECONNECT: {
-          const data = parsedMessage as PAYLOAD_GET_RECONNECT;
+          const data = parsedMessage as unknown as PAYLOAD_GET_RECONNECT;
           console.log("THIS IS BINGO!! RECONNCET and data is", data);
           setIsReconnectGame(true);
           dispatch(initialGameboard(data));
@@ -207,7 +184,6 @@ function useBingo() {
           break;
         }
         case GET_REFRESH: {
-          cancelFindMatch();
           // refresh the page
           window.location.reload();
 
@@ -231,33 +207,11 @@ function useBingo() {
           break;
         }
       }
-    };
-  }, [socket, dispatch]);
+    });
 
-  const findMatch = (selectedMode: string, selectedTier: string) => {
-    setIsFinding(true);
-    const token = localStorage.getItem("auth-token");
-    if (token) {
-      const data: PAYLOAD_PUT_GAME_INIT["payload"] = {
-        token,
-        gameType:
-          selectedMode == "Classic" ? "BINGO" : (selectedMode as "BINGO"),
-        matchTier: selectedTier.split(" ")[1] as
-          | "A"
-          | "B"
-          | "C"
-          | "D"
-          | "E"
-          | "F",
-      }; // it must come from authenticated user that it is not jwt expired
-      sendData(PUT_GAME_INIT, data);
-    }
-  };
-
-  const cancelFindMatch = () => {
-    setIsFinding(false);
-    sendData(PUT_CANCEL_GAME_INIT, {});
-  };
+    // Cleanup: unregister handler when component unmounts or socket changes
+    return unsubscribe;
+  }, [socket, dispatch, displayName, client]);
 
   const addCheck = (value: BoxesValue) => {
     const data: PAYLOAD_PUT_GET_CHECK_MARK["payload"] = { gameId, value };
@@ -293,10 +247,7 @@ function useBingo() {
     bingoProfileId,
     checkedBoxes,
     checkedLines,
-    isFinding,
     gameId,
-    isMatchFound,
-    matchFoundData,
     gameLoading,
     response,
     emote,
@@ -315,22 +266,17 @@ function useBingo() {
     isReconnectGame,
     isOpenChallenge,
     isOpenAddFriend,
-    isConfirmedMatch,
     isAuth,
     isGameStarted,
     isTossWinner,
-    setIsConfirmedMatch,
     handleAddFriend,
     handleTossDecision,
     setIsReconnectGame,
     setIsVictory, // for dialog
     setIsLost, // for dialog
-    setIsMatchFound, // to turn off dialog after you go back to homePage
-    findMatch,
     sendResign,
     addCheck,
     sendEmote,
-    cancelFindMatch,
     setIsOpenChallenge,
     setIsOpenAddFriend,
   };

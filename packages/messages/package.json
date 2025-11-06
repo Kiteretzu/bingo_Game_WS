@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "main": "index.js",
   "exports": {
-    "./message": "./src/messages.ts"
+    "./message": "./src/messages.ts",
+    "./v2/message": "./src/v2/messages.ts"
+
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

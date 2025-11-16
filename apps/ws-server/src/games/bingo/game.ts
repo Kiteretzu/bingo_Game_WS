@@ -56,6 +56,7 @@ export class BingoGame implements IGame {
     console.log("handleAction", payload, userId);
     switch (payload.type) {
       case BingoGameActionType.PUT_CHECK_MARK:
+        this.addCheck(userId, payload.payload.value);
         break;
       // case "RESIGN":
       //   // action.payload should have gameId
@@ -198,7 +199,7 @@ export class BingoGame implements IGame {
     };
   }
 
-  private getContextByUserId(userId: string) {
+  private getContextByUserId(userId: string)  {
     const isFirstPlayer = this.playerData[0]!.user.googleId === userId;
     return {
       isFirstPlayer,
@@ -505,7 +506,6 @@ export class BingoGame implements IGame {
       }
     }
     bingoManager.removeGame(this.gameId);
-    bingoManager.removeUserToGame(this.gameId);
   }
 
   private updatePlayerBoards(value: BoxesValue) {
@@ -523,10 +523,12 @@ export class BingoGame implements IGame {
     sendPayload(opponentSocket, GET_CHECK_MARK, checkMarkData);
   }
 
-  private saveMove(currentPlayerSocket: WebSocket, value: BoxesValue) {
-    const { isFirstPlayerTurn, firstPlayerId, secondPlayerId } =
-      this.getPlayerContext(currentPlayerSocket);
-
+  private saveMove(
+    isFirstPlayerTurn: boolean,
+    firstPlayerId: string,
+    secondPlayerId: string,
+    value: BoxesValue
+  ) {
     const moveData: MatchHistory[0] = {
       move: this.moveCount,
       value,
@@ -584,7 +586,33 @@ export class BingoGame implements IGame {
     }
   }
 
-  addCheck(currentPlayerSocket: WebSocket, value: BoxesValue) {
+  addCheck(userId: string, value: BoxesValue) {
+    const { 
+      currentPlayerSocket, 
+      isFirstPlayerTurn, 
+      isSecondPlayerTurn, 
+      currentPlayerBoard, 
+      opponentPlayerBoard, 
+      opponentPlayerSocket,
+      firstPlayerId,
+      secondPlayerId
+    } = this.getContextByUserId(userId);
+    
+    if (!currentPlayerSocket) {
+      console.error("Player socket not found for userId:", userId);
+      return;
+    }
+    
+    if (!opponentPlayerSocket) {
+      console.error("Opponent socket not found for userId:", userId);
+      return;
+    }
+    
+    if (!currentPlayerBoard || !opponentPlayerBoard) {
+      console.error("Player boards not found for userId:", userId);
+      return;
+    }
+    
     if (Number(value) > 25) {
       sendPayload(
         currentPlayerSocket,
@@ -593,14 +621,6 @@ export class BingoGame implements IGame {
       );
       return;
     }
-
-    const {
-      isFirstPlayerTurn,
-      isSecondPlayerTurn,
-      currentPlayerBoard,
-      opponentPlayerBoard,
-      opponentPlayerSocket,
-    } = this.getPlayerContext(currentPlayerSocket);
 
     if (!(isFirstPlayerTurn || isSecondPlayerTurn)) {
       sendPayload(
@@ -613,16 +633,13 @@ export class BingoGame implements IGame {
 
     try {
       // Add the value to the player's board
-
-      console.log("hello!?");
-
       this.updatePlayerBoards(value);
 
       // Notify the opponent about the move
       this.notifyOpponent(opponentPlayerSocket, value);
 
       // Save the move in the database and moveHistory
-      this.saveMove(currentPlayerSocket, value);
+      this.saveMove(isFirstPlayerTurn, firstPlayerId, secondPlayerId, value);
 
       //check for first blood
       if (!this.gotFirstBlood) {
@@ -645,7 +662,6 @@ export class BingoGame implements IGame {
   }
 
   tossDecision(userId: string, decision: TossDecision) {
-    // There is no userId property on WebSocket. Find socket index by userId in playerData.
 
     console.log('before toss decision', this.playerData[0]?.user.displayName, this.playerData[1]?.user.displayName);
     const { isFirstPlayer } = this.getContextByUserId(userId);

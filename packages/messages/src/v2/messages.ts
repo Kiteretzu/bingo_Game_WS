@@ -38,10 +38,6 @@ export enum TossDecision {
   }
 
 
-
-
-
-
 export interface PAYLOAD_BINGO_PUT_TOSS_DECISION {
     type: BingoGameActionType.PUT_TOSS_DECISION;
     payload: {

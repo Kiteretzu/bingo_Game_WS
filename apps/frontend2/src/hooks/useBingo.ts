@@ -215,6 +215,16 @@ function useBingo() {
   }, [socket, dispatch, displayName, client]);
 
   const addCheck = (value: BoxesValue) => {
+
+    sendRootMessage({
+      type: RootMessageType.GAME_ACTION,
+      gameType: GameType.BINGO,
+      payload: {
+        type: BingoGameActionType.PUT_CHECK_MARK,
+        payload: { gameId, value },
+      },
+    });
+
     const data: PAYLOAD_PUT_GET_CHECK_MARK["payload"] = { gameId, value };
     sendData(BingoGameActionType.PUT_CHECK_MARK, data);
   };

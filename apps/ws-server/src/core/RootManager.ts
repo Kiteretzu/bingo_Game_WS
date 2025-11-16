@@ -195,10 +195,6 @@ export class RootManager {
         this.handleCancelGameInit(userId);
         break;
         
-      // case PUT_CHECK_MARK:
-      //   this.handleCheckMark(userId, payload);
-      //   break;
-        
       case PUT_RESIGN:
         this.handleResign(userId, payload);
         break;
@@ -286,16 +282,6 @@ export class RootManager {
   
   private handleCancelGameInit(userId: UserId): void {
     this.cancelMatchmaking(userId, GameTypeEnum.BINGO);
-  }
-  
-  private handleCheckMark(userId: UserId, payload: any): void {
-    const manager = this.gameManagers.get(GameTypeEnum.BINGO);
-    if (manager) {
-      const game = manager.getGameByUserId(userId);
-      if (game) {
-        game.handleAction(userId, { type: 'CHECK_BOX', payload });
-      }
-    }
   }
   
   private handleResign(userId: UserId, payload: any): void {

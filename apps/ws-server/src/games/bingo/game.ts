@@ -58,15 +58,9 @@ export class BingoGame implements IGame {
       case BingoGameActionType.PUT_CHECK_MARK:
         this.addCheck(userId, payload.payload.value);
         break;
-      // case "RESIGN":
-      //   // action.payload should have gameId
-      //   // End game and mark user as resigned
-      //   // this.resignPlayer(userId);
-      //   break;
-      // case "SEND_EMOTE":
-      //   // action.payload should have { emote, gameId }
-      //   // this.sendEmoteToOpponent(userId, action.payload.emote);
-      //   break;
+      case BingoGameActionType.PUT_RESIGN:
+        this.endGame(userId, GameEndMethod.RESIGNATION);
+        break;
       case BingoGameActionType.PUT_TOSS_DECISION:
         this.tossDecision(userId, payload.payload.decision);
   
@@ -104,10 +98,10 @@ export class BingoGame implements IGame {
       ];
       this.playerGameboardData = [
         {
-          gameBoard: playerBoards![0].gameBoard,
+          gameBoard: playerBoards![0]!.gameBoard,
         },
         {
-          gameBoard: playerBoards![1].gameBoard,
+          gameBoard: playerBoards![1]!.gameBoard,
         },
       ];
 
@@ -141,7 +135,7 @@ export class BingoGame implements IGame {
             gameId: this.gameId,
             tossWinnerId: this.tossWinnerId,
             players: this.playerData,
-            gameBoard: this.playerBoards[index].getGameBoard(),
+            gameBoard: this.playerBoards[index]!.getGameBoard(),
             isGameStarted: this.gameStarted,
           },
         };
@@ -253,7 +247,7 @@ export class BingoGame implements IGame {
     let perfectionistPoints = 0;
     let rampagePoints = 0;
 
-    const goals = currentPlayerBoard.getGoals();
+    const goals = currentPlayerBoard!.getGoals();
     goals.forEach((goal) => {
       switch (goal.goalName) {
         case GoalType.FIRST_BLOOD: {
@@ -290,7 +284,7 @@ export class BingoGame implements IGame {
     });
 
     if (gameEndMethod == GameEndMethod.RESIGNATION) {
-      const linesLeft = 5 - opponentPlayerBoard.LineCount;
+      const linesLeft = 5 - opponentPlayerBoard!.LineCount;
       // early resignation will be punished with default value of lossingBasePoints
       if (linesLeft === 1) {
         console.log("before Lossing points", baseLosingPoints);
@@ -333,7 +327,7 @@ export class BingoGame implements IGame {
     };
   }
 
-  private bingoEndGame(socket: WebSocket): EndGame | null {
+  private bingoEndGame(userId: string): EndGame | null {
     const {
       currentPlayerBoard,
       opponentPlayerBoard,
@@ -341,7 +335,7 @@ export class BingoGame implements IGame {
       opponentPlayerSocket,
       currentPlayer,
       opponentPlayer,
-    } = this.getPlayerContext(socket);
+    } = this.getContextByUserId(userId);
     const VictoryPayload: PAYLOAD_GET_VICTORY["payload"] = {
       method: GameEndMethod.BINGO,
       message: "Bingo! You won!",
@@ -352,66 +346,66 @@ export class BingoGame implements IGame {
       message: "You lost! Your opponent won the game.",
       data: null,
     };
-    if (currentPlayerBoard.isVictory()) {
-      const { winnerMMR, loserMMR } = this.mmrAllocation(currentPlayerSocket);
+    if (currentPlayerBoard!.isVictory()) {
+      const { winnerMMR, loserMMR } = this.mmrAllocation(currentPlayerSocket!);
       console.log("Current player won");
 
-      sendPayload(currentPlayerSocket, GET_VICTORY, {
+      sendPayload(currentPlayerSocket!, GET_VICTORY, {
         ...VictoryPayload,
         data: winnerMMR,
       });
-      sendPayload(opponentPlayerSocket, GET_LOST, {
+      sendPayload(opponentPlayerSocket!, GET_LOST, {
         ...LostPayload,
         data: loserMMR,
       });
-      opponentPlayerBoard.setGameOver(true);
+      opponentPlayerBoard!.setGameOver(true);
 
       return {
         winner: {
-          id: currentPlayer.user.bingoProfile.id,
+          id: currentPlayer!.user.bingoProfile.id,
           winnerMMR,
-          winnerGoal: currentPlayerBoard.getGoals(),
+          winnerGoal: currentPlayerBoard!.getGoals(),
 
-          lineCount: currentPlayerBoard.LineCount,
+          lineCount: currentPlayerBoard!.LineCount,
         },
         loser: {
-          id: opponentPlayer.user.bingoProfile.id,
+          id: opponentPlayer!.user.bingoProfile.id,
           loserMMR,
-          loserGoal: opponentPlayerBoard.getGoals(),
-          lineCount: opponentPlayerBoard.LineCount,
+          loserGoal: opponentPlayerBoard!.getGoals(),
+          lineCount: opponentPlayerBoard!.LineCount,
         },
         gameEndMethod: GameEndMethod.BINGO,
       };
-    } else if (opponentPlayerBoard.isVictory()) {
+    } else if (opponentPlayerBoard!.isVictory()) {
       const { winnerMMR, loserMMR } = this.mmrAllocation(opponentPlayerSocket);
       console.log("Opponent player won");
 
-      sendPayload(opponentPlayerSocket, GET_VICTORY, {
+      sendPayload(opponentPlayerSocket!, GET_VICTORY, {
         ...VictoryPayload,
         goals: winnerMMR,
       });
-      sendPayload(currentPlayerSocket, GET_LOST, {
+      sendPayload(currentPlayerSocket!, GET_LOST, {
         ...LostPayload,
         data: loserMMR,
       });
-      currentPlayerBoard.setGameOver(true);
+      currentPlayerBoard!.setGameOver(true);
 
       return {
         winner: {
-          id: opponentPlayer.user.bingoProfile.id,
+          id: opponentPlayer!.user.bingoProfile.id,
           winnerMMR,
           winnerGoal: {
-            ...opponentPlayerBoard.getGoals(),
+            ...opponentPlayerBoard!.getGoals(),
           },
-          lineCount: opponentPlayerBoard.LineCount,
+          lineCount: opponentPlayerBoard!.LineCount,
         },
         loser: {
-          id: currentPlayer.user.bingoProfile.id,
+          id: currentPlayer!.user.bingoProfile.id,
           loserMMR,
           loserGoal: {
-            ...currentPlayerBoard.getGoals(),
+            ...currentPlayerBoard!.getGoals(),
           },
-          lineCount: currentPlayerBoard.LineCount,
+          lineCount: currentPlayerBoard!.LineCount,
         },
         gameEndMethod: GameEndMethod.BINGO,
       };
@@ -453,32 +447,32 @@ export class BingoGame implements IGame {
 
     return {
       winner: {
-        id: opponentPlayer.user.bingoProfile.id,
-        lineCount: opponentPlayerBoard.LineCount,
+        id: opponentPlayer!.user.bingoProfile.id,
+        lineCount: opponentPlayerBoard!.LineCount,
         winnerMMR: winnerMMR,
-        winnerGoal: opponentPlayerBoard.getGoals(),
+        winnerGoal: opponentPlayerBoard!.getGoals(),
       },
       loser: {
-        id: currentPlayer.user.bingoProfile.id,
-        lineCount: currentPlayerBoard.LineCount,
+        id: currentPlayer!.user.bingoProfile.id,
+        lineCount: currentPlayerBoard!.LineCount,
         loserMMR: loserMMR,
-        loserGoal: currentPlayerBoard.getGoals(),
+        loserGoal: currentPlayerBoard!.getGoals(),
       },
       gameEndMethod: GameEndMethod.RESIGNATION,
     };
   }
 
   private endGame(
-    currentPlayerSocket: WebSocket,
+    userId: string,
     gameEndMethod: GameEndMethod
   ) {
     // Use BingoManager singleton
     const bingoManager = BingoManager.getInstance();
-
+    const { currentPlayerSocket } = this.getContextByUserId(userId);
     switch (gameEndMethod) {
       case GameEndMethod.BINGO: {
         const { winner, loser, gameEndMethod } =
-          this.bingoEndGame(currentPlayerSocket)!;
+          this.bingoEndGame(userId)!;
         // save this to end result
         redis_saveEndGame({
           gameId: this.gameId,
@@ -490,7 +484,7 @@ export class BingoGame implements IGame {
       }
       case GameEndMethod.RESIGNATION: {
         const { winner, loser, gameEndMethod } =
-          this.resignationEndGame(currentPlayerSocket);
+          this.resignationEndGame(currentPlayerSocket!);
         // save this to end result
         redis_saveEndGame({
           gameId: this.gameId,
@@ -545,10 +539,10 @@ export class BingoGame implements IGame {
       const updatedGameData: PAYLOAD_GET_UPDATED_GAME = {
         type: GET_UPDATED_GAME,
         payload: {
-          goals: this.playerBoards[index].getGoals(),
+          goals: this.playerBoards[index]!.getGoals(),
           checks: {
-            checkedBoxes: this.playerBoards[index].getCheckBoxes(),
-            checkedLines: this.playerBoards[index].getLineCheckBoxes(),
+            checkedBoxes: this.playerBoards[index]!.getCheckBoxes(),
+            checkedLines: this.playerBoards[index]!.getLineCheckBoxes(),
           },
           matchHistory: this.matchHistory,
           isGameStarted: this.gameStarted,
@@ -653,7 +647,7 @@ export class BingoGame implements IGame {
 
       // check if game is won by "Bingo" win method
       if (currentPlayerBoard.isGameOver() || opponentPlayerBoard.isGameOver()) {
-        this.endGame(currentPlayerSocket, GameEndMethod.BINGO);
+        this.endGame(userId, GameEndMethod.BINGO);
       }
     } catch (error: any) {
       console.error("ERROR", error);
@@ -704,9 +698,6 @@ export class BingoGame implements IGame {
     this.broadcastUpdatedGame();
   }
 
-  resign(currentPlayerSocket: WebSocket) {
-    this.endGame(currentPlayerSocket, GameEndMethod.RESIGNATION);
-  }
 
   sendEmote(currentPlayerSocket: WebSocket, emote: string) {
     const { opponentPlayerSocket } = this.getPlayerContext(currentPlayerSocket);

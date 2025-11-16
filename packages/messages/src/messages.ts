@@ -78,7 +78,6 @@ export enum MessageType {
   PUT_GAME_INIT = "put_game_init",
   PUT_CANCEL_GAME_INIT = "put_cancel_game_init",
   PUT_VALUE_TO_BOX = "put_value_to_box",
-  PUT_RESIGN = "put_resign",
   PUT_SEND_EMOTE = "put_send_emote",
   PUT_CHALLENGE = "put_challange",
   PUT_ADD_FRIEND = "put_add_friend",
@@ -107,7 +106,6 @@ export const RESPONSE_WAITING_PLAYER = "Waiting for another player...";
 export const PUT_GAME_INIT = MessageType.PUT_GAME_INIT;
 export const PUT_CANCEL_GAME_INIT = MessageType.PUT_CANCEL_GAME_INIT;
 export const PUT_VALUE_TO_BOX = MessageType.PUT_VALUE_TO_BOX;
-export const PUT_RESIGN = MessageType.PUT_RESIGN;
 export const GET_CHECK_MARK = MessageType.GET_CHECK_MARK;
 export const GET_RESPONSE = MessageType.GET_RESPONSE;
 export const GET_GAME = MessageType.GET_GAME;

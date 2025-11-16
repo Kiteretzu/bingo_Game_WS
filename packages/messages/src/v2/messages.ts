@@ -12,10 +12,8 @@ export enum GameType {
 export enum BingoGameActionType {
     PUT_TOSS_DECISION = "bingo_put_toss_decision",
     PUT_CHECK_MARK = "bingo_put_check_mark",
-
+    PUT_RESIGN = "bingo_put_resign",
 }
-export const PUT_TOSS_DECISION = BingoGameActionType.PUT_TOSS_DECISION;
-export const PUT_CHECK_MARK = BingoGameActionType.PUT_CHECK_MARK;
 
 
 export type BingoGameActionPayload = {

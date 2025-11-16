@@ -13,8 +13,6 @@ import {
   PAYLOAD_GET_RECIEVE_EMOTE,
   GET_UPDATED_GAME,
   PAYLOAD_GET_UPDATED_GAME,
-  PUT_RESIGN,
-  PAYLOAD_PUT_RESIGN,
   GET_RECONNECT,
   PAYLOAD_GET_RECONNECT,
   GET_REFRESH,
@@ -235,8 +233,14 @@ function useBingo() {
   };
 
   const sendResign = () => {
-    const data: PAYLOAD_PUT_RESIGN["payload"] = { gameId };
-    sendData(PUT_RESIGN, data);
+    sendRootMessage({
+      type: RootMessageType.GAME_ACTION,
+      gameType: GameType.BINGO,
+      payload: {
+        type: BingoGameActionType.PUT_RESIGN,
+        payload: { gameId },
+      },
+    });
   };
 
   const handleAddFriend = (data: PAYLOAD_PUT_ADD_FRIEND["payload"]) => {

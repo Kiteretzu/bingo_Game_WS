@@ -49,8 +49,6 @@ export class RootManager {
   
   // User management
   public async addUser(userId: UserId, socket: WebSocket, token?: string): Promise<void> {
-
-    
     // If token provided, get player data (for backward compatibility)
     if (token) {
       try {
@@ -167,7 +165,7 @@ export class RootManager {
       WebSocketUtils.sendError(socket, 'Invalid message format');
       return;
     }
-    
+
     const { type, gameType, payload } = message;
     
     Logger.gameAction('', userId, type, payload);
@@ -195,9 +193,9 @@ export class RootManager {
         this.handleCancelGameInit(userId);
         break;
         
-      case PUT_RESIGN:
-        this.handleResign(userId, payload);
-        break;
+      // case PUT_RESIGN:
+      //   this.handleResign(userId, payload);
+      //   break;
         
       case PUT_SEND_EMOTE:
         this.handleSendEmote(userId, payload);

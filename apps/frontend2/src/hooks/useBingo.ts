@@ -4,7 +4,6 @@ import { registerMessageHandler } from "./useSocket";
 import { useAppDispatch, useAppSelector } from "@/store/hooks";
 import { initialGameboard, setUpdatedGame } from "@/store/slices/bingoSlice";
 import {
-  PUT_CHECK_MARK,
   GET_RESPONSE,
   GET_CHECK_MARK,
   GET_VICTORY,
@@ -30,9 +29,6 @@ import {
   PAYLOAD_PUT_GET_CHECK_MARK,
   PAYLOAD_GET_VICTORY,
   PAYLOAD_GET_LOST,
-  PAYLOAD_PUT_TOSS_DECISION,
-  PUT_TOSS_DECISION,
-  TossDecision,
 } from "@repo/messages/message";
 import { useDialogContext } from "@/context/DialogContext";
 import { useApolloClient } from "@apollo/client";
@@ -40,6 +36,8 @@ import {
   GetAllFriendRequestsDocument,
   GetGameHistoryDocument,
 } from "@repo/graphql/types/client";
+import useSocketClient from "./useSocketClient";
+import { BingoGameActionType, GameType, RootMessageType, TossDecision } from "@repo/messages/v2/message";
 
 function useBingo() {
   const bingoState = useAppSelector((state) => ({
@@ -101,6 +99,9 @@ function useBingo() {
   const [gameLoading, setGameLoading] = useState<boolean>(true);
 
   const client = useApolloClient();
+  const {sendRootMessage} = useSocketClient();
+  // for sending message
+
 
   // delete this later on
   const displayName = useAppSelector((state) => state.profile.displayName);
@@ -215,7 +216,7 @@ function useBingo() {
 
   const addCheck = (value: BoxesValue) => {
     const data: PAYLOAD_PUT_GET_CHECK_MARK["payload"] = { gameId, value };
-    sendData(PUT_CHECK_MARK, data);
+    sendData(BingoGameActionType.PUT_CHECK_MARK, data);
   };
 
   const sendEmote = (emote: string) => {
@@ -232,14 +233,16 @@ function useBingo() {
     sendData(PUT_ADD_FRIEND, data);
   };
 
+
   const handleTossDecision = (decision: "FIRST" | "SECOND") => {
-    const data: PAYLOAD_PUT_TOSS_DECISION["payload"] = {
-      decision:
-        decision === "FIRST"
-          ? TossDecision.TOSS_GO_FIRST
-          : TossDecision.TOSS_GO_SECOND,
-    };
-    sendData(PUT_TOSS_DECISION, data);
+      sendRootMessage({
+        type: RootMessageType.GAME_ACTION,
+        gameType: GameType.BINGO,
+        payload: {
+          type: BingoGameActionType.PUT_TOSS_DECISION,
+          payload: { decision: decision === "FIRST" ? TossDecision.TOSS_GO_FIRST : TossDecision.TOSS_GO_SECOND },
+        },
+      });
   };
 
   return {

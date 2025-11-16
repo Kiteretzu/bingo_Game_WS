@@ -22,8 +22,9 @@ import {
   PAYLOAD_PUT_GET_CHECK_MARK,
   PlayerData,
   PlayerGameboardData,
-  TossDecision,
 } from "@repo/messages/message";
+import { BingoManager } from "./BingoManager";
+
 import {
   redis_addMove,
   redis_newGame,
@@ -31,13 +32,15 @@ import {
   redis_tossGameUpdate,
 } from "@repo/redis/producers";
 import { WebSocket } from "ws";
-import { gameManager } from "./GameManager";
+
 import { sendPayload } from "helpers/wsSend";
+import { IGame } from "games/base/IGame";
+import { GameId } from "core/types";
+import { BingoGameActionPayload, BingoGameActionType, TossDecision } from "@repo/messages/v2/message";
 
 // assuming all the sockets are alive
-
-export class Game {
-  public gameId: string;
+export class BingoGame implements IGame {
+  public gameId: GameId;
   public p1_socket: WebSocket | null;
   public p2_socket: WebSocket | null;
   public playerData: PlayerData[];
@@ -49,6 +52,30 @@ export class Game {
   public gotFirstBlood: boolean = false;
   public matchHistory: MatchHistory = [];
   public gameStarted: boolean = false;
+  public handleAction(userId: string, payload: BingoGameActionPayload): void {
+    console.log("handleAction", payload, userId);
+    switch (payload.type) {
+      case BingoGameActionType.PUT_CHECK_MARK:
+        break;
+      // case "RESIGN":
+      //   // action.payload should have gameId
+      //   // End game and mark user as resigned
+      //   // this.resignPlayer(userId);
+      //   break;
+      // case "SEND_EMOTE":
+      //   // action.payload should have { emote, gameId }
+      //   // this.sendEmoteToOpponent(userId, action.payload.emote);
+      //   break;
+      case BingoGameActionType.PUT_TOSS_DECISION:
+        this.tossDecision(userId, payload.payload.decision);
+  
+        break;
+      default:
+        // Optionally log or handle unknown action types
+        // console.warn(`Unknown action type in BingoGame:`, action.type);
+        break;
+    }
+  }
 
   constructor(
     gameId: string,
@@ -139,11 +166,16 @@ export class Game {
     });
   }
 
+  
   // maybe we dont need this
   // saveInRedis() {
   //   gameServices.test(this);
   // }
 
+
+/**
+ * @deprecated
+ */
   private getPlayerContext(currentPlayerSocket: WebSocket) {
     const isFirstPlayer = currentPlayerSocket === this.p1_socket;
     return {
@@ -162,6 +194,28 @@ export class Game {
         ? this.playerBoards[1]
         : this.playerBoards[0],
       currentPlayerSocket,
+      opponentPlayerSocket: isFirstPlayer ? this.p2_socket! : this.p1_socket!, // the have to be present
+    };
+  }
+
+  private getContextByUserId(userId: string) {
+    const isFirstPlayer = this.playerData[0]!.user.googleId === userId;
+    return {
+      isFirstPlayer,
+      firstPlayerId: this.playerData[0]!.user.bingoProfile.id,
+      secondPlayerId: this.playerData[1]!.user.bingoProfile.id,
+      isSecondPlayer: !isFirstPlayer,
+      isFirstPlayerTurn: this.moveCount % 2 === 1 && isFirstPlayer,
+      isSecondPlayerTurn: this.moveCount % 2 === 0 && !isFirstPlayer,
+      currentPlayer: isFirstPlayer ? this.playerData[0] : this.playerData[1],
+      opponentPlayer: isFirstPlayer ? this.playerData[1] : this.playerData[0],
+      currentPlayerBoard: isFirstPlayer
+        ? this.playerBoards[0]
+        : this.playerBoards[1],
+      opponentPlayerBoard: isFirstPlayer
+        ? this.playerBoards[1]
+        : this.playerBoards[0],
+      currentPlayerSocket: isFirstPlayer ? this.p1_socket : this.p2_socket,
       opponentPlayerSocket: isFirstPlayer ? this.p2_socket! : this.p1_socket!, // the have to be present
     };
   }
@@ -417,6 +471,9 @@ export class Game {
     currentPlayerSocket: WebSocket,
     gameEndMethod: GameEndMethod
   ) {
+    // Use BingoManager singleton
+    const bingoManager = BingoManager.getInstance();
+
     switch (gameEndMethod) {
       case GameEndMethod.BINGO: {
         const { winner, loser, gameEndMethod } =
@@ -447,8 +504,8 @@ export class Game {
         break;
       }
     }
-    gameManager.removeGame(this.gameId);
-    gameManager.removeUserToGame(this.gameId);
+    bingoManager.removeGame(this.gameId);
+    bingoManager.removeUserToGame(this.gameId);
   }
 
   private updatePlayerBoards(value: BoxesValue) {
@@ -587,32 +644,36 @@ export class Game {
     }
   }
 
-  tossDecision(currentPlayerSocket: WebSocket, decision: TossDecision) {
-    const { isFirstPlayer, isSecondPlayer, currentPlayer } =
-      this.getPlayerContext(currentPlayerSocket);
-    console.log("❤️ Before toss decision:", currentPlayer.user.displayName);
-    console.log("also the ids", this.tossWinnerId, currentPlayer.user.googleId);
-    console.log(
-      "he is winner but",
-      this.tossWinnerId == currentPlayer.user.bingoProfile.id
-    );
+  tossDecision(userId: string, decision: TossDecision) {
+    // There is no userId property on WebSocket. Find socket index by userId in playerData.
+
+    console.log('before toss decision', this.playerData[0]?.user.displayName, this.playerData[1]?.user.displayName);
+    const { isFirstPlayer } = this.getContextByUserId(userId);
     const shouldSwap =
       (isFirstPlayer && decision === TossDecision.TOSS_GO_SECOND) ||
-      (isSecondPlayer && decision === TossDecision.TOSS_GO_FIRST);
+      (!isFirstPlayer && decision === TossDecision.TOSS_GO_FIRST);
 
     if (shouldSwap) {
       [this.p1_socket, this.p2_socket] = [this.p2_socket, this.p1_socket];
+      [this.playerSockets[0], this.playerSockets[1]] = [
+        this.playerSockets[1] ?? null,
+        this.playerSockets[0] ?? null,
+      ];
       [this.playerData[0], this.playerData[1]] = [
-        this.playerData[1],
-        this.playerData[0],
+        this.playerData[1]!,
+        this.playerData[0]!,
+      ];
+      [this.playerBoards[0], this.playerBoards[1]] = [
+        this.playerBoards[1]!,
+        this.playerBoards[0]!,
       ];
       [this.playerGameboardData[0], this.playerGameboardData[1]] = [
-        this.playerGameboardData[1],
-        this.playerGameboardData[0],
+        this.playerGameboardData[1]!,
+        this.playerGameboardData[0]!,
       ];
     }
 
-    console.log("✅ After toss decision:", this.playerData[0]?.user.displayName);
+    console.log("✅ After toss decision:", this.playerData[0]?.user.displayName, this.playerData[1]?.user.displayName);
 
     this.gameStarted = true;
 

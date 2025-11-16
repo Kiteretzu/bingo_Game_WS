@@ -3,14 +3,14 @@ import { GameId, UserId } from "core/types";
 import { IGame } from "games/base/IGame";
 import { getPlayerData } from "helpers/helper";
 import { v4 as uuidv4 } from "uuid";
-import { Game } from "./game";
+import { BingoGame } from "./game";
 import WebSocket from "ws";
 import { MessageType } from "core/constants";
 import { sendPayload } from "helpers/wsSend";
 
 export class BingoManager {
 
-    private games : Map<GameId, IGame>;
+    private games : Map<GameId, BingoGame>;
     private userToGame : Map<UserId, GameId>;
     private matchmakingQueue : Map<UserId, any>; // can be extended later with preferences
 
@@ -29,9 +29,13 @@ export class BingoManager {
         return BingoManager.instance;
     }
 
+    getGameByUserId(userId: UserId): BingoGame | null {
+        const gameId = this.userToGame.get(userId);
+        if (!gameId) return null;
+        return this.getGame(gameId);
+    }
 
     // Game management methods would go here
-
     async createGame(player1: UserId, player2: UserId, player1Socket: WebSocket, player2Socket: WebSocket, player1Data: PlayerData | null, player2Data: PlayerData | null) {
 
         if (!player1Data) player1Data = await getPlayerData(player1);
@@ -39,7 +43,7 @@ export class BingoManager {
 
         const gameId = uuidv4();
         // Create the game instance and add it to the games map
-        const game = new Game(gameId, player1Socket, player2Socket, player1Data!, player2Data!);
+        const game = new BingoGame(gameId, player1Socket, player2Socket, player1Data!, player2Data!);
         this.games.set(gameId, game); // for now
         this.userToGame.set(player1, gameId);
         this.userToGame.set(player2, gameId);
@@ -90,8 +94,7 @@ export class BingoManager {
 
    getMatchmakingQueue(): Map<UserId, any> {
     return this.matchmakingQueue;
-  }
-  
+  }  
   // Utility methods
   isUserInGame(userId: UserId): boolean {
     return this.userToGame.has(userId);

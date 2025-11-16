@@ -12,19 +12,18 @@ import { REDIS_PlayerFindingMatch } from '@repo/redis/types';
 import { 
   PUT_GAME_INIT,
   PUT_CANCEL_GAME_INIT,
-  PUT_CHECK_MARK,
   PUT_RESIGN,
   PUT_SEND_EMOTE,
-  PUT_TOSS_DECISION,
   MessageType as LegacyMessageType
 } from '@repo/messages/message';
 import { v4 as uuvidv4 } from 'uuid';
+import { RootMessageType } from "@repo/messages/v2/message";
 
 export class RootManager {
   private static instance: RootManager;
   
   private userManager: UserManager;
-  private gameManagers: Map<GameType, any>; // BingoManager | MonopolyManager | etc.
+  private gameManagers: Map<GameType, BingoManager>; // BingoManager | MonopolyManager | etc.
   private userToGameType: Map<UserId, GameType>;
   private reconnectionTimeouts: Map<UserId, NodeJS.Timeout>;
   
@@ -172,41 +171,33 @@ export class RootManager {
     const { type, gameType, payload } = message;
     
     Logger.gameAction('', userId, type, payload);
+
+    // validate game type
+    if (!gameType || !ValidationUtils.isValidGameType(gameType)) {
+      WebSocketUtils.sendError(socket, !gameType ? 'Game type is required' : 'Invalid game type');
+      return;
+    }
     
     switch (type) {
-      case 'START_MATCHMAKING':
+      case RootMessageType.START_MATCHMAKING:
         await this.startMatchmaking(userId, gameType, payload);
         break;
-        
-      case 'CANCEL_MATCHMAKING':
+
+      case RootMessageType.CANCEL_MATCHMAKING:
         this.cancelMatchmaking(userId, gameType);
         break;
-        
-      case 'GAME_ACTION':
+
+      case RootMessageType.GAME_ACTION:
         this.handleGameAction(userId, gameType, payload);
         break;
         
-      // Handle legacy messages for backward compatibility
-      case 'START_BINGO_MATCHMAKING':
-        await this.startMatchmaking(userId, GameTypeEnum.BINGO, payload);
-        break;
-        
-      case 'START_MONOPOLY_MATCHMAKING':
-        await this.startMatchmaking(userId, GameTypeEnum.MONOPOLY, payload);
-        break;
-        
-      // Handle existing game messages
-      case PUT_GAME_INIT:
-        await this.handleGameInit(userId, payload);
-        break;
-          
       case PUT_CANCEL_GAME_INIT:
         this.handleCancelGameInit(userId);
         break;
         
-      case PUT_CHECK_MARK:
-        this.handleCheckMark(userId, payload);
-        break;
+      // case PUT_CHECK_MARK:
+      //   this.handleCheckMark(userId, payload);
+      //   break;
         
       case PUT_RESIGN:
         this.handleResign(userId, payload);
@@ -214,10 +205,6 @@ export class RootManager {
         
       case PUT_SEND_EMOTE:
         this.handleSendEmote(userId, payload);
-        break;
-        
-      case PUT_TOSS_DECISION:
-        this.handleTossDecision(userId, payload);
         break;
         
       default:
@@ -296,10 +283,6 @@ export class RootManager {
     }
   }
   
-  // Legacy message handlers for backward compatibility
-  private async handleGameInit(userId: UserId, payload: any): Promise<void> {
-    await this.startMatchmaking(userId, GameTypeEnum.BINGO, payload);
-  }
   
   private handleCancelGameInit(userId: UserId): void {
     this.cancelMatchmaking(userId, GameTypeEnum.BINGO);
@@ -335,17 +318,7 @@ export class RootManager {
     }
   }
   
-  private handleTossDecision(userId: UserId, payload: any): void {
-    const manager = this.gameManagers.get(GameTypeEnum.BINGO);
-    if (manager) {
-      const game = manager.getGameByUserId(userId);
-      if (game) {
-        game.handleAction(userId, { type: 'TOSS_DECISION', payload });
-      }
-    }
-  }
-  
- 
+
   // Game creation (called by matchmaking service)
   public async createBingoGame(player1Id: UserId, player2Id: UserId): Promise<void> {
     Logger.info(`Creating bingo game between ${player1Id} and ${player2Id}`);

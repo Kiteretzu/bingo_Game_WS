@@ -130,12 +130,11 @@ export function GameBoard() {
           aria-label="Board center"
         >
           {/* 3D Dice */}
-          <div className="w-[280px] h-[200px] md:w-[360px] md:h-[240px] bg-black">
+          <div className="w-[280px] h-[200px] md:w-[360px] md:h-[240px">
             <Dice3D
               a={dice[0]}
               b={dice[1]}
               rollKey={rollKey}
-              canvaClassname={"bg-purple-300"}
             />
           </div>
           <Button variant="secondary" onClick={roll} aria-label="Start or roll">

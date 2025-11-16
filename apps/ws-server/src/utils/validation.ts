@@ -1,3 +1,4 @@
+import { GameType } from '@repo/messages/v2/message';
 import { GameMessage } from '../core/types';
 
 export class ValidationUtils {
@@ -20,7 +21,7 @@ export class ValidationUtils {
 
   static isValidGameType(gameType: any): gameType is string {
     return typeof gameType === 'string' && 
-           ['BINGO', 'MONOPOLY', 'CHESS', 'CARDS'].includes(gameType);
+           [GameType.BINGO, GameType.MONOPOLY].includes(gameType as GameType);
   }
 
   static validateMatchmakingData(data: any): boolean {

@@ -77,10 +77,8 @@ export const BINGO = GameEndMethod.BINGO;
 export enum MessageType {
   PUT_GAME_INIT = "put_game_init",
   PUT_CANCEL_GAME_INIT = "put_cancel_game_init",
-  PUT_CHECK_MARK = "put_check_mark",
   PUT_VALUE_TO_BOX = "put_value_to_box",
   PUT_RESIGN = "put_resign",
-  PUT_TOSS_DECISION = "put_toss_decision",
   PUT_SEND_EMOTE = "put_send_emote",
   PUT_CHALLENGE = "put_challange",
   PUT_ADD_FRIEND = "put_add_friend",
@@ -109,7 +107,6 @@ export const RESPONSE_WAITING_PLAYER = "Waiting for another player...";
 export const PUT_GAME_INIT = MessageType.PUT_GAME_INIT;
 export const PUT_CANCEL_GAME_INIT = MessageType.PUT_CANCEL_GAME_INIT;
 export const PUT_VALUE_TO_BOX = MessageType.PUT_VALUE_TO_BOX;
-export const PUT_CHECK_MARK = MessageType.PUT_CHECK_MARK;
 export const PUT_RESIGN = MessageType.PUT_RESIGN;
 export const GET_CHECK_MARK = MessageType.GET_CHECK_MARK;
 export const GET_RESPONSE = MessageType.GET_RESPONSE;
@@ -119,7 +116,6 @@ export const GET_VICTORY = MessageType.GET_VICTORY;
 export const GET_LOST = MessageType.GET_LOST;
 export const PUT_SEND_EMOTE = MessageType.PUT_SEND_EMOTE;
 export const GET_RECIEVE_EMOTE = MessageType.GET_RECIEVE_EMOTE;
-export const PUT_TOSS_DECISION = MessageType.PUT_TOSS_DECISION;
 export const GET_UPDATED_GAME = MessageType.GET_UPDATED_GAME;
 export const GET_RECONNECT = MessageType.GET_RECONNECT;
 export const GET_REFRESH = MessageType.GET_REFRESH;
@@ -280,12 +276,7 @@ export interface PAYLOAD_PUT_RESIGN {
   };
 }
 
-export interface PAYLOAD_PUT_TOSS_DECISION {
-  type: MessageType.PUT_TOSS_DECISION;
-  payload: {
-    decision: TossDecision;
-  };
-}
+
 
 export interface PAYLOAD_PUT_CANCEL_GAME_INIT {
   type: MessageType.PUT_CANCEL_GAME_INIT;
@@ -332,10 +323,7 @@ export interface PlayerGameboardData {
   gameBoard: GameBoard;
 }
 
-export enum TossDecision {
-  TOSS_GO_FIRST = "toss-go-first",
-  TOSS_GO_SECOND = "toss-go-second",
-}
+
 
 // very important
 
